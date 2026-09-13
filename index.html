@@ -1,0 +1,359 @@
+<!doctype html><html lang="sk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DopytAI</title><style>
+:root{--b:#087cf0;--bd:#0666ca;--n:#092448;--bg:#f5f9fd;--line:#dce7f1;--mut:#66778d;--g:#179a47;--pale:#eaf4ff;--err:#b42318}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--n);font-family:Inter,Arial,sans-serif}.wrap{width:min(760px,92%);margin:auto}
+.top{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 3px 16px #0924480a}.nav{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;font-size:25px;font-weight:950;letter-spacing:-1px}.brand .ai{color:var(--b)}.mark{width:38px;height:34px;position:relative;border:4px solid var(--b);border-top:0;border-radius:3px 3px 7px 7px}.mark:before{content:"";position:absolute;width:23px;height:23px;border-left:4px solid var(--b);border-top:4px solid var(--b);transform:rotate(45deg);top:-11px;left:3px;border-radius:3px}.dots{position:absolute;left:6px;bottom:8px;display:flex;gap:3px}.dots i{display:block;width:4px;height:4px;border-radius:50%;background:var(--b)}
+.status{font-size:12px;font-weight:850;color:var(--b);background:var(--pale);border:1px solid #cfe5fb;border-radius:999px;padding:7px 10px;white-space:nowrap}.hero{padding:46px 0 70px}.tag{display:inline-block;color:var(--b);font-weight:900;font-size:13px;background:var(--pale);padding:7px 10px;border-radius:999px}h1{font-size:clamp(38px,8vw,52px);line-height:1.02;letter-spacing:-1.8px;margin:14px 0}.muted{color:var(--mut);line-height:1.6;font-size:16px}
+.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;margin:20px 0;box-shadow:0 16px 45px #0924480d}.field{margin:16px 0}.field label{display:block;font-weight:900;margin-bottom:7px}input,select,textarea{width:100%;background:#fff;color:var(--n);border:1px solid #cbd8e4;border-radius:12px;padding:14px;font-size:16px;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--b);box-shadow:0 0 0 3px #087cf018}textarea{min-height:100px;resize:vertical}
+.btn{display:block;width:100%;background:var(--b);color:#fff;border:0;border-radius:13px;padding:15px;font-size:16px;font-weight:900;text-align:center;cursor:pointer}.btn:hover{background:var(--bd)}.btn:disabled{opacity:.65;cursor:not-allowed}.note{font-size:13px;color:#7b8ba0}.price{font-size:28px;color:var(--b);font-weight:950}.success{background:#f0f8ff;border:1px solid #bcdcf9;border-radius:16px;padding:18px;line-height:1.55;margin-top:18px}.error{background:#fff1f0;border:1px solid #ffc9c5;color:var(--err);border-radius:16px;padding:18px;line-height:1.55;margin-top:18px}.photo{border:1px dashed #9bb7d2;background:#f8fbfe;border-radius:14px;padding:15px}
+.adminbar{margin-top:18px;display:flex;gap:10px}.adminbtn{background:#fff;color:var(--b);border:1px solid #bcdcf9;border-radius:12px;padding:11px 14px;font-weight:900;cursor:pointer}.adminbtn:hover{background:var(--pale)}.admin{display:none;padding:28px 0 60px}.admin.show{display:block}.loginbox{max-width:440px;margin:0 auto}.adminhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.adminlist{display:grid;gap:14px}.lead{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 8px 25px #0924480a}.leadtop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.lead h3{margin:0 0 5px;font-size:18px}.meta{font-size:13px;color:var(--mut);line-height:1.5}.pill{font-size:12px;font-weight:900;color:var(--b);background:var(--pale);padding:6px 9px;border-radius:999px;white-space:nowrap}.lead pre{white-space:pre-wrap;font-family:inherit;background:#f8fbfe;border:1px solid var(--line);border-radius:10px;padding:12px;line-height:1.45;color:var(--n)}.empty{background:#fff;border:1px dashed #b8c9da;border-radius:14px;padding:20px;text-align:center;color:var(--mut)}.stateRow{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.stateRow label{font-size:13px;font-weight:900}.stateSelect{width:auto;min-width:160px;padding:9px 11px;border-radius:10px;font-size:14px}.tabs{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}.tab.active{background:var(--b);color:#fff}.company{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}.company h3{margin:0 0 6px}.companyForm{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}.companyForm .field{margin:0}.companyForm .btn{width:auto;padding:14px 20px}@media(max-width:560px){.companyForm{grid-template-columns:1fr}.companyForm .btn{width:100%}}
+@media(max-width:560px){.nav{min-height:65px}.brand{font-size:22px}.mark{transform:scale(.85);margin-left:-3px}.status{font-size:11px;padding:6px 8px}.hero{padding:32px 0 50px}.card{padding:18px;border-radius:18px}h1{letter-spacing:-1.1px}}
+</style></head><body>
+<div class="top"><div class="wrap nav"><div class="brand"><div class="mark"><div class="dots"><i></i><i></i><i></i></div></div><div>Dopyt<span class="ai">AI</span></div></div><div style="display:flex;align-items:center;gap:8px"><button class="adminbtn" id="openAdmin" type="button">Admin</button><div class="status">ONLINE MVP</div></div></div></div>
+<main class="wrap hero" id="customer">
+<div class="tag">INTELIGENTNÝ DOPYT PRE REMESLÁ</div><h1>Vytvorte dopyt na strechu</h1><p class="muted">DopytAI zozbiera dôležité údaje, pripraví orientačný cenový odhad a odošle dopyt na spracovanie.</p>
+<form id="form" class="card">
+<div class="field"><label>Čo potrebujete?</label><select id="type"><option>Nová strecha</option><option>Rekonštrukcia strechy</option><option>Oprava / zatekanie</option></select></div>
+<div class="field"><label>Približná plocha strechy (m²)</label><input id="area" type="number" min="1" placeholder="napr. 145" required></div>
+<div class="field"><label>Krytina</label><select id="cover"><option>Betónová škridla</option><option>Pálená škridla</option><option>Plechová krytina</option><option>Neviem – chcem odporúčanie</option></select></div>
+<div class="field"><label>Je krov hotový?</label><select id="truss"><option>Áno</option><option>Nie</option><option>Čiastočne</option></select></div>
+<div class="field"><label>Popíšte zákazku</label><textarea id="desc" placeholder="Napr. novostavba bungalovu, väzníkový krov..."></textarea></div>
+<div class="field"><label>Fotografie / projekt</label><div class="photo"><input id="photos" type="file" accept="image/*" multiple><p class="note">Fotky zatiaľ nie sú odosielané. Túto funkciu pridáme v ďalšom kroku.</p></div></div>
+<div class="field"><label>Obec / mesto</label><input id="city" placeholder="napr. Žilina" required></div>
+<div class="field"><label>Kraj</label><select id="leadRegion" required><option value="">— Vyberte kraj —</option><option>Bratislavský kraj</option><option>Trnavský kraj</option><option>Trenčiansky kraj</option><option>Nitriansky kraj</option><option>Žilinský kraj</option><option>Banskobystrický kraj</option><option>Prešovský kraj</option><option>Košický kraj</option></select></div>
+<div class="field"><label>Požadovaný termín</label><select id="term"><option>Čo najskôr</option><option>Do 1–3 mesiacov</option><option>Do 3–6 mesiacov</option><option>Len zisťujem cenu</option></select></div>
+<div class="field"><label>Meno</label><input id="name" placeholder="Vaše meno" required></div>
+<div class="field"><label>Telefón</label><input id="phone" type="tel" placeholder="+421..." required></div>
+<div class="field"><label>E-mail</label><input id="email" type="email" placeholder="meno@email.sk"></div>
+<button class="btn" id="submitBtn" type="submit">Vytvoriť dopyt a vypočítať odhad</button>
+</form>
+<div id="result"></div>
+</main>
+
+<section class="wrap admin" id="admin">
+  <div class="adminhead"><div><div class="tag">ADMINISTRÁCIA</div><h2 style="margin:10px 0 0">Prijaté dopyty</h2></div><button class="adminbtn" id="closeAdmin" type="button">Späť na web</button></div>
+  <div id="loginBox" class="card loginbox">
+    <h2 style="margin-top:0">Prihlásenie</h2>
+    <p class="muted">Prihlás sa účtom vytvoreným v Supabase.</p>
+    <div class="field"><label>E-mail</label><input id="adminEmail" type="email" autocomplete="username" placeholder="tvoj@email.sk"></div>
+    <div class="field"><label>Heslo</label><input id="adminPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+    <button class="btn" id="loginBtn" type="button">Prihlásiť</button>
+    <div id="loginMsg"></div>
+  </div>
+  <div id="adminPanel" style="display:none">
+    <div class="adminbar"><button class="adminbtn" id="logoutBtn" type="button">Odhlásiť</button></div>
+    <div class="tabs"><button class="adminbtn tab active" id="tabLeads" type="button">Dopyty</button><button class="adminbtn tab" id="tabCompanies" type="button">Firmy</button></div>
+    <div id="leadsView"><button class="adminbtn" id="refreshBtn" type="button">Obnoviť dopyty</button><div id="leads" class="adminlist" style="margin-top:16px"></div></div>
+    <div id="companiesView" style="display:none">
+      <div class="card"><h3 style="margin-top:0">Pridať firmu</h3>
+<div class="field"><label>Názov firmy</label><input id="companyName" placeholder="napr. Strechy Žilina s.r.o."></div>
+<div class="field"><label>Kontaktná osoba</label><input id="companyContact" placeholder="napr. Ján Novák"></div>
+<div class="field"><label>Telefón</label><input id="companyPhone" type="tel" placeholder="0900 123 456"></div>
+<div class="field"><label>E-mail</label><input id="companyEmail" type="email" placeholder="firma@email.sk"></div>
+<div class="field"><label>Región</label><input id="companyRegion" placeholder="napr. Žilinský kraj"></div>
+<div class="field"><label>Lokalita</label><input id="companyLocation" placeholder="napr. Žilina"></div>
+<div class="field"><label>Typ práce</label><input id="companyWork" placeholder="napr. Strechy"></div>
+<button class="btn" id="addCompanyBtn" type="button">Pridať firmu</button><div id="companyMsg"></div></div>
+      <div id="companies" class="adminlist"></div>
+    </div>
+  </div>
+</section>
+<script>
+const API_URL='https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1';
+const API_KEY='sb_publishable_tD39CIcOeokbNGxDB5Lehg_EUYzmJ36';
+const $=id=>document.getElementById(id);
+
+function calcEstimate(area,type,cover,truss){
+ let base=type.includes('Oprava')?650:area*92;
+ if(cover.includes('Pálená')) base*=1.08;
+ if(cover.includes('Plechová')) base*=.92;
+ if(truss==='Nie'&&!type.includes('Oprava')) base+=area*38;
+ const lo=Math.round(base*.9/100)*100;
+ const hi=Math.round(base*1.15/100)*100;
+ return {lo,hi,mid:Math.round((lo+hi)/2)};
+}
+
+
+const AUTH_URL=API_URL.replace('/rest/v1','/auth/v1');
+let accessToken=localStorage.getItem('dopytai_access_token')||'';
+window.dopytaiCompanies=[];
+
+function showCustomer(){ $('admin').classList.remove('show'); $('customer').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }
+function showAdmin(){ $('customer').style.display='none'; $('admin').classList.add('show'); window.scrollTo({top:0,behavior:'smooth'}); if(accessToken){ showPanel(); loadLeads(); } }
+function showPanel(){ $('loginBox').style.display='none'; $('adminPanel').style.display='block'; }
+function showLogin(){ $('loginBox').style.display='block'; $('adminPanel').style.display='none'; }
+function esc(v){ return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+$('openAdmin').addEventListener('click',showAdmin);
+$('closeAdmin').addEventListener('click',showCustomer);
+$('loginBtn').addEventListener('click',async()=>{
+  const email=$('adminEmail').value.trim(), password=$('adminPassword').value;
+  $('loginMsg').innerHTML='';
+  if(!email||!password){ $('loginMsg').innerHTML='<div class="error">Vyplň e-mail aj heslo.</div>'; return; }
+  const b=$('loginBtn'); b.disabled=true; b.textContent='Prihlasujem…';
+  try{
+    const r=await fetch(AUTH_URL+'/token?grant_type=password',{method:'POST',headers:{'apikey':API_KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+    const data=await r.json();
+    if(!r.ok||!data.access_token) throw new Error(data.error_description||data.msg||'Prihlásenie zlyhalo');
+    accessToken=data.access_token; localStorage.setItem('dopytai_access_token',accessToken); showPanel(); await loadLeads();
+  }catch(err){ $('loginMsg').innerHTML='<div class="error"><b>Prihlásenie sa nepodarilo.</b><br>'+esc(err.message)+'</div>'; }
+  finally{ b.disabled=false; b.textContent='Prihlásiť'; }
+});
+
+$('logoutBtn').addEventListener('click',()=>{ accessToken=''; localStorage.removeItem('dopytai_access_token'); showLogin(); $('leads').innerHTML=''; });
+$('refreshBtn').addEventListener('click',loadLeads);
+$('tabLeads').addEventListener('click',()=>{ $('leadsView').style.display='block'; $('companiesView').style.display='none'; $('tabLeads').classList.add('active'); $('tabCompanies').classList.remove('active'); loadLeads(); });
+$('tabCompanies').addEventListener('click',()=>{ $('leadsView').style.display='none'; $('companiesView').style.display='block'; $('tabCompanies').classList.add('active'); $('tabLeads').classList.remove('active'); loadCompanies(); });
+$('addCompanyBtn').addEventListener('click',addCompany);
+
+async function loadLeads(){
+  if(!accessToken){ showLogin(); return; }
+  $('leads').innerHTML='<div class="empty">Načítavam dopyty…</div>';
+  try{
+    const cr=await fetch(API_URL+'/firmy?select=id,názov,lokalita,region,typ_prace,stav&order=názov.asc',{headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken}});
+    const companies=await cr.json();
+    if(!cr.ok) throw new Error(companies.message||'Nepodarilo sa načítať firmy');
+    window.dopytaiCompanies=companies||[];
+    const r=await fetch(API_URL+'/dopyty?select=*&order=created_at.desc',{headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken}});
+    if(r.status===401){ accessToken=''; localStorage.removeItem('dopytai_access_token'); showLogin(); throw new Error('Relácia vypršala. Prihlás sa znova.'); }
+    const rows=await r.json();
+    if(!r.ok) throw new Error(rows.message||'Nepodarilo sa načítať dopyty');
+    if(!rows.length){ $('leads').innerHTML='<div class="empty">Zatiaľ nie sú žiadne dopyty.</div>'; return; }
+    $('leads').innerHTML=rows.map(x=>{
+      const d=x.created_at?new Date(x.created_at).toLocaleString('sk-SK',{dateStyle:'short',timeStyle:'short'}):'';
+      const price=x.odhad_ceny?Number(x.odhad_ceny).toLocaleString('sk-SK')+' €':'—';
+      const state=x.stav||'novy';
+      const assignedId=x.firma_id==null?'':String(x.firma_id);
+      const companyOptions=window.dopytaiCompanies.map(c=>'<option value="'+esc(c.id)+'" '+(String(c.id)===assignedId?'selected':'')+'>'+esc(c['názov']||'Firma')+'</option>').join('');
+      const assigned=window.dopytaiCompanies.find(c=>String(c.id)===assignedId);
+      const assignedName=assigned?esc(assigned['názov']||'Firma'):'Nepriradená';
+      const recommendation=getCompanyRecommendation(x,window.dopytaiCompanies);
+      const recommendationHtml=!assigned && recommendation
+        ? '<div class="success" style="margin-top:12px"><b>🤖 Odporúčaná firma:</b> '+esc(recommendation.company['názov']||'Firma')+'<br><span class="meta">Zhoda: '+esc(recommendation.reason)+'</span><br><button class="adminbtn" style="margin-top:10px" type="button" onclick="assignRecommendedCompany(\''+esc(x.id)+'\',\''+esc(recommendation.company.id)+'\')">Priradiť odporúčanú firmu</button></div>'
+        : '';
+      const sendHtml=assigned
+        ? '<div class="stateRow"><button class="btn" style="margin-top:4px" type="button" onclick="sendLeadToCompany(\''+esc(x.id)+'\',\''+esc(assigned.id)+'\')">📨 Odoslať firme</button></div>'
+        : '';
+      return '<article class="lead"><div class="leadtop"><div><h3>'+esc(x.meno||'Bez mena')+'</h3><div class="meta">'+esc(x.telefon||'')+' · '+esc(x.lokalita||'')+'<br>'+esc(d)+'</div></div><div class="pill">'+esc(price)+'</div></div><p><b>'+esc(x.typ_prace||'Dopyt')+'</b></p><pre>'+esc(x.popis||'')+'</pre><div class="stateRow"><label>Stav dopytu:</label><select class="stateSelect" data-id="'+esc(x.id)+'" onchange="updateLeadState(this)"><option value="novy" '+(state==='novy'?'selected':'')+'>🟢 Nový</option><option value="kontaktovany" '+(state==='kontaktovany'?'selected':'')+'>🟡 Kontaktovaný</option><option value="odoslany" '+(state==='odoslany'?'selected':'')+'>🔵 Odoslaný firme</option><option value="vybaveny" '+(state==='vybaveny'?'selected':'')+'>✅ Vybavený</option></select></div><div class="stateRow"><label>Priradená firma:</label><select class="stateSelect" data-id="'+esc(x.id)+'" onchange="updateLeadCompany(this)"><option value="">— Nepriradená —</option>'+companyOptions+'</select><span class="meta">Aktuálne: <b>'+assignedName+'</b></span></div>'+recommendationHtml+sendHtml+'</article>';
+    }).join('');
+  }catch(err){ $('leads').innerHTML='<div class="error"><b>Chyba pri načítaní dopytov.</b><br>'+esc(err.message)+'</div>'; }
+}
+
+
+function normalizeText(v){
+  return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+}
+
+const REGION_BY_LOCALITY={
+  'terchova':'zilinsky kraj','zilina':'zilinsky kraj','varin':'zilinsky kraj','belá':'zilinsky kraj','bela':'zilinsky kraj',
+  'martin':'zilinsky kraj','cadca':'zilinsky kraj','skalite':'zilinsky kraj','ruzomberok':'zilinsky kraj','liptovsky mikulas':'zilinsky kraj',
+  'bratislava':'bratislavsky kraj','pezinok':'bratislavsky kraj','senec':'bratislavsky kraj','malacky':'bratislavsky kraj',
+  'trnava':'trnavsky kraj','nitra':'nitriansky kraj','trencin':'trenciansky kraj','banska bystrica':'banskobystricky kraj',
+  'presov':'presovsky kraj','kosice':'kosicky kraj'
+};
+
+function inferLeadRegion(location){
+  const loc=normalizeText(location);
+  if(!loc) return '';
+  if(REGION_BY_LOCALITY[loc]) return REGION_BY_LOCALITY[loc];
+  const key=Object.keys(REGION_BY_LOCALITY).find(k=>loc.includes(k));
+  return key?REGION_BY_LOCALITY[key]:'';
+}
+
+function getRegionFromLead(lead){
+  const text=String(lead.popis||'');
+  const m=text.match(/(?:^|\n)Kraj:\s*([^\n]+)/i);
+  return normalizeText(m?m[1]:'') || inferLeadRegion(lead.lokalita);
+}
+
+function getCompanyRecommendation(lead,companies){
+  const leadWork=normalizeText(lead.typ_prace);
+  const leadLocation=normalizeText(lead.lokalita);
+  const leadRegion=getRegionFromLead(lead);
+  let best=null;
+  for(const c of (companies||[])){
+    if(normalizeText(c.stav)&&normalizeText(c.stav)!=='aktivna') continue;
+    let score=0, reasons=[];
+    const cWork=normalizeText(c.typ_prace);
+    const cLocation=normalizeText(c.lokalita);
+    const cRegion=normalizeText(c.region);
+
+    const workMatch=cWork && leadWork && (leadWork.includes(cWork)||cWork.includes(leadWork)||((leadWork.includes('strech'))&&(cWork.includes('strech'))));
+    const locationMatch=cLocation && leadLocation && (leadLocation.includes(cLocation)||cLocation.includes(leadLocation));
+    const regionMatch=cRegion && leadRegion && cRegion===leadRegion;
+
+    if(workMatch){ score+=40; reasons.push('typ práce'); }
+    if(locationMatch){ score+=100; reasons.push('lokalita'); }
+    else if(regionMatch){ score+=70; reasons.push('región'); }
+
+    if(!best||score>best.score) best={company:c,score,reasons};
+  }
+  if(!best||best.score<=0) return null;
+  return {company:best.company,score:best.score,reason:best.reasons.join(' + ')};
+}
+
+async function assignRecommendedCompany(leadId,companyId){
+  try{
+    const r=await fetch(API_URL+'/dopyty?id=eq.'+encodeURIComponent(leadId),{
+      method:'PATCH',
+      headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({firma_id:Number(companyId)})
+    });
+    if(r.status===401){ accessToken=''; localStorage.removeItem('dopytai_access_token'); showLogin(); throw new Error('Relácia vypršala. Prihlás sa znova.'); }
+    if(!r.ok) throw new Error((await r.text())||('HTTP '+r.status));
+    await loadLeads();
+  }catch(err){ alert('Odporúčanú firmu sa nepodarilo priradiť: '+err.message); }
+}
+
+async function sendLeadToCompany(leadId,companyId){
+  const company=(window.dopytaiCompanies||[]).find(c=>String(c.id)===String(companyId));
+  const companyName=company?(company['názov']||'Firma'):'Firma';
+  const companyEmail=company?(company.email||''):'';
+  if(!confirm('Označiť dopyt ako odoslaný firme '+companyName+'?\\n\\nTEST: skutočný e-mail sa zatiaľ neodošle.')) return;
+  try{
+    const r=await fetch(API_URL+'/dopyty?id=eq.'+encodeURIComponent(leadId),{
+      method:'PATCH',
+      headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({stav:'odoslany'})
+    });
+    if(r.status===401){ accessToken=''; localStorage.removeItem('dopytai_access_token'); showLogin(); throw new Error('Relácia vypršala. Prihlás sa znova.'); }
+    if(!r.ok) throw new Error((await r.text())||('HTTP '+r.status));
+    alert('✅ TEST úspešný.\\n\\nDopyt je označený ako odoslaný firme '+companyName+'.'+(companyEmail?'\\nE-mail firmy: '+companyEmail:'')+'\\n\\nSkutočný e-mail zatiaľ nebol odoslaný.');
+    await loadLeads();
+  }catch(err){
+    alert('Dopyt sa nepodarilo označiť ako odoslaný: '+err.message);
+  }
+}
+
+
+async function loadCompanies(){
+  if(!accessToken){ showLogin(); return; }
+  $('companies').innerHTML='<div class="empty">Načítavam firmy…</div>';
+  try{
+    const r=await fetch(API_URL+'/firmy?select=*&order=created_at.desc',{headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken}});
+    if(r.status===401){ accessToken=''; localStorage.removeItem('dopytai_access_token'); showLogin(); throw new Error('Relácia vypršala. Prihlás sa znova.'); }
+    const rows=await r.json();
+    if(!r.ok) throw new Error(rows.message||'Nepodarilo sa načítať firmy');
+    if(!rows.length){ $('companies').innerHTML='<div class="empty">Zatiaľ nie sú pridané žiadne firmy.</div>'; return; }
+    $('companies').innerHTML=rows.map(x=>{
+      const d=x.created_at?new Date(x.created_at).toLocaleString('sk-SK',{dateStyle:'short',timeStyle:'short'}):'';
+      return '<article class="company"><h3>'+esc(x['názov']||'Firma')+'</h3><div class="meta"><b>Kontaktná osoba:</b> '+esc(x.kontaktna_osoba||'—')+'<br><b>Telefón:</b> '+esc(x.telefon||'—')+'<br><b>E-mail:</b> '+esc(x.email||'—')+'<br><b>Región:</b> '+esc(x.region||'—')+'<br><b>Lokalita:</b> '+esc(x.lokalita||'—')+'<br><b>Typ práce:</b> '+esc(x.typ_prace||'—')+'<br><b>Stav:</b> '+esc(x.stav||'—')+'<br>Pridaná: '+esc(d)+'</div><div class="stateRow"><button class="adminbtn" type="button" onclick="editCompany(\''+esc(x.id)+'\')">Upraviť firmu</button></div></article>';
+    }).join('');
+  }catch(err){ $('companies').innerHTML='<div class="error"><b>Chyba pri načítaní firiem.</b><br>'+esc(err.message)+'</div>'; }
+}
+
+async function addCompany(){
+  const name=$('companyName').value.trim(), contact=$('companyContact').value.trim(), phone=$('companyPhone').value.trim(), email=$('companyEmail').value.trim(), region=$('companyRegion').value.trim(), location=$('companyLocation').value.trim(), work=$('companyWork').value.trim();
+  $('companyMsg').innerHTML='';
+  if(!name){ $('companyMsg').innerHTML='<div class="error">Zadaj názov firmy.</div>'; return; }
+  const b=$('addCompanyBtn'); b.disabled=true; b.textContent='Pridávam…';
+  try{
+    const r=await fetch(API_URL+'/firmy',{method:'POST',headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({'názov':name,kontaktna_osoba:contact,telefon:phone,email:email,region:region,lokalita:location,typ_prace:work,stav:'aktivna'})});
+    if(!r.ok) throw new Error((await r.text())||('HTTP '+r.status));
+    ['companyName','companyContact','companyPhone','companyEmail','companyRegion','companyLocation','companyWork'].forEach(id=>$(id).value=''); $('companyMsg').innerHTML='<div class="success">✅ Firma bola pridaná.</div>'; await loadCompanies();
+  }catch(err){ $('companyMsg').innerHTML='<div class="error"><b>Firmu sa nepodarilo pridať.</b><br>'+esc(err.message)+'</div>'; }
+  finally{ b.disabled=false; b.textContent='Pridať firmu'; }
+}
+
+async function editCompany(id){
+  try{
+    const r=await fetch(API_URL+'/firmy?id=eq.'+encodeURIComponent(id)+'&select=*',{headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken}});
+    const rows=await r.json(); if(!r.ok||!rows.length) throw new Error(rows.message||'Firma sa nenašla');
+    const x=rows[0];
+    const name=prompt('Názov firmy:',x['názov']||''); if(name===null) return;
+    const contact=prompt('Kontaktná osoba:',x.kontaktna_osoba||''); if(contact===null) return;
+    const phone=prompt('Telefón:',x.telefon||''); if(phone===null) return;
+    const email=prompt('E-mail:',x.email||''); if(email===null) return;
+    const region=prompt('Región:',x.region||''); if(region===null) return;
+    const location=prompt('Lokalita:',x.lokalita||''); if(location===null) return;
+    const work=prompt('Typ práce:',x.typ_prace||''); if(work===null) return;
+    const state=prompt('Stav firmy:',x.stav||'aktivna'); if(state===null) return;
+    const u=await fetch(API_URL+'/firmy?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({'názov':name.trim(),kontaktna_osoba:contact.trim(),telefon:phone.trim(),email:email.trim(),region:region.trim(),lokalita:location.trim(),typ_prace:work.trim(),stav:state.trim()||'aktivna'})});
+    if(!u.ok) throw new Error((await u.text())||('HTTP '+u.status)); await loadCompanies();
+  }catch(err){ alert('Firmu sa nepodarilo upraviť: '+err.message); }
+}
+
+async function updateLeadCompany(select){
+  const id=select.dataset.id;
+  const firma_id=select.value===''?null:Number(select.value);
+  select.disabled=true;
+  try{
+    const r=await fetch(API_URL+'/dopyty?id=eq.'+encodeURIComponent(id),{
+      method:'PATCH',
+      headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({firma_id})
+    });
+    if(r.status===401){ accessToken=''; localStorage.removeItem('dopytai_access_token'); showLogin(); throw new Error('Relácia vypršala. Prihlás sa znova.'); }
+    if(!r.ok) throw new Error((await r.text())||('HTTP '+r.status));
+    await loadLeads();
+  }catch(err){
+    alert('Firmu sa nepodarilo priradiť: '+err.message);
+    await loadLeads();
+  }finally{ select.disabled=false; }
+}
+
+async function updateLeadState(select){
+  const id=select.dataset.id, stav=select.value, previous=select.dataset.previous||'';
+  select.disabled=true;
+  try{
+    const r=await fetch(API_URL+'/dopyty?id=eq.'+encodeURIComponent(id),{
+      method:'PATCH',
+      headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({stav})
+    });
+    if(r.status===401){ accessToken=''; localStorage.removeItem('dopytai_access_token'); showLogin(); throw new Error('Relácia vypršala. Prihlás sa znova.'); }
+    if(!r.ok) throw new Error((await r.text())||('HTTP '+r.status));
+    select.dataset.previous=stav;
+  }catch(err){
+    alert('Stav sa nepodarilo uložiť: '+err.message);
+    await loadLeads();
+  }finally{ select.disabled=false; }
+}
+
+if(accessToken) showPanel(); else showLogin();
+
+$('form').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const btn=$('submitBtn');
+ btn.disabled=true; btn.textContent='Odosielam dopyt…';
+ $('result').innerHTML='';
+ const area=Number($('area').value), type=$('type').value, cover=$('cover').value, truss=$('truss').value;
+ const est=calcEstimate(area,type,cover,truss);
+ const price=est.lo.toLocaleString('sk-SK')+' – '+est.hi.toLocaleString('sk-SK')+' €';
+ const details=[
+   $('desc').value.trim()||'Bez doplňujúceho popisu',
+   'Plocha: '+area+' m²',
+   'Krytina: '+cover,
+   'Krov: '+truss,
+   'Kraj: '+$('leadRegion').value,
+   'Termín: '+$('term').value,
+   $('email').value.trim()?'E-mail: '+$('email').value.trim():null,
+   'Fotografie vybrané: '+$('photos').files.length
+ ].filter(Boolean).join('\n');
+ const payload={
+   meno:$('name').value.trim(),
+   telefon:$('phone').value.trim(),
+   typ_prace:type,
+   lokalita:$('city').value.trim(),
+   popis:details,
+   odhad_ceny:est.mid
+ };
+ try{
+   const r=await fetch(API_URL+'/dopyty',{
+     method:'POST',
+     headers:{'apikey':API_KEY,'Authorization':'Bearer '+API_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+     body:JSON.stringify(payload)
+   });
+   if(!r.ok){throw new Error((await r.text())||('HTTP '+r.status));}
+   $('result').innerHTML='<div class="success"><b>✅ Dopyt bol úspešne odoslaný</b><br><br>Orientačný odhad: <span class="price">'+price+'</span><br><br><span class="muted">Údaje sme uložili. Remeselník môže dopyt ďalej spracovať.</span></div>';
+   $('form').reset();
+   $('result').scrollIntoView({behavior:'smooth',block:'center'});
+ }catch(err){
+   console.error(err);
+   $('result').innerHTML='<div class="error"><b>⚠️ Dopyt sa nepodarilo odoslať.</b><br>Skúste to prosím znova. Ak problém zostane, skontrolujeme nastavenie Supabase.</div>';
+ }finally{
+   btn.disabled=false; btn.textContent='Vytvoriť dopyt a vypočítať odhad';
+ }
+});
+</script></body></html>
