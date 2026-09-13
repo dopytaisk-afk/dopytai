@@ -208,21 +208,69 @@ async function assignRecommendedCompany(leadId,companyId){
 
 async function sendLeadToCompany(leadId,companyId){
   const company=(window.dopytaiCompanies||[]).find(c=>String(c.id)===String(companyId));
-  const companyName=company?(company['názov']||'Firma'):'Firma';
+  const companyName=company?(company['názov']||company.nazov||'Firma'):'Firma';
   const companyEmail=company?(company.email||''):'';
-  if(!confirm('Označiť dopyt ako odoslaný firme '+companyName+'?\\n\\nTEST: skutočný e-mail sa zatiaľ neodošle.')) return;
+
+  if(!companyEmail){
+    alert('Firma nemá uložený e-mail.');
+    return;
+  }
+
+  if(!confirm('Odoslať dopyt firme '+companyName+' na '+companyEmail+'?')) return;
+
   try{
+    const leadResponse=await fetch(API_URL+'/dopyty?id=eq.'+encodeURIComponent(leadId)+'&select=*',{
+      headers:{
+        'apikey':API_KEY,
+        'Authorization':'Bearer '+accessToken
+      }
+    });
+
+    if(!leadResponse.ok) throw new Error('Nepodarilo sa načítať dopyt.');
+
+    const leads=await leadResponse.json();
+    const lead=leads[0];
+
+    if(!lead) throw new Error('Dopyt sa nenašiel.');
+
+    const emailResponse=await fetch('/.netlify/functions/send-demand',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        email:companyEmail,
+        meno:lead.meno||'-',
+        lokalita:lead.lokalita||lead.obec||'-',
+        typ_prace:lead.typ_prace||lead.typ||'-',
+        plocha:lead.plocha||'-',
+        rozpocet:lead.rozpocet||'-'
+      })
+    });
+
+    const emailResult=await emailResponse.json().catch(()=>({}));
+
+    if(!emailResponse.ok){
+      throw new Error(emailResult.message||emailResult.error||'E-mail sa nepodarilo odoslať.');
+    }
+
     const r=await fetch(API_URL+'/dopyty?id=eq.'+encodeURIComponent(leadId),{
       method:'PATCH',
-      headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},
+      headers:{
+        'apikey':API_KEY,
+        'Authorization':'Bearer '+accessToken,
+        'Content-Type':'application/json'
+      },
       body:JSON.stringify({stav:'odoslany'})
     });
-    if(r.status===401){ accessToken=''; localStorage.removeItem('dopytai_access_token'); showLogin(); throw new Error('Relácia vypršala. Prihlás sa znova.'); }
-    if(!r.ok) throw new Error((await r.text())||('HTTP '+r.status));
-    alert('✅ TEST úspešný.\\n\\nDopyt je označený ako odoslaný firme '+companyName+'.'+(companyEmail?'\\nE-mail firmy: '+companyEmail:'')+'\\n\\nSkutočný e-mail zatiaľ nebol odoslaný.');
+
+    if(!r.ok) throw new Error('E-mail odišiel, ale nepodarilo sa zmeniť stav dopytu.');
+
+    alert('✅ Dopyt bol odoslaný firme '+companyName+'.');
     await loadLeads();
+
   }catch(err){
-    alert('Dopyt sa nepodarilo označiť ako odoslaný: '+err.message);
+    alert('❌ '+err.message);
   }
 }
 
