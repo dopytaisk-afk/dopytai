@@ -111,7 +111,7 @@ async function loadLeads(){
   if(!accessToken){ showLogin(); return; }
   $('leads').innerHTML='<div class="empty">Načítavam dopyty…</div>';
   try{
-    const cr=await fetch(API_URL+'/firmy?select=id,názov,lokalita,region,typ_prace,stav&order=názov.asc',{headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken}});
+    const cr=await fetch(API_URL+'/firmy?select=id,názov,email,lokalita,region,typ_prace,stav&order=názov.asc',{headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken}});
     const companies=await cr.json();
     if(!cr.ok) throw new Error(companies.message||'Nepodarilo sa načítať firmy');
     window.dopytaiCompanies=companies||[];
