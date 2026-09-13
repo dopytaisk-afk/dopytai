@@ -243,8 +243,8 @@ async function sendLeadToCompany(leadId,companyId){
         meno:lead.meno||'-',
         lokalita:lead.lokalita||lead.obec||'-',
         typ_prace:lead.typ_prace||lead.typ||'-',
-        plocha:lead.plocha||'-',
-        rozpocet:lead.rozpocet||'-'
+       plocha:(lead.popis||'').match(/Plocha:\s*(\d+)/)?.[1]||'',
+rozpocet:lead.odhad_ceny||''
       })
     });
 
