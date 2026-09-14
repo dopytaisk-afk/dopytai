@@ -168,6 +168,47 @@ function esc(v){ return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&
 $('openAdmin').addEventListener('click',showAdmin);
 $('openCompany').addEventListener('click',()=>{ $('customer').style.display='none'; $('admin').classList.remove('show'); $('companyPortal').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); });
   $('closeCompany').addEventListener('click',showCustomer);
+  $('companyLoginBtn').addEventListener('click',async()=>{
+  const email=$('portalCompanyEmail').value.trim();
+  const password=$('portalCompanyPassword').value;
+
+  if(!email || !password){
+    alert('Vyplňte e-mail aj heslo.');
+    return;
+  }
+
+  const btn=$('companyLoginBtn');
+  btn.disabled=true;
+  btn.textContent='Prihlasujem...';
+
+  try{
+    const r=await fetch(AUTH_URL+'/token?grant_type=password',{
+      method:'POST',
+      headers:{
+        'apikey':API_KEY,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({email,password})
+    });
+
+    const data=await r.json();
+
+    if(!r.ok || !data.access_token){
+      throw new Error(data.error_description || data.msg || 'Prihlásenie firmy zlyhalo.');
+    }
+
+    localStorage.setItem('dopytai_company_token',data.access_token);
+    localStorage.setItem('dopytai_company_email',email);
+
+    alert('✅ Firma bola úspešne prihlásená.');
+
+  }catch(err){
+    alert('❌ '+err.message);
+  }finally{
+    btn.disabled=false;
+    btn.textContent='Prihlásiť firmu';
+  }
+});
 $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.display='none'; $('companyRegister').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }); 
  $('backToCompanyLogin').addEventListener('click',()=>{ $('companyRegister').style.display='none'; $('companyPortal').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); });
   $('registerCompanySubmit').addEventListener('click',async()=>{
