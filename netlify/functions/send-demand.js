@@ -20,7 +20,7 @@ exports.handler = async function (event) {
         to: [data.email],
         subject: "Nový dopyt z DopytAI",
         html: `
- html: `
+
   <div style="margin:0;padding:24px 10px;background:#f3f6fa;font-family:Arial,sans-serif;color:#172b4d;">
     <div style="max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;">
 
