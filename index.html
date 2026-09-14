@@ -44,7 +44,14 @@
   <div id="adminPanel" style="display:none">
     <div class="adminbar"><button class="adminbtn" id="logoutBtn" type="button">Odhlásiť</button></div>
     <div class="tabs"><button class="adminbtn tab active" id="tabLeads" type="button">Dopyty</button><button class="adminbtn tab" id="tabCompanies" type="button">Firmy</button></div>
-    <div id="leadsView"><button class="adminbtn" id="refreshBtn" type="button">Obnoviť dopyty</button><div id="leads" class="adminlist" style="margin-top:16px"></div></div>
+    <div id="leadsView"><button class="adminbtn" id="refreshBtn" type="button">Obnoviť dopyty</button>
+     <div id="leadFilters" style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0;">
+  <button class="adminbtn leadFilter active" type="button" data-filter="all">Všetky</button>
+  <button class="adminbtn leadFilter" type="button" data-filter="novy">Nové</button>
+  <button class="adminbtn leadFilter" type="button" data-filter="priradeny">Priradené</button>
+  <button class="adminbtn leadFilter" type="button" data-filter="odoslany">Odoslané</button>
+</div> 
+      <div id="leads" class="adminlist" style="margin-top:16px"></div></div>
     <div id="companiesView" style="display:none">
       <div class="card"><h3 style="margin-top:0">Pridať firmu</h3>
 <div class="field"><label>Názov firmy</label><input id="companyName" placeholder="napr. Strechy Žilina s.r.o."></div>
@@ -107,6 +114,16 @@ $('tabLeads').addEventListener('click',()=>{ $('leadsView').style.display='block
 $('tabCompanies').addEventListener('click',()=>{ $('leadsView').style.display='none'; $('companiesView').style.display='block'; $('tabCompanies').classList.add('active'); $('tabLeads').classList.remove('active'); loadCompanies(); });
 $('addCompanyBtn').addEventListener('click',addCompany);
 
+  let activeLeadFilter='all';
+
+document.querySelectorAll('.leadFilter').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    activeLeadFilter=btn.dataset.filter;
+    document.querySelectorAll('.leadFilter').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    loadLeads();
+  });
+});
 async function loadLeads(){
   if(!accessToken){ showLogin(); return; }
   $('leads').innerHTML='<div class="empty">Načítavam dopyty…</div>';
@@ -118,9 +135,18 @@ async function loadLeads(){
     const r=await fetch(API_URL+'/dopyty?select=*&order=created_at.desc',{headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken}});
     if(r.status===401){ accessToken=''; localStorage.removeItem('dopytai_access_token'); showLogin(); throw new Error('Relácia vypršala. Prihlás sa znova.'); }
     const rows=await r.json();
+    let filteredRows=rows;
+
+if(activeLeadFilter==='novy'){
+  filteredRows=rows.filter(x=>(x.stav||'novy')==='novy');
+}else if(activeLeadFilter==='priradeny'){
+  filteredRows=rows.filter(x=>x.firma_id!=null && (x.stav||'novy')!=='odoslany');
+}else if(activeLeadFilter==='odoslany'){
+  filteredRows=rows.filter(x=>x.stav==='odoslany');
+}
     if(!r.ok) throw new Error(rows.message||'Nepodarilo sa načítať dopyty');
-    if(!rows.length){ $('leads').innerHTML='<div class="empty">Zatiaľ nie sú žiadne dopyty.</div>'; return; }
-    $('leads').innerHTML=rows.map(x=>{
+    if(!filteredrows.length){ $('leads').innerHTML='<div class="empty">Zatiaľ nie sú žiadne dopyty.</div>'; return; }
+    $('leads').innerHTML=filteredrows.map(x=>{
       const d=x.created_at?new Date(x.created_at).toLocaleString('sk-SK',{dateStyle:'short',timeStyle:'short'}):'';
       const price=x.odhad_ceny?Number(x.odhad_ceny).toLocaleString('sk-SK')+' €':'—';
       const state=x.stav||'novy';
