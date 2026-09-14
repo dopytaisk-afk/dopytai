@@ -244,7 +244,9 @@ async function sendLeadToCompany(leadId,companyId){
         lokalita:lead.lokalita||lead.obec||'-',
         typ_prace:lead.typ_prace||lead.typ||'-',
        plocha:(lead.popis||'').match(/Plocha:\s*(\d+)/)?.[1]||'',
-rozpocet:lead.odhad_ceny||''
+rozpocet:lead.odhad_ceny||'',
+     telefon:lead.telefon||'',
+      email_zakaznika:(lead.popis||'').match(/E-mail:\s*([^\n]+)/)?.[1]?.trim()||''  
       })
     });
 
