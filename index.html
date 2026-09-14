@@ -145,8 +145,8 @@ if(activeLeadFilter==='novy'){
   filteredRows=rows.filter(x=>x.stav==='odoslany');
 }
     if(!r.ok) throw new Error(rows.message||'Nepodarilo sa načítať dopyty');
-    if(!filteredrows.length){ $('leads').innerHTML='<div class="empty">Zatiaľ nie sú žiadne dopyty.</div>'; return; }
-    $('leads').innerHTML=filteredrows.map(x=>{
+    if(!filteredRows.length){ $('leads').innerHTML='<div class="empty">Zatiaľ nie sú žiadne dopyty.</div>'; return; }
+    $('leads').innerHTML=filteredRows.map(x=>{
       const d=x.created_at?new Date(x.created_at).toLocaleString('sk-SK',{dateStyle:'short',timeStyle:'short'}):'';
       const price=x.odhad_ceny?Number(x.odhad_ceny).toLocaleString('sk-SK')+' €':'—';
       const state=x.stav||'novy';
