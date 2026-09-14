@@ -158,9 +158,9 @@ if(activeLeadFilter==='novy'){
       const recommendationHtml=!assigned && recommendation
         ? '<div class="success" style="margin-top:12px"><b>🤖 Odporúčaná firma:</b> '+esc(recommendation.company['názov']||'Firma')+'<br><span class="meta">Zhoda: '+esc(recommendation.reason)+'</span><br><button class="adminbtn" style="margin-top:10px" type="button" onclick="assignRecommendedCompany(\''+esc(x.id)+'\',\''+esc(recommendation.company.id)+'\')">Priradiť odporúčanú firmu</button></div>'
         : '';
-      const sendHtml=assigned
-        ? '<div class="stateRow"><button class="btn" style="margin-top:4px" type="button" onclick="sendLeadToCompany(\''+esc(x.id)+'\',\''+esc(assigned.id)+'\')">📨 Odoslať firme</button></div>'
-        : '';
+     const sendHtml=assigned && state!=='odoslany'
+  ? '<div class="stateRow"><button class="btn" style="margin-top:4px" type="button" onclick="sendLeadToCompany(\''+esc(x.id)+'\',\''+esc(assigned.id)+'\')">📨 Odoslať firme</button></div>'
+  : '';
       return '<article class="lead"><div class="leadtop"><div><h3>'+esc(x.meno||'Bez mena')+'</h3><div class="meta">'+esc(x.telefon||'')+' · '+esc(x.lokalita||'')+'<br>'+esc(d)+'</div></div><div class="pill">'+esc(price)+'</div></div><p><b>'+esc(x.typ_prace||'Dopyt')+'</b></p><pre>'+esc(x.popis||'')+'</pre><div class="stateRow"><label>Stav dopytu:</label><select class="stateSelect" data-id="'+esc(x.id)+'" onchange="updateLeadState(this)"><option value="novy" '+(state==='novy'?'selected':'')+'>🟢 Nový</option><option value="kontaktovany" '+(state==='kontaktovany'?'selected':'')+'>🟡 Kontaktovaný</option><option value="odoslany" '+(state==='odoslany'?'selected':'')+'>🔵 Odoslaný firme</option><option value="vybaveny" '+(state==='vybaveny'?'selected':'')+'>✅ Vybavený</option></select></div><div class="stateRow"><label>Priradená firma:</label><select class="stateSelect" data-id="'+esc(x.id)+'" onchange="updateLeadCompany(this)"><option value="">— Nepriradená —</option>'+companyOptions+'</select><span class="meta">Aktuálne: <b>'+assignedName+'</b></span></div>'+recommendationHtml+sendHtml+'</article>';
     }).join('');
   }catch(err){ $('leads').innerHTML='<div class="error"><b>Chyba pri načítaní dopytov.</b><br>'+esc(err.message)+'</div>'; }
