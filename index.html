@@ -83,11 +83,62 @@
 
     <button class="btn" id="companyLoginBtn" type="button">Prihlásiť firmu</button>
 <button class="btn" id="closeCompany" type="button" style="margin-top:12px;background:#fff;color:#1687f8;border:2px solid #1687f8;">Späť na web</button>
-    <p style="margin-top:16px">
-      Ešte nemáte účet? Registrácia firmy bude dostupná čoskoro.
-    </p>
+    <p style="margin-top:18px;text-align:center">
+  Ešte nemáte účet?
+  <button class="btn" id="companyRegisterBtn" type="button" style="margin-top:10px;background:#fff;color:#1687f8;border:2px solid #1687f8">
+    Zaregistrovať firmu
+  </button>
+</p>
   </div>
 </section>
+<section id="companyRegister" style="display:none">
+  <div class="card">
+    <h2>Registrácia firmy</h2>
+    <p>Vytvorte si firemný účet a získavajte nové zákazky vo vašom regióne.</p>
+
+    <div class="field">
+      <label>Názov firmy</label>
+      <input id="registerCompanyName" type="text" placeholder="Názov firmy">
+    </div>
+
+    <div class="field">
+      <label>E-mail</label>
+      <input id="registerCompanyEmail" type="email" placeholder="firma@email.sk">
+    </div>
+
+    <div class="field">
+      <label>Telefón</label>
+      <input id="registerCompanyPhone" type="tel" placeholder="0900 123 456">
+    </div>
+
+    <div class="field">
+      <label>Región</label>
+      <select id="registerCompanyRegion">
+        <option value="">Vyberte kraj</option>
+        <option>Bratislavský kraj</option>
+        <option>Trnavský kraj</option>
+        <option>Trenčiansky kraj</option>
+        <option>Nitriansky kraj</option>
+        <option>Žilinský kraj</option>
+        <option>Banskobystrický kraj</option>
+        <option>Prešovský kraj</option>
+        <option>Košický kraj</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Heslo</label>
+      <input id="registerCompanyPassword" type="password" placeholder="Vytvorte heslo">
+    </div>
+
+    <button class="btn" id="registerCompanySubmit" type="button">Vytvoriť účet firmy</button>
+    <button class="btn" id="backToCompanyLogin" type="button" style="margin-top:12px;background:#fff;color:#1687f8;border:2px solid #1687f8;">Späť na prihlásenie</button>
+
+    <div id="registerCompanyMsg"></div>
+  </div>
+</section>
+
+  
 <script>
 const API_URL='https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1';
 const API_KEY='sb_publishable_tD39CIcOeokbNGxDB5Lehg_EUYzmJ36';
@@ -117,6 +168,91 @@ function esc(v){ return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&
 $('openAdmin').addEventListener('click',showAdmin);
 $('openCompany').addEventListener('click',()=>{ $('customer').style.display='none'; $('admin').classList.remove('show'); $('companyPortal').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); });
   $('closeCompany').addEventListener('click',showCustomer);
+$('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.display='none'; $('companyRegister').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }); 
+ $('backToCompanyLogin').addEventListener('click',()=>{ $('companyRegister').style.display='none'; $('companyPortal').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); });
+  $('registerCompanySubmit').addEventListener('click',async()=>{
+  const name=$('registerCompanyName').value.trim();
+  const email=$('registerCompanyEmail').value.trim();
+  const phone=$('registerCompanyPhone').value.trim();
+  const region=$('registerCompanyRegion').value;
+  const password=$('registerCompanyPassword').value;
+  const msg=$('registerCompanyMsg');
+
+  msg.innerHTML='';
+
+  if(!name || !email || !phone || !region || !password){
+    msg.innerHTML='<div class="error">Vyplňte všetky údaje.</div>';
+    return;
+  }
+
+  if(password.length<6){
+    msg.innerHTML='<div class="error">Heslo musí mať aspoň 6 znakov.</div>';
+    return;
+  }
+
+  const btn=$('registerCompanySubmit');
+  btn.disabled=true;
+  btn.textContent='Vytváram účet...';
+
+  try{
+    const authResponse=await fetch(AUTH_URL+'/signup',{
+      method:'POST',
+      headers:{
+        'apikey':API_KEY,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        email,
+        password,
+        data:{
+          company_name:name,
+          phone,
+          region
+        }
+      })
+    });
+
+    const authData=await authResponse.json();
+
+    if(!authResponse.ok){
+      throw new Error(authData.msg || authData.message || 'Registrácia sa nepodarila.');
+    }
+
+    if(authData.access_token){
+      const companyResponse=await fetch(API_URL+'/firmy',{
+        method:'POST',
+        headers:{
+          'apikey':API_KEY,
+          'Authorization':'Bearer '+authData.access_token,
+          'Content-Type':'application/json',
+          'Prefer':'return=minimal'
+        },
+        body:JSON.stringify({
+          'názov':name,
+          kontaktna_osoba:'',
+          telefon:phone,
+          email:email,
+          region:region,
+          lokalita:'',
+          typ_prace:'Strechy',
+          stav:'aktivna'
+        })
+      });
+
+      if(!companyResponse.ok){
+        throw new Error('Účet vznikol, ale údaje firmy sa nepodarilo uložiť.');
+      }
+    }
+
+    msg.innerHTML='<div class="success">✅ Firemný účet bol vytvorený.</div>';
+
+  }catch(err){
+    msg.innerHTML='<div class="error">❌ '+esc(err.message)+'</div>';
+  }finally{
+    btn.disabled=false;
+    btn.textContent='Vytvoriť účet firmy';
+  }
+});
   $('closeAdmin').addEventListener('click',showCustomer);
 $('loginBtn').addEventListener('click',async()=>{
   const email=$('adminEmail').value.trim(), password=$('adminPassword').value;
