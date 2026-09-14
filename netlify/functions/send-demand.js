@@ -26,6 +26,8 @@ exports.handler = async function (event) {
           <p><strong>Typ práce:</strong> ${data.typ_prace || "-"}</p>
           <p><strong>Plocha:</strong> ${data.plocha || "-"} m²</p>
           <p><strong>Rozpočet:</strong> ${data.rozpocet || "-"} €</p>
+          <p><strong>Telefón:</strong> ${data.telefon || "-"}</p>
+          <p><strong>E-mail zákazníka:</strong> ${data.email_zakaznika || "-"}</p>
         `,
       }),
     });
