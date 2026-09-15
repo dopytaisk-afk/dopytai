@@ -301,7 +301,7 @@ if(!leads.length){
     const sessionRes=await fetch(`${SUPABASE_URL}/auth/v1/user`,{
       headers:{
         apikey:SUPABASE_KEY,
-        Authorization:`Bearer ${localStorage.getItem('companyAccessToken')||''}`
+        Authorization:`Bearer ${localStorage.getItem('dopytai_access_token')||''}`
       }
     });
 
