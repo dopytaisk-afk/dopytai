@@ -271,7 +271,20 @@ window.scrollTo({top:0,behavior:'smooth'});
       throw new Error('Dopyty sa nepodarilo načítať.');
     }
 
-    console.log('Dopyty pre firmu:',leads);
+    const box=$('companyDashboardMessage');
+
+if(!leads.length){
+  box.innerHTML='Momentálne nemáte žiadne nové dopyty.';
+}else{
+  box.innerHTML=leads.map(lead=>`
+    <div class="card" style="margin-top:12px">
+      <b>${lead.typ_prace||'Dopyt'}</b><br>
+      📍 ${lead.lokalita||''}<br>
+      💰 Odhad: ${Number(lead.odhad_ceny||0).toLocaleString('sk-SK')} €<br>
+      <small>${lead.popis||''}</small>
+    </div>
+  `).join('');
+}
 
   }catch(err){
     console.error(err);
