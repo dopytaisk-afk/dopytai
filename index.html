@@ -285,7 +285,7 @@ if(!leads.length){
       <b>${lead.typ_prace||'Dopyt'}</b><br>
       📍 ${lead.lokalita||''}<br>
       💰 Odhad: ${Number(lead.odhad_ceny||0).toLocaleString('sk-SK')} €<br>
-      <small>${lead.popis||''}</small>
+<small>${(lead.popis||'').replace(/E-mail:\s*\S+/gi,'🔒 Kontakt zákazníka je skrytý')}</small>     
     </div>
   `).join('');
 }
