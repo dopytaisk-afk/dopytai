@@ -243,11 +243,12 @@ window.scrollTo({top:0,behavior:'smooth'});
   async function loadCompanyLeads(){
   const token=localStorage.getItem('dopytai_company_token');
   const email=localStorage.getItem('dopytai_company_email');
-const userRes=await fetch(AUTH_URL+'/user',{headers:{'apikey':API_KEY,'Authorization':'Bearer '+token}});
-    const user=await userRes.json();
-    if(!userRes.ok || !user.id) throw new Error('Nepodarilo sa zistiť prihláseného používateľa.');
+
 
   if(!token || !email) return;
+    const userRes=await fetch(AUTH_URL+'/user',{headers:{'apikey':API_KEY,'Authorization':'Bearer '+token}});
+    const user=await userRes.json();
+    if(!userRes.ok || !user.id) throw new Error('Nepodarilo sa zistiť prihláseného používateľa.');
 
   try{
     const companyRes=await fetch(
