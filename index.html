@@ -286,7 +286,7 @@ if(!leads.length){
       📍 ${lead.lokalita||''}<br>
       💰 Odhad: ${Number(lead.odhad_ceny||0).toLocaleString('sk-SK')} €<br>
 <small>${(lead.popis||'').replace(/E-mail:\s*\S+/gi,'🔒 Kontakt zákazníka je skrytý')}</small>
-<button type="button" style="margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#1683e8;color:white;font-weight:700;font-size:16px;cursor:pointer">🔓 Odomknúť kontakt</button>
+<button type="button"onclick="unlockLead(${lead.id})" style="margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#1683e8;color:white;font-weight:700;font-size:16px;cursor:pointer">🔓 Odomknúť kontakt</button>
     </div>
   `).join('');
 }
@@ -295,6 +295,44 @@ if(!leads.length){
     console.error(err);
     $('companyDashboardMessage').innerHTML='Chyba: '+err.message;
   }
+
+    async function unlockLead(leadId){
+  try{
+    const sessionRes=await fetch(`${SUPABASE_URL}/auth/v1/user`,{
+      headers:{
+        apikey:SUPABASE_KEY,
+        Authorization:`Bearer ${localStorage.getItem('companyAccessToken')||''}`
+      }
+    });
+
+    if(!sessionRes.ok) throw new Error('Firma nie je prihlásená.');
+
+    const user=await sessionRes.json();
+
+    const companyRes=await fetch(
+      `${SUPABASE_URL}/rest/v1/firmy?auth_user_id=eq.${user.id}&select=id`,
+      {headers:authHeaders()}
+    );
+
+    const companies=await companyRes.json();
+    if(!companies.length) throw new Error('Firmu sa nepodarilo nájsť.');
+
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/odomknutia`,{
+      method:'POST',
+      headers:{...authHeaders(),'Content-Type':'application/json'},
+      body:JSON.stringify({
+        firma_id:companies[0].id,
+        dopyt_id:leadId
+      })
+    });
+
+    if(!res.ok) throw new Error('Kontakt sa nepodarilo odomknúť.');
+
+    alert('Kontakt bol úspešne odomknutý.');
+  }catch(err){
+    alert('Chyba: '+err.message);
+  }
+}
 }
 $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.display='none'; $('companyRegister').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }); 
  $('backToCompanyLogin').addEventListener('click',()=>{ $('companyRegister').style.display='none'; $('companyPortal').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); });
