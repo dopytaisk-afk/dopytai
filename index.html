@@ -221,6 +221,7 @@ $('openCompany').addEventListener('click',()=>{ $('customer').style.display='non
     $('companyPortal').style.display='none';
 $('companyRegister').style.display='none';
 $('companyDashboard').style.display='block';
+ loadCompanyLeads();   
 window.scrollTo({top:0,behavior:'smooth'});
 
   }catch(err){
@@ -238,6 +239,44 @@ window.scrollTo({top:0,behavior:'smooth'});
   $('portalCompanyPassword').value='';
   window.scrollTo({top:0,behavior:'smooth'});
 });
+
+  async function loadCompanyLeads(){
+  const token=localStorage.getItem('dopytai_company_token');
+  const email=localStorage.getItem('dopytai_company_email');
+
+  if(!token || !email) return;
+
+  try{
+    const companyRes=await fetch(
+      API_URL+'/firmy?select=id,názov,email,region&email=eq.'+encodeURIComponent(email),
+      {headers:{'apikey':API_KEY,'Authorization':'Bearer '+token}}
+    );
+
+    const companies=await companyRes.json();
+
+    if(!companyRes.ok || !companies.length){
+      throw new Error('Firmu sa nepodarilo načítať.');
+    }
+
+    const company=companies[0];
+
+    const leadsRes=await fetch(
+      API_URL+'/dopyty?select=*&region=eq.'+encodeURIComponent(company.region)+'&stav=eq.novy&order=created_at.desc',
+      {headers:{'apikey':API_KEY,'Authorization':'Bearer '+token}}
+    );
+
+    const leads=await leadsRes.json();
+
+    if(!leadsRes.ok){
+      throw new Error('Dopyty sa nepodarilo načítať.');
+    }
+
+    console.log('Dopyty pre firmu:',leads);
+
+  }catch(err){
+    console.error(err);
+  }
+}
 $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.display='none'; $('companyRegister').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }); 
  $('backToCompanyLogin').addEventListener('click',()=>{ $('companyRegister').style.display='none'; $('companyPortal').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); });
   $('registerCompanySubmit').addEventListener('click',async()=>{
@@ -642,6 +681,7 @@ $('form').addEventListener('submit',async e=>{
    telefon:$('phone').value.trim(),
    typ_prace:type,
    lokalita:$('city').value.trim(),
+   region:$('leadRegion').value,
    popis:details,
    odhad_ceny:est.mid
  };
