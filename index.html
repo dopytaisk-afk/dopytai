@@ -328,7 +328,7 @@ async function loadCompanyLeads(){
     const sessionRes=await fetch(`${API_URL}/auth/v1/user`,{
       headers:{
         apikey:API_KEY,
-        Authorization:`Bearer ${localStorage.getItem('dopytai_access_token')||''}`
+        Authorization:`Bearer ${localStorage.getItem('dopytai_company_token')||''}`
       }
     });
 
