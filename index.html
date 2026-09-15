@@ -176,7 +176,13 @@ function calcEstimate(area,type,cover,truss){
 const AUTH_URL=API_URL.replace('/rest/v1','/auth/v1');
 let accessToken=localStorage.getItem('dopytai_access_token')||'';
 window.dopytaiCompanies=[];
-
+function authHeaders(){
+  const token=localStorage.getItem('dopytai_company_token')||'';
+  return {
+    apikey:API_KEY,
+    Authorization:`Bearer ${token}`
+  };
+}
 function showCustomer(){ $('admin').classList.remove('show'); $('customer').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }
 function showAdmin(){ $('customer').style.display='none'; $('admin').classList.add('show'); window.scrollTo({top:0,behavior:'smooth'}); if(accessToken){ showPanel(); loadLeads(); } }
 function showPanel(){ $('loginBox').style.display='none'; $('adminPanel').style.display='block'; }
