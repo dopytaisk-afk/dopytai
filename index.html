@@ -297,6 +297,7 @@ if(!leads.length){
   }
 
     async function unlockLead(leadId){
+      alert('TEST – tlačidlo funguje');
   try{
     const sessionRes=await fetch(`${SUPABASE_URL}/auth/v1/user`,{
       headers:{
