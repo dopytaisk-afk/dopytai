@@ -240,20 +240,34 @@ window.scrollTo({top:0,behavior:'smooth'});
   window.scrollTo({top:0,behavior:'smooth'});
 });
 
-  async function loadCompanyLeads(){
+async function loadCompanyLeads(){
   const token=localStorage.getItem('dopytai_company_token');
   const email=localStorage.getItem('dopytai_company_email');
 
-
   if(!token || !email) return;
-    const userRes=await fetch(AUTH_URL+'/user',{headers:{'apikey':API_KEY,'Authorization':'Bearer '+token}});
-    const user=await userRes.json();
-    if(!userRes.ok || !user.id) throw new Error('Nepodarilo sa zistiť prihláseného používateľa.');
 
   try{
+    const userRes=await fetch(AUTH_URL+'/user',{
+      headers:{
+        'apikey':API_KEY,
+        'Authorization':'Bearer '+token
+      }
+    });
+
+    const user=await userRes.json();
+
+    if(!userRes.ok || !user.id){
+      throw new Error('Nepodarilo sa zistiť prihláseného používateľa.');
+    }
+
     const companyRes=await fetch(
-     API_URL+'/firmy?select=id,názov,email,region&auth_user_id=eq.'+encodeURIComponent(user.id),
-      {headers:{'apikey':API_KEY,'Authorization':'Bearer '+token}}
+      API_URL+'/firmy?select=id,názov,email,region&auth_user_id=eq.'+encodeURIComponent(user.id),
+      {
+        headers:{
+          'apikey':API_KEY,
+          'Authorization':'Bearer '+token
+        }
+      }
     );
 
     const companies=await companyRes.json();
@@ -266,7 +280,12 @@ window.scrollTo({top:0,behavior:'smooth'});
 
     const leadsRes=await fetch(
       API_URL+'/dopyty?select=*&region=eq.'+encodeURIComponent(company.region)+'&stav=eq.novy&order=created_at.desc',
-      {headers:{'apikey':API_KEY,'Authorization':'Bearer '+token}}
+      {
+        headers:{
+          'apikey':API_KEY,
+          'Authorization':'Bearer '+token
+        }
+      }
     );
 
     const leads=await leadsRes.json();
@@ -277,25 +296,27 @@ window.scrollTo({top:0,behavior:'smooth'});
 
     const box=$('companyDashboardMessage');
 
-if(!leads.length){
-  box.innerHTML='Momentálne nemáte žiadne nové dopyty.';
-}else{
-  box.innerHTML=leads.map(lead=>`
-    <div class="card" style="margin-top:12px">
-      <b>${lead.typ_prace||'Dopyt'}</b><br>
-      📍 ${lead.lokalita||''}<br>
-      💰 Odhad: ${Number(lead.odhad_ceny||0).toLocaleString('sk-SK')} €<br>
-<small>${(lead.popis||'').replace(/E-mail:\s*\S+/gi,'🔒 Kontakt zákazníka je skrytý')}</small>
-<button type="button"onclick="unlockLead(${lead.id})" style="margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#1683e8;color:white;font-weight:700;font-size:16px;cursor:pointer">🔓 Odomknúť kontakt</button>
-    </div>
-  `).join('');
-}
+    if(!leads.length){
+      box.innerHTML='Momentálne nemáte žiadne nové dopyty.';
+    }else{
+      box.innerHTML=leads.map(lead=>`
+        <div class="card" style="margin-top:12px">
+          <b>${lead.typ_prace||'Dopyt'}</b><br>
+          📍 ${lead.lokalita||''}<br>
+          💰 Odhad: ${Number(lead.odhad_ceny||0).toLocaleString('sk-SK')} €<br>
+          <small>🔒 Kontakt zákazníka je skrytý</small>
+          <button type="button" onclick="unlockLead(${lead.id})" style="margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#0A89E8;color:white;font-weight:700;font-size:16px;cursor:pointer">
+            🔓 Odomknúť kontakt
+          </button>
+        </div>
+      `).join('');
+    }
 
   }catch(err){
     console.error(err);
     $('companyDashboardMessage').innerHTML='Chyba: '+err.message;
   }
-    }
+} 
 
 
 
