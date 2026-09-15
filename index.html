@@ -91,7 +91,25 @@
 </p>
   </div>
 </section>
-<section id="companyRegister" style="display:none">
+<section id="companyDashboard" style="display:none">
+  <div class="card">
+    <h2>Firemný panel</h2>
+    <p>Vitajte v DopytAI.</p>
+
+    <div style="margin-top:20px">
+      <h3>Dostupné dopyty</h3>
+      <p id="companyDashboardMessage">
+        Momentálne nemáte žiadne nové dopyty.
+      </p>
+    </div>
+
+    <button class="btn" id="companyLogoutBtn" type="button" style="margin-top:20px">
+      Odhlásiť sa
+    </button>
+  </div>
+</section>
+  
+  <section id="companyRegister" style="display:none">
   <div class="card">
     <h2>Registrácia firmy</h2>
     <p>Vytvorte si firemný účet a získavajte nové zákazky vo vašom regióne.</p>
@@ -200,7 +218,10 @@ $('openCompany').addEventListener('click',()=>{ $('customer').style.display='non
     localStorage.setItem('dopytai_company_token',data.access_token);
     localStorage.setItem('dopytai_company_email',email);
 
-    alert('✅ Firma bola úspešne prihlásená.');
+    $('companyPortal').style.display='none';
+$('companyRegister').style.display='none';
+$('companyDashboard').style.display='block';
+window.scrollTo({top:0,behavior:'smooth'});
 
   }catch(err){
     alert('❌ '+err.message);
@@ -208,6 +229,14 @@ $('openCompany').addEventListener('click',()=>{ $('customer').style.display='non
     btn.disabled=false;
     btn.textContent='Prihlásiť firmu';
   }
+});
+  $('companyLogoutBtn').addEventListener('click',()=>{
+  localStorage.removeItem('dopytai_company_token');
+  localStorage.removeItem('dopytai_company_email');
+  $('companyDashboard').style.display='none';
+  $('companyPortal').style.display='block';
+  $('portalCompanyPassword').value='';
+  window.scrollTo({top:0,behavior:'smooth'});
 });
 $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.display='none'; $('companyRegister').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }); 
  $('backToCompanyLogin').addEventListener('click',()=>{ $('companyRegister').style.display='none'; $('companyPortal').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); });
