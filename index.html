@@ -288,6 +288,7 @@ if(!leads.length){
 
   }catch(err){
     console.error(err);
+    $('companyDashboardMessage').innerHTML='Chyba: '+err.message;
   }
 }
 $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.display='none'; $('companyRegister').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }); 
