@@ -409,47 +409,76 @@ async function loadCompanyCredit(){
 }
 
 
-    async function unlockLead(leadId){
-     
+async function unlockLead(leadId){
+  const CENA_DOPYTU = 25;
+
   try{
-    
-   const sessionRes=await fetch(`${AUTH_URL}/user`,{
+    const token = localStorage.getItem('dopytai_company_token');
+    if(!token) throw new Error('Firma nie je prihlásená.');
+
+    const sessionRes = await fetch(`${AUTH_URL}/user`,{
       headers:{
-        apikey:API_KEY,
-        Authorization:`Bearer ${localStorage.getItem('dopytai_company_token')||''}`
+        apikey: API_KEY,
+        Authorization: `Bearer ${token}`
       }
     });
 
     if(!sessionRes.ok) throw new Error('Firma nie je prihlásená.');
 
-    const user=await sessionRes.json();
+    const user = await sessionRes.json();
 
-    const companyRes=await fetch(
+    const companyRes = await fetch(
       `${API_URL}/firmy?auth_user_id=eq.${user.id}&select=id`,
       {headers:authHeaders()}
     );
 
-    const companies=await companyRes.json();
-    if(!companies.length) throw new Error('Firmu sa nepodarilo nájsť.');
+    const companies = await companyRes.json();
+    if(!companyRes.ok || !companies.length)
+      throw new Error('Firmu sa nepodarilo nájsť.');
 
-    const res=await fetch(`${API_URL}/odomknutia`,{
+    const firmaId = companies[0].id;
+
+    // Najprv bezpečne odpočítame kredit
+    const creditRes = await fetch(`${API_URL}/rpc/odpocitaj_kredit`,{
       method:'POST',
-      headers:{...authHeaders(),'Content-Type':'application/json'},
+      headers:{
+        ...authHeaders(),
+        'Content-Type':'application/json'
+      },
       body:JSON.stringify({
-        firma_id:companies[0].id,
+        p_firma_id:firmaId,
+        p_suma:CENA_DOPYTU
+      })
+    });
+
+    if(!creditRes.ok){
+      throw new Error('Nemáte dostatok kreditu.');
+    }
+
+    // Potom odomkneme kontakt
+    const res = await fetch(`${API_URL}/odomknutia`,{
+      method:'POST',
+      headers:{
+        ...authHeaders(),
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        firma_id:firmaId,
         dopyt_id:leadId
       })
     });
 
-    if(!res.ok) throw new Error('Kontakt sa nepodarilo odomknúť.');
+    if(!res.ok)
+      throw new Error('Kontakt sa nepodarilo odomknúť.');
 
-   
-    alert('Kontakt bol úspešne odomknutý.');
+    alert(`Kontakt bol úspešne odomknutý za ${CENA_DOPYTU} €.`);
+    await loadCompanyCredit();
     await loadCompanyLeads();
+
   }catch(err){
     alert('Chyba: '+err.message);
   }
-}
+}    
 
 $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.display='none'; $('companyRegister').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }); 
  $('backToCompanyLogin').addEventListener('click',()=>{ $('companyRegister').style.display='none'; $('companyPortal').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); });
