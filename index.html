@@ -325,9 +325,9 @@ async function loadCompanyLeads(){
      
   try{
     alert('KROK 1 - FUNKCIA IDE');
-    const sessionRes=await fetch(`${SUPABASE_URL}/auth/v1/user`,{
+    const sessionRes=await fetch(`${API_URL}/auth/v1/user`,{
       headers:{
-        apikey:SUPABASE_KEY,
+        apikey:API_KEY,
         Authorization:`Bearer ${localStorage.getItem('dopytai_access_token')||''}`
       }
     });
@@ -337,14 +337,14 @@ async function loadCompanyLeads(){
     const user=await sessionRes.json();
 
     const companyRes=await fetch(
-      `${SUPABASE_URL}/rest/v1/firmy?auth_user_id=eq.${user.id}&select=id`,
+      `${API_URL}/rest/v1/firmy?auth_user_id=eq.${user.id}&select=id`,
       {headers:authHeaders()}
     );
 
     const companies=await companyRes.json();
     if(!companies.length) throw new Error('Firmu sa nepodarilo nájsť.');
 
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/odomknutia`,{
+    const res=await fetch(`${API_URL}/rest/v1/odomknutia`,{
       method:'POST',
       headers:{...authHeaders(),'Content-Type':'application/json'},
       body:JSON.stringify({
