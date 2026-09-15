@@ -300,22 +300,53 @@ async function loadCompanyLeads(){
       throw new Error('Dopyty sa nepodarilo načítať.');
     }
 
+    const unlockRes=await fetch(
+  API_URL+'/odomknutia?select=dopyt_id&firma_id=eq.'+company.id,
+  {
+    headers:{
+      'apikey':API_KEY,
+      'Authorization':'Bearer '+token
+    }
+  }
+);
+
+if(!unlockRes.ok){
+  throw new Error('Odomknuté kontakty sa nepodarilo načítať.');
+}
+
+const unlocks=await unlockRes.json();
+const unlockedIds=new Set(unlocks.map(item=>Number(item.dopyt_id)));
+
     const box=$('companyDashboardMessage');
 
     if(!leads.length){
       box.innerHTML='Momentálne nemáte žiadne nové dopyty.';
     }else{
-      box.innerHTML=leads.map(lead=>`
-        <div class="card" style="margin-top:12px">
-          <b>${lead.typ_prace||'Dopyt'}</b><br>
-          📍 ${lead.lokalita||''}<br>
-          💰 Odhad: ${Number(lead.odhad_ceny||0).toLocaleString('sk-SK')} €<br>
-          <small>🔒 Kontakt zákazníka je skrytý</small>
-          <button type="button" onclick="unlockLead(${lead.id})" style="margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#0A89E8;color:white;font-weight:700;font-size:16px;cursor:pointer">
-            🔓 Odomknúť kontakt
-          </button>
+    box.innerHTML=leads.map(lead=>{
+  const isUnlocked=unlockedIds.has(Number(lead.id));
+
+  return `
+    <div class="card" style="margin-top:12px">
+      <b>${lead.typ_prace||'Dopyt'}</b><br>
+      📍 ${lead.lokalita||''}<br>
+      💰 Odhad: ${Number(lead.odhad_ceny||0).toLocaleString('sk-SK')} €<br>
+
+      ${isUnlocked ? `
+        <div style="margin-top:10px">
+          🔓 <b>Kontakt zákazníka</b><br>
+          👤 ${lead.meno||''}<br>
+          📞 ${lead.telefon||''}<br>
+          ✉️ ${lead.email||''}
         </div>
-      `).join('');
+      ` : `
+        <small>🔒 Kontakt zákazníka je skrytý</small>
+        <button type="button" onclick="unlockLead(${lead.id})" style="margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#0A89E8;color:white;font-weight:700">
+          🔐 Odomknúť kontakt
+        </button>
+      `}
+    </div>
+  `;
+}).join(''); 
     }
 
   }catch(err){
@@ -330,7 +361,7 @@ async function loadCompanyLeads(){
     async function unlockLead(leadId){
      
   try{
-    alert('KROK 1 - FUNKCIA IDE');
+    
    const sessionRes=await fetch(`${AUTH_URL}/user`,{
       headers:{
         apikey:API_KEY,
@@ -361,8 +392,9 @@ async function loadCompanyLeads(){
 
     if(!res.ok) throw new Error('Kontakt sa nepodarilo odomknúť.');
 
-   alert('KROK 2 - zapis uspesny'); 
+   
     alert('Kontakt bol úspešne odomknutý.');
+    await loadCompanyLeads();
   }catch(err){
     alert('Chyba: '+err.message);
   }
