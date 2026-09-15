@@ -361,7 +361,7 @@ async function loadCompanyLeads(){
     alert('Chyba: '+err.message);
   }
 }
-}
+
 $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.display='none'; $('companyRegister').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }); 
  $('backToCompanyLogin').addEventListener('click',()=>{ $('companyRegister').style.display='none'; $('companyPortal').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); });
   $('registerCompanySubmit').addEventListener('click',async()=>{
