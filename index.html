@@ -243,12 +243,15 @@ window.scrollTo({top:0,behavior:'smooth'});
   async function loadCompanyLeads(){
   const token=localStorage.getItem('dopytai_company_token');
   const email=localStorage.getItem('dopytai_company_email');
+const userRes=await fetch(AUTH_URL+'/user',{headers:{'apikey':API_KEY,'Authorization':'Bearer '+token}});
+    const user=await userRes.json();
+    if(!userRes.ok || !user.id) throw new Error('Nepodarilo sa zistiť prihláseného používateľa.');
 
   if(!token || !email) return;
 
   try{
     const companyRes=await fetch(
-      API_URL+'/firmy?select=id,názov,email,region&email=eq.'+encodeURIComponent(email),
+     API_URL+'/firmy?select=id,názov,email,region&auth_user_id=eq.'+encodeURIComponent(user.id),
       {headers:{'apikey':API_KEY,'Authorization':'Bearer '+token}}
     );
 
