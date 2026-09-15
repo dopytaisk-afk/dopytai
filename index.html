@@ -95,6 +95,7 @@
   <div class="card">
     <h2>Firemný panel</h2>
     <p>Vitajte v DopytAI.</p>
+    <p><strong>💳 Kredit:</strong> <span id="companyCredit">0</span> €</p>
 
     <div style="margin-top:20px">
       <h3>Dostupné dopyty</h3>
@@ -227,7 +228,8 @@ $('openCompany').addEventListener('click',()=>{ $('customer').style.display='non
     $('companyPortal').style.display='none';
 $('companyRegister').style.display='none';
 $('companyDashboard').style.display='block';
- loadCompanyLeads();   
+ loadCompanyLeads();
+    loadCompanyCredit();
 window.scrollTo({top:0,behavior:'smooth'});
 
   }catch(err){
@@ -355,7 +357,56 @@ const unlockedIds=new Set(unlocks.map(item=>Number(item.dopyt_id)));
   }
 } 
 
+async function loadCompanyCredit(){
+  const token=localStorage.getItem('dopytai_company_token');
+  if(!token) return;
 
+  try{
+    const userRes=await fetch(AUTH_URL+'/user',{
+      headers:{
+        'apikey':API_KEY,
+        'Authorization':'Bearer '+token
+      }
+    });
+
+    const user=await userRes.json();
+    if(!userRes.ok || !user.id) return;
+
+    const companyRes=await fetch(
+      API_URL+'/firmy?select=id&auth_user_id=eq.'+encodeURIComponent(user.id),
+      {
+        headers:{
+          'apikey':API_KEY,
+          'Authorization':'Bearer '+token
+        }
+      }
+    );
+
+    const companies=await companyRes.json();
+    if(!companyRes.ok || !companies.length) return;
+
+    const company=companies[0];
+
+    const creditRes=await fetch(
+      API_URL+'/kredity?select=zostatok&firma_id=eq.'+company.id,
+      {
+        headers:{
+          'apikey':API_KEY,
+          'Authorization':'Bearer '+token
+        }
+      }
+    );
+
+    const credits=await creditRes.json();
+    if(!creditRes.ok) return;
+
+    const balance=credits.length ? Number(credits[0].zostatok || 0) : 0;
+    $('companyCredit').textContent=balance.toLocaleString('sk-SK')+' €';
+
+  }catch(err){
+    console.error('Chyba kreditu:',err);
+  }
+}
 
 
     async function unlockLead(leadId){
