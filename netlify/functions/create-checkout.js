@@ -15,6 +15,7 @@ exports.handler = async function (event) {
 
     const body = JSON.parse(event.body || "{}");
     const amount = Number(body.amount);
+   const firmaId = Number(body.firma_id); 
 
     // Povolené balíky kreditu v eurách
     const allowedAmounts = [50, 100, 200];
@@ -25,8 +26,15 @@ exports.handler = async function (event) {
         body: JSON.stringify({ error: "Neplatná suma." })
       };
     }
+    if (!Number.isInteger(firmaId) || firmaId <= 0) {
+  return {
+    statusCode: 400,
+    body: JSON.stringify({ error: "Neplatná firma." })
+  };
+}
 
     const params = new URLSearchParams();
+    params.append("metadata[firma_id]", String(firmaId));
 
     params.append("mode", "payment");
     params.append("payment_method_types[0]", "card");
