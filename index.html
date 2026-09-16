@@ -318,6 +318,7 @@ if(!unlockRes.ok){
 }
 
 const unlocks=await unlockRes.json();
+    console.log('UNLOCK DEBUG:', unlockRes.status, unlocks);
 const unlockedIds=new Set(unlocks.map(item=>Number(item.dopyt_id)));
 
     const box=$('companyDashboardMessage');
