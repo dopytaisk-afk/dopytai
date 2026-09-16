@@ -96,6 +96,7 @@
     <h2>Firemný panel</h2>
     <p>Vitajte v DopytAI.</p>
     <p><strong>💳 Kredit:</strong> <span id="companyCredit">0</span> </p>
+    <button class="btn" id="topUpCreditBtn" type="button" style="margin-top:10px">💳 Dobiť kredit</button>
 
     <div style="margin-top:20px">
       <h3>Dostupné dopyty</h3>
@@ -246,6 +247,9 @@ window.scrollTo({top:0,behavior:'smooth'});
   $('companyPortal').style.display='block';
   $('portalCompanyPassword').value='';
   window.scrollTo({top:0,behavior:'smooth'});
+});
+  $('topUpCreditBtn').addEventListener('click',()=>{
+  alert('Dobíjanie kreditu pripravujeme.');
 });
 
 async function loadCompanyLeads(){
