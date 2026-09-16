@@ -97,6 +97,12 @@
     <p>Vitajte v DopytAI.</p>
     <p><strong>💳 Kredit:</strong> <span id="companyCredit">0</span> </p>
     <button class="btn" id="topUpCreditBtn" type="button" style="margin-top:10px">💳 Dobiť kredit</button>
+    <div id="creditPackages" style="display:none;margin-top:12px">
+  <p><strong>Vyberte sumu na dobitie:</strong></p>
+  <button class="btn creditPackageBtn" type="button" data-amount="50">50 €</button>
+  <button class="btn creditPackageBtn" type="button" data-amount="100">100 €</button>
+  <button class="btn creditPackageBtn" type="button" data-amount="200">200 €</button>
+</div>
 
     <div style="margin-top:20px">
       <h3>Dostupné dopyty</h3>
@@ -248,9 +254,18 @@ window.scrollTo({top:0,behavior:'smooth'});
   $('portalCompanyPassword').value='';
   window.scrollTo({top:0,behavior:'smooth'});
 });
-  $('topUpCreditBtn').addEventListener('click',()=>{
-  alert('Dobíjanie kreditu pripravujeme.');
+ $('topUpCreditBtn').addEventListener('click',()=>{
+  const packages = $('creditPackages');
+  packages.style.display = packages.style.display === 'none' ? 'block' : 'none';
 });
+
+document.querySelectorAll('.creditPackageBtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const suma = btn.dataset.amount;
+    alert('Vybrali ste dobitie kreditu: ' + suma + ' €');
+  });
+});
+
 
 async function loadCompanyLeads(){
   const token=localStorage.getItem('dopytai_company_token');
