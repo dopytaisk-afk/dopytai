@@ -279,6 +279,7 @@ async function loadCompanyLeads(){
     );
 
     const companies=await companyRes.json();
+ console.log('COMPANY DEBUG:', companyRes.status, companies);   
 
     if(!companyRes.ok || !companies.length){
       throw new Error('Firmu sa nepodarilo načítať.');
