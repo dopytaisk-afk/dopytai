@@ -262,9 +262,32 @@ window.scrollTo({top:0,behavior:'smooth'});
 });
 
 document.querySelectorAll('.creditPackageBtn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const suma = btn.dataset.amount;
-    alert('Vybrali ste dobitie kreditu: ' + suma + ' €');
+  btn.addEventListener('click', async ()=>{
+    const amount = Number(btn.dataset.amount);
+
+    try {
+      btn.disabled = true;
+
+      const response = await fetch('/.netlify/functions/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ amount })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.url) {
+        throw new Error(data.error || 'Platbu sa nepodarilo vytvoriť.');
+      }
+
+      window.location.href = data.url;
+
+    } catch (error) {
+      alert(error.message || 'Platbu sa nepodarilo vytvoriť.');
+      btn.disabled = false;
+    }
   });
 });
 
