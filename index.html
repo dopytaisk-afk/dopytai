@@ -303,7 +303,7 @@ async function loadCompanyLeads(){
     }
 
     const unlockRes=await fetch(
-  API_URL+'/odomknutia?select=dopyt_id&firma_id=eq.'+company.id,
+  API_URL+'/odomknute_dopyty?select=dopyt_id&firma_id=eq.'+company.id,
   {
     headers:{
       'apikey':API_KEY,
