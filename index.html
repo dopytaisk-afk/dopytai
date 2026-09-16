@@ -99,9 +99,11 @@
     <button class="btn" id="topUpCreditBtn" type="button" style="margin-top:10px">💳 Dobiť kredit</button>
     <div id="creditPackages" style="display:none;margin-top:12px">
   <p><strong>Vyberte sumu na dobitie:</strong></p>
-  <button class="btn creditPackageBtn" type="button" data-amount="50">50 €</button>
-  <button class="btn creditPackageBtn" type="button" data-amount="100">100 €</button>
-  <button class="btn creditPackageBtn" type="button" data-amount="200">200 €</button>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px">
+  <button class="btn creditPackageBtn" type="button" data-amount="50" style="width:auto;flex:1;min-width:100px">50 €</button>
+  <button class="btn creditPackageBtn" type="button" data-amount="100" style="width:auto;flex:1;min-width:100px">100 €</button>
+  <button class="btn creditPackageBtn" type="button" data-amount="200" style="width:auto;flex:1;min-width:100px">200 €</button>
+</div>
 </div>
 
     <div style="margin-top:20px">
