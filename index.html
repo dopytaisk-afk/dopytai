@@ -438,38 +438,23 @@ async function unlockLead(leadId){
 
     const firmaId = companies[0].id;
 
-    // Najprv bezpečne odpočítame kredit
-    const creditRes = await fetch(`${API_URL}/rpc/odpocitaj_kredit`,{
-      method:'POST',
-      headers:{
-        ...authHeaders(),
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({
-        p_firma_id:firmaId,
-        p_suma:CENA_DOPYTU
-      })
-    });
+   const buyRes = await fetch(`${API_URL}/rpc/kup_dopyt`,{
+  method:'POST',
+  headers:{
+    ...authHeaders(),
+    'Content-Type':'application/json'
+  },
+  body:JSON.stringify({
+    p_firma_id:firmaId,
+    p_dopyt_id:leadId,
+    p_suma:CENA_DOPYTU
+  })
+});
 
-    if(!creditRes.ok){
-      throw new Error('Nemáte dostatok kreditu.');
-    }
-
-    // Potom odomkneme kontakt
-    const res = await fetch(`${API_URL}/odomknutia`,{
-      method:'POST',
-      headers:{
-        ...authHeaders(),
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({
-        firma_id:firmaId,
-        dopyt_id:leadId
-      })
-    });
-
-    if(!res.ok)
-      throw new Error('Kontakt sa nepodarilo odomknúť.');
+if(!buyRes.ok){
+  const errorData = await buyRes.json().catch(()=>({}));
+  throw new Error(errorData.message || 'Dopyt sa nepodarilo odomknúť.');
+} 
 
     alert(`Kontakt bol úspešne odomknutý za ${CENA_DOPYTU} €.`);
     await loadCompanyCredit();
