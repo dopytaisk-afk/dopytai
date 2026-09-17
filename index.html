@@ -479,7 +479,7 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
   purchasedBox.innerHTML = '<div class="card" style="margin-top:12px">Momentálne nemáte žiadne aktívne zakúpené dopyty.</div>';
 }
    const completedBox = document.createElement('div');
-completedBox.innerHTML = '<h3 style="margin-top:24px">Vybavené dopyty</h3>';
+completedBox.innerHTML = `<h3 style="margin-top:24px;cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">📁 Vybavené dopyty (${completedPurchasedLeads.length}) ▼</h3><div style="display:none">`;
 
 if (completedPurchasedLeads.length === 0) {
   completedBox.innerHTML += '<div class="card" style="margin-top:12px">Zatiaľ nemáte žiadne vybavené dopyty.</div>';
@@ -501,7 +501,7 @@ if (completedPurchasedLeads.length === 0) {
     </div>
   `).join('');
 }
-
+completedBox.innerHTML += '</div>';
 purchasedBox.insertAdjacentElement('afterend', completedBox); 
   }catch(err){
     console.error(err);
