@@ -479,12 +479,12 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
   purchasedBox.innerHTML = '<div class="card" style="margin-top:12px">Momentálne nemáte žiadne aktívne zakúpené dopyty.</div>';
 }
    const completedBox = document.createElement('div');
-completedBox.innerHTML = `<h3 style="margin-top:24px;cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">📁 Vybavené dopyty (${completedPurchasedLeads.length}) ▼</h3><div style="display:none">`;
+completedBox.innerHTML = `<h3 style="margin-top:24px;cursor:pointer" onclick="const x=this.parentElement.querySelector('.completed-list');x.style.display=x.style.display==='none'?'block':'none';this.querySelector('.arrow').textContent=x.style.display==='none'?'▶':'▼'">📁 Vybavené dopyty (${completedPurchasedLeads.length}) <span class="arrow">▶</span></h3><div class="completed-list" style="display:none"></div>`;
 
 if (completedPurchasedLeads.length === 0) {
   completedBox.innerHTML += '<div class="card" style="margin-top:12px">Zatiaľ nemáte žiadne vybavené dopyty.</div>';
 } else {
-  completedBox.innerHTML += completedPurchasedLeads.map(lead => `
+completedBox.querySelector('.completed-list').innerHTML = completedPurchasedLeads.map(lead => `  
     <div class="card" style="margin-top:12px">
       <b>${lead.typ_prace || 'Dopyt'}</b><br>
       📍 ${lead.lokalita || ''}<br>
@@ -501,7 +501,7 @@ if (completedPurchasedLeads.length === 0) {
     </div>
   `).join('');
 }
-completedBox.innerHTML += '</div>';
+
 purchasedBox.insertAdjacentElement('afterend', completedBox); 
   }catch(err){
     console.error(err);
