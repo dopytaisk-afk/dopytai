@@ -455,7 +455,7 @@ async function loadCompanyCredit(){
 
     const company=companies[0];
 
-    const balance = Number(company.credit || 0);
+    const balance = Number(company.kredit || 0);
 $('companyCredit').textContent = balance.toLocaleString('sk-SK') + ' €';
 
   }catch(err){
