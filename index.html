@@ -488,7 +488,7 @@ async function markLeadDone(leadId){
         body: JSON.stringify({ vybavene: true })
       }
     );
-
+alert("Status: " + res.status);
     if(!res.ok){
       throw new Error('Dopyt sa nepodarilo označiť ako vybavený.');
     }
