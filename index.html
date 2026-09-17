@@ -441,7 +441,7 @@ async function loadCompanyCredit(){
     if(!userRes.ok || !user.id) return;
 
     const companyRes=await fetch(
-      API_URL+'/firmy?select=id,credit&auth_user_id=eq.'+encodeURIComponent(user.id),
+      API_URL+'/firmy?select=id,kredit&auth_user_id=eq.'+encodeURIComponent(user.id),
       {
         headers:{
           'apikey':API_KEY,
