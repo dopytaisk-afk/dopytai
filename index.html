@@ -470,7 +470,7 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
   }
 } 
 async function markLeadDone(leadId){
-  alert('Klik funguje');
+  
   const token = localStorage.getItem('dopytai_company_token');
   if(!token) return;
 
@@ -488,12 +488,13 @@ async function markLeadDone(leadId){
         body: JSON.stringify({ vybavene: true })
       }
     );
-alert("Status: " + res.status);
+
     if(!res.ok){
       throw new Error('Dopyt sa nepodarilo označiť ako vybavený.');
     }
 
     await loadCompanyLeads();
+    location.reload();
   }catch(err){
     console.error(err);
     alert(err.message);
