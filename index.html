@@ -470,6 +470,7 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
   }
 } 
 async function markLeadDone(leadId){
+  alert('Klik funguje');
   const token = localStorage.getItem('dopytai_company_token');
   if(!token) return;
 
