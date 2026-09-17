@@ -957,4 +957,7 @@ $('form').addEventListener('submit',async e=>{
    btn.disabled=false; btn.textContent='Vytvoriť dopyt a vypočítať odhad';
  }
 });
+if(new URLSearchParams(window.location.search).get('payment')==='success'){
+  setTimeout(()=>loadCompanyCredit(),1000);
+}
 </script></body></html>
