@@ -68,7 +68,62 @@ exports.handler = async function (event) {
 
     if (stripeEvent.type === "checkout.session.completed") {
       const session = stripeEvent.data.object;
+      if (session.payment_status !== "paid") {
+  throw new Error("Stripe platba nie je zaplatena.");
+}
+     const firmaId = Number(session.metadata?.firma_id);
+     const amount = Number(session.amount_total) / 100;
+      if (!Number.isInteger(firmaId) || firmaId <= 0 || ![50, 100, 200].includes(amount)) {
+  throw new Error("Neplatné údaje Stripe platby.");
+}
+      const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+      if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error("Supabase nie je nastaveny.");
+}
+const eventId = stripeEvent.id;
+const paymentId = session.payment_intent || session.id;      
+ const checkResponse = await fetch(  
+  `${supabaseUrl}/rest/v1/stripe_platby?event_id=eq.${encodeURIComponent(eventId)}&select=event_id`,
+   {
+    headers: {
+      "apikey": supabaseServiceKey,
+      "Authorization": `Bearer ${supabaseServiceKey}`,
+      "Content-Type": "application/json"
+    },
+   }
+   ):
+      if (!checkResponse.ok) {
+        throw new Error(`Kontrola Stripe platby zlyhala: ${checkResponse.status}`);
+      }
+    const existing = await checkResponse.json();
+      if (existing.length > 0) {
+     return { statusCode: 200, body: "Udalosť už bola spracovaná." };
+      }
+     const response = await fetch(
+
+  `${supabaseUrl}/rest/v1/rpc/pripis_kredit`,
+  {
+    method: "POST",
+    headers: {
+      "apikey": supabaseServiceKey,
+      "Authorization": `Bearer ${supabaseServiceKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      p_firma_id: firmaId,
+      p_suma: amount,
+      p_event_id: eventId,
+      p_payment_id: paymentId
+    })
+  }
+);
+
+if (!response.ok) {
+  const text = await response.text();
+  throw new Error(`Supabase chyba: ${response.status} ${text}`);
+}
       console.log("Stripe Checkout completed:", {
         id: session.id,
         amount_total: session.amount_total,
