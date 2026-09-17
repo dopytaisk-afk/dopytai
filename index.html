@@ -441,7 +441,7 @@ async function loadCompanyCredit(){
     if(!userRes.ok || !user.id) return;
 
     const companyRes=await fetch(
-      API_URL+'/firmy?select=id&auth_user_id=eq.'+encodeURIComponent(user.id),
+      API_URL+'/firmy?select=id,credit&auth_user_id=eq.'+encodeURIComponent(user.id),
       {
         headers:{
           'apikey':API_KEY,
@@ -455,21 +455,8 @@ async function loadCompanyCredit(){
 
     const company=companies[0];
 
-    const creditRes=await fetch(
-      API_URL+'/kredity?select=zostatok&firma_id=eq.'+company.id,
-      {
-        headers:{
-          'apikey':API_KEY,
-          'Authorization':'Bearer '+token
-        }
-      }
-    );
-
-    const credits=await creditRes.json();
-    if(!creditRes.ok) return;
-
-    const balance=credits.length ? Number(credits[0].zostatok || 0) : 0;
-    $('companyCredit').textContent=balance.toLocaleString('sk-SK')+' €';
+    const balance = Number(company.credit || 0);
+$('companyCredit').textContent = balance.toLocaleString('sk-SK') + ' €';
 
   }catch(err){
     console.error('Chyba kreditu:',err);
