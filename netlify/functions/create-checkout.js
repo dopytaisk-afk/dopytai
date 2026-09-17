@@ -52,7 +52,7 @@ exports.handler = async function (event) {
 
     params.append(
       "success_url",
-      "https://sparkly-choux-e2b050.netlify.app/?payment=success"
+     "https://sparkly-choux-e2b050.netlify.app/?payment=success&session_id={CHECKOUT_SESSION_ID}"
     );
 
     params.append(
