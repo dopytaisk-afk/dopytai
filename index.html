@@ -335,7 +335,7 @@ async function loadCompanyLeads(){
     }
 
     const companyRes=await fetch(
-      API_URL+'/firmy?select=id,názov,email,region&auth_user_id=eq.'+encodeURIComponent(user.id),
+      API_URL+'/firmy?select=id,názov,email,region,kredit&auth_user_id=eq.'+encodeURIComponent(user.id),
       {
         headers:{
           'apikey':API_KEY,
