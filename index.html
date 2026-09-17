@@ -470,6 +470,9 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
 </button>
   </div>
 `).join('');
+    if (activePurchasedLeads.length === 0) {
+  purchasedBox.innerHTML = '<div class="card" style="margin-top:12px">Momentálne nemáte žiadne aktívne zakúpené dopyty.</div>';
+}
   }catch(err){
     console.error(err);
     $('companyDashboardMessage').innerHTML='Chyba: '+err.message;
