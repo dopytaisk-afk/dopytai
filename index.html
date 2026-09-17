@@ -201,6 +201,17 @@ function esc(v){ return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&
 
 $('openAdmin').addEventListener('click',showAdmin);
 $('openCompany').addEventListener('click',()=>{ $('customer').style.display='none'; $('admin').classList.remove('show'); $('companyPortal').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); });
+  const savedCompanyToken=localStorage.getItem('dopytai_company_token');
+const savedCompanyEmail=localStorage.getItem('dopytai_company_email');
+if(savedCompanyToken && savedCompanyEmail){
+  $('customer').style.display='none';
+  $('admin').classList.remove('show');
+  $('companyPortal').style.display='block';
+  $('companyRegister').style.display='none';
+  $('companyDashboard').style.display='block';
+  loadCompanyLeads();
+  loadCompanyCredit();
+}
   $('closeCompany').addEventListener('click',showCustomer);
   $('companyLoginBtn').addEventListener('click',async()=>{
   const email=$('portalCompanyEmail').value.trim();
