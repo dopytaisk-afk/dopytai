@@ -95,7 +95,7 @@ const paymentId = session.payment_intent || session.id;
    }
    ):
       if (!checkResponse.ok) {
-        throw new Error(`Kontrola Stripe platby zlyhala: ${checkResponse.status}`);
+       throw new Error(`Kontrola Stripe platby zlyhala: ${checkResponse.status}`);
       }
     const existing = await checkResponse.json();
       if (existing.length > 0) {
