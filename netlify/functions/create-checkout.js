@@ -15,7 +15,7 @@ exports.handler = async function (event) {
 
     const body = JSON.parse(event.body || "{}");
     const amount = Number(body.amount);
-   const firmaId = Number(body.firma_id); 
+   const firmaId = Number(body.companyId); 
 
     // Povolené balíky kreditu v eurách
     const allowedAmounts = [50, 100, 200];
