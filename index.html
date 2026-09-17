@@ -267,13 +267,35 @@ document.querySelectorAll('.creditPackageBtn').forEach(btn=>{
 
     try {
       btn.disabled = true;
+      const token = localStorage.getItem('dopytai_company_token');
+      if (!token) throw new Error('Firma nie je prihlásená.');
+      const userRes = await fetch(AUTH_URL+'/user', {
 
+        headers: {
+  'apikey': API_KEY,
+  'Authorization': 'Bearer ' + token
+}
+});
+      const user = await userRes.json();
+    if (!userRes.ok || !user.id) throw new Error('Nepodarilo sa zistiť prihlásenú firmu.');
+      const companyRes = await fetch(
+  API_URL+'/firmy?select=id&auth_user_id=eq.'+encodeURIComponent(user.id),
+  {
+    headers: {
+      'apikey': API_KEY,
+      'Authorization': 'Bearer ' + token
+    }
+  }
+);
+      const companies = await companyRes.json();
+if (!companyRes.ok || !companies.length) throw new Error('Firma sa nenašla.');
+const company = companies[0];
       const response = await fetch('/.netlify/functions/create-checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ amount })
+       body: JSON.stringify({ amount, companyId: company.id })
       });
 
       const data = await response.json();
