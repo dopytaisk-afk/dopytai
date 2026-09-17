@@ -445,11 +445,13 @@ const unlockedIds=new Set(unlocks.map(item=>Number(item.dopyt_id)));
   `;
 }).join(''); 
     }
+const purchasedLeads = leads.filter(lead => unlockedIds.has(Number(lead.id)));
 
- const activePurchasedLeads = purchasedLeads.filter(lead => {
+const activePurchasedLeads = purchasedLeads.filter(lead => {
   const unlock = unlocks.find(item => Number(item.dopyt_id) === Number(lead.id));
   return !unlock || unlock.vybavene !== true;
 });
+ 
     
 
 purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
