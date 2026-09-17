@@ -260,6 +260,12 @@ window.scrollTo({top:0,behavior:'smooth'});
     btn.textContent='Prihlásiť firmu';
   }
 });
+ $('portalCompanyPassword').addEventListener('keydown',(e)=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    $('companyLoginBtn').click();
+  }
+}); 
   $('companyLogoutBtn').addEventListener('click',()=>{
   localStorage.removeItem('dopytai_company_token');
   localStorage.removeItem('dopytai_company_email');
