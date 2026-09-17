@@ -446,8 +446,9 @@ const unlockedIds=new Set(unlocks.map(item=>Number(item.dopyt_id)));
     }
 
  const purchasedLeads = leads.filter(lead => unlockedIds.has(Number(lead.id)));
+    const activePurchasedLeads = purchasedLeads.filter(lead => !lead.vybavene);
 
-purchasedBox.innerHTML = purchasedLeads.map(lead => `
+purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
   <div class="card" style="margin-top:12px">
     <b>${lead.typ_prace||'Dopyt'}</b><br>
     📍 ${lead.lokalita||''}<br>
@@ -458,6 +459,9 @@ purchasedBox.innerHTML = purchasedLeads.map(lead => `
       📞 ${lead.telefon||''}<br>
       ✉️ ${lead.email||''}
     </div>
+  <button type="button" onclick="markLeadDone(${lead.id})" style="margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px">
+  ✅ Označiť ako vybavené
+</button>
   </div>
 `).join('');
   }catch(err){
@@ -465,7 +469,35 @@ purchasedBox.innerHTML = purchasedLeads.map(lead => `
     $('companyDashboardMessage').innerHTML='Chyba: '+err.message;
   }
 } 
+async function markLeadDone(leadId){
+  const token = localStorage.getItem('dopytai_company_token');
+  if(!token) return;
 
+  try{
+    const res = await fetch(
+      API_URL + '/odomknute_dopyty?dopyt_id=eq.' + encodeURIComponent(leadId),
+      {
+        method: 'PATCH',
+        headers:{
+          'apikey': API_KEY,
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ vybavene: true })
+      }
+    );
+
+    if(!res.ok){
+      throw new Error('Dopyt sa nepodarilo označiť ako vybavený.');
+    }
+
+    await loadCompanyLeads();
+  }catch(err){
+    console.error(err);
+    alert(err.message);
+  }
+}
 async function loadCompanyCredit(){
   const token=localStorage.getItem('dopytai_company_token');
   if(!token) return;
