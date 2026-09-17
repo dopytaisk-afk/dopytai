@@ -451,6 +451,11 @@ const activePurchasedLeads = purchasedLeads.filter(lead => {
   const unlock = unlocks.find(item => Number(item.dopyt_id) === Number(lead.id));
   return !unlock || unlock.vybavene !== true;
 });
+
+  const completedPurchasedLeads = purchasedLeads.filter(lead => {
+  const unlock = unlocks.find(item => Number(item.dopyt_id) === Number(lead.id));
+  return unlock && unlock.vybavene === true;
+});  
  
     
 
@@ -473,6 +478,31 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
     if (activePurchasedLeads.length === 0) {
   purchasedBox.innerHTML = '<div class="card" style="margin-top:12px">Momentálne nemáte žiadne aktívne zakúpené dopyty.</div>';
 }
+   const completedBox = document.createElement('div');
+completedBox.innerHTML = '<h3 style="margin-top:24px">Vybavené dopyty</h3>';
+
+if (completedPurchasedLeads.length === 0) {
+  completedBox.innerHTML += '<div class="card" style="margin-top:12px">Zatiaľ nemáte žiadne vybavené dopyty.</div>';
+} else {
+  completedBox.innerHTML += completedPurchasedLeads.map(lead => `
+    <div class="card" style="margin-top:12px">
+      <b>${lead.typ_prace || 'Dopyt'}</b><br>
+      📍 ${lead.lokalita || ''}<br>
+      💰 Odhad: ${Number(lead.odhad_ceny || 0).toLocaleString('sk-SK')} €<br>
+      <div style="margin-top:10px">
+        🔓 <b>Kontakt zákazníka</b><br>
+        👤 ${lead.meno || ''}<br>
+        📞 ${lead.telefon || ''}<br>
+        ✉️ ${lead.email || ''}
+      </div>
+      <div style="margin-top:10px;font-weight:700">
+        ✅ Vybavené
+      </div>
+    </div>
+  `).join('');
+}
+
+purchasedBox.insertAdjacentElement('afterend', completedBox); 
   }catch(err){
     console.error(err);
     $('companyDashboardMessage').innerHTML='Chyba: '+err.message;
