@@ -417,7 +417,8 @@ const unlockedIds=new Set(unlocks.map(item=>Number(item.dopyt_id)));
       box.innerHTML='Momentálne nemáte žiadne nové dopyty.';
     }else{
     const availableLeads = leads.filter(lead => !unlockedIds.has(Number(lead.id)));
-      box.innerHTML=availableLeads.map(lead=>{
+      if(!availableLeads.length) box.innerHTML='Momentálne nemáte žiadne nové dopyty.';
+      if(availableLeads.length)box.innerHTML=availableLeads.map(lead=>{
   const isUnlocked=unlockedIds.has(Number(lead.id));
 
   return `
