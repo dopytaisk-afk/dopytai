@@ -112,6 +112,10 @@
         Momentálne nemáte žiadne nové dopyty.
       </p>
     </div>
+    <div style="margin-top:20px">
+  <h3>Moje zakúpené dopyty</h3>
+  <div id="companyPurchasedLeads"></div>
+</div>
 
     <button class="btn" id="companyLogoutBtn" type="button" style="margin-top:20px">
       Odhlásiť sa
@@ -406,11 +410,14 @@ const unlocks=await unlockRes.json();
 const unlockedIds=new Set(unlocks.map(item=>Number(item.dopyt_id)));
 
     const box=$('companyDashboardMessage');
+    const purchasedBox=$('companyPurchasedLeads');
 
+   purchasedBox.innerHTML = ''; 
     if(!leads.length){
       box.innerHTML='Momentálne nemáte žiadne nové dopyty.';
     }else{
-    box.innerHTML=leads.map(lead=>{
+    const availableLeads = leads.filter(lead => !unlockedIds.has(Number(lead.id)));
+      box.innerHTML=availableLeads.map(lead=>{
   const isUnlocked=unlockedIds.has(Number(lead.id));
 
   return `
@@ -437,6 +444,21 @@ const unlockedIds=new Set(unlocks.map(item=>Number(item.dopyt_id)));
 }).join(''); 
     }
 
+ const purchasedLeads = leads.filter(lead => unlockedIds.has(Number(lead.id)));
+
+purchasedBox.innerHTML = purchasedLeads.map(lead => `
+  <div class="card" style="margin-top:12px">
+    <b>${lead.typ_prace||'Dopyt'}</b><br>
+    📍 ${lead.lokalita||''}<br>
+    💰 Odhad: ${Number(lead.odhad_ceny||0).toLocaleString('sk-SK')} €<br>
+    <div style="margin-top:10px">
+      🔓 <b>Kontakt zákazníka</b><br>
+      👤 ${lead.meno||''}<br>
+      📞 ${lead.telefon||''}<br>
+      ✉️ ${lead.email||''}
+    </div>
+  </div>
+`).join('');
   }catch(err){
     console.error(err);
     $('companyDashboardMessage').innerHTML='Chyba: '+err.message;
