@@ -85,7 +85,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const eventId = stripeEvent.id;
 const paymentId = session.payment_intent || session.id;      
  const checkResponse = await fetch(  
- `${supabaseUrl}/rest/v1/stripe_platby?event_id=eq.${encodeURIComponent(eventId)}&select=event_id`,
+`${supabaseUrl}/rest/v1/stripe_platby?event_id=eq.${encodeURIComponent(eventId)}&select=event_id`,
    {
     headers: {
       "apikey": supabaseServiceKey,
