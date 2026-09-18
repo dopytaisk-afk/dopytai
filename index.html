@@ -676,7 +676,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
       throw new Error(authData.msg || authData.message || 'Registrácia sa nepodarila.');
     }
 
-    if(authData.access_token){
+   
   const companyResponse = await fetch(API_URL+'/firmy',{
     method:'POST',
     headers:{
@@ -701,7 +701,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   if(!companyResponse.ok){
     throw new Error('Účet vznikol, ale údaje firmy sa nepodarilo uložiť.');
   }
-}
+
 
     msg.innerHTML='<div class="success">✅ Firemný účet bol vytvorený.</div>';
 
