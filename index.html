@@ -368,7 +368,7 @@ async function loadCompanyLeads(){
     const company=companies[0];
 
     const leadsRes=await fetch(
-      API_URL+'/dopyty?select=*&region=eq.'+encodeURIComponent(company.region)+'&stav=eq.novy&order=created_at.desc',
+      API_URL+'/dopyty?select=*&stav=eq.novy&order=created_at.desc',
       {
         headers:{
           'apikey':API_KEY,
