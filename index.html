@@ -384,7 +384,7 @@ async function loadCompanyLeads(){
     }
 
     const unlockRes=await fetch(
-  API_URL+'/odomknute_dopyty?select=dopyt_id,vybavene&firma_id=eq.'+company.id,
+  API_URL+'/odomknute_dopyty?select=dopyt_id,firma_id,vybavene',
   {
     headers:{
       'apikey':API_KEY,
@@ -400,6 +400,7 @@ if(!unlockRes.ok){
 const unlocks=await unlockRes.json();
     console.log('UNLOCK DEBUG:', unlockRes.status, unlocks);
 const unlockedIds=new Set(unlocks.map(item=>Number(item.dopyt_id)));
+    const ownUnlockedIds=new Set(unlocks.filter(item=>Number(item.firma_id)===Number(company.id)).map(item=>Number(item.dopyt_id)));
     console.log("UNLOCKS:", unlocks);
 
     const box=$('companyDashboardMessage');
@@ -437,15 +438,15 @@ const unlockedIds=new Set(unlocks.map(item=>Number(item.dopyt_id)));
   `;
 }).join(''); 
     }
-const purchasedLeads = leads.filter(lead => unlockedIds.has(Number(lead.id)));
+const purchasedLeads = leads.filter(lead => ownUnlockedIds.has(Number(lead.id)));
 
 const activePurchasedLeads = purchasedLeads.filter(lead => {
-  const unlock = unlocks.find(item => Number(item.dopyt_id) === Number(lead.id));
+ const unlock = unlocks.find(item => Number(item.dopyt_id) === Number(lead.id) && Number(item.firma_id) === Number(company.id));
   return !unlock || unlock.vybavene !== true;
 });
 
   const completedPurchasedLeads = purchasedLeads.filter(lead => {
-  const unlock = unlocks.find(item => Number(item.dopyt_id) === Number(lead.id));
+  const unlock = unlocks.find(item => Number(item.dopyt_id) === Number(lead.id) && Number(item.firma_id) === Number(company.id));
   return unlock && unlock.vybavene === true;
 });  
  
