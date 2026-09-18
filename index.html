@@ -384,7 +384,7 @@ async function loadCompanyLeads(){
     }
 
     const unlockRes=await fetch(
-  API_URL+'/predane_dopyty?select=dopyt_id,firma_id,vybavene',
+ API_URL+'/predane_dopyty?select=dopyt_id',
   {
     headers:{
       'apikey':API_KEY,
