@@ -118,9 +118,7 @@
   <div id="companyPurchasedLeads"></div>
 </div>
 
-    <button class="btn" id="companyLogoutBtn" type="button" style="margin-top:20px">
-      Odhlásiť sa
-    </button>
+   
   </div>
 </section>
   
@@ -271,14 +269,7 @@ window.scrollTo({top:0,behavior:'smooth'});
     $('companyLoginBtn').click();
   }
 }); 
-  $('companyLogoutBtn').addEventListener('click',()=>{
-  localStorage.removeItem('dopytai_company_token');
-  localStorage.removeItem('dopytai_company_email');
-  $('companyDashboard').style.display='none';
-  $('companyPortal').style.display='block';
-  $('portalCompanyPassword').value='';
-  window.scrollTo({top:0,behavior:'smooth'});
-});
+ 
  $('topUpCreditBtn').addEventListener('click',()=>{
   const packages = $('creditPackages');
   packages.style.display = packages.style.display === 'none' ? 'block' : 'none';
