@@ -677,30 +677,31 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
     }
 
     if(authData.access_token){
-      const companyResponse=await fetch(API_URL+'/firmy',{
-        method:'POST',
-        headers:{
-          'apikey':API_KEY,
-          'Authorization':'Bearer '+authData.access_token,
-          'Content-Type':'application/json',
-          'Prefer':'return=minimal'
-        },
-        body:JSON.stringify({
-          'názov':name,
-          kontaktna_osoba:'',
-          telefon:phone,
-          email:email,
-          region:region,
-          lokalita:'',
-          typ_prace:'Strechy',
-          stav:'aktivna'
-        })
-      });
+  const companyResponse = await fetch(API_URL+'/firmy',{
+    method:'POST',
+    headers:{
+      'apikey':API_KEY,
+      'Authorization':'Bearer '+authData.access_token,
+      'Content-Type':'application/json',
+      'Prefer':'return=minimal'
+    },
+    body:JSON.stringify({
+      'názov':name,
+      kontaktna_osoba:'',
+      telefon:phone,
+      email:email,
+      region:region,
+      lokalita:'',
+      typ_prace:'Strechy',
+      stav:'aktívna',
+      auth_user_id:authData.user.id
+    })
+  });
 
-      if(!companyResponse.ok){
-        throw new Error('Účet vznikol, ale údaje firmy sa nepodarilo uložiť.');
-      }
-    }
+  if(!companyResponse.ok){
+    throw new Error('Účet vznikol, ale údaje firmy sa nepodarilo uložiť.');
+  }
+}
 
     msg.innerHTML='<div class="success">✅ Firemný účet bol vytvorený.</div>';
 
