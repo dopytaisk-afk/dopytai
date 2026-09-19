@@ -471,7 +471,9 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
     if (activePurchasedLeads.length === 0) {
   purchasedBox.innerHTML = '<div class="card" style="margin-top:12px">Momentálne nemáte žiadne aktívne zakúpené dopyty.</div>';
 }
-   const completedBox = document.createElement('div');
+  document.querySelectorAll('.completed-section').forEach(el => el.remove()); 
+    const completedBox = document.createElement('div');
+    completedBox.className = 'completed-section';
 completedBox.innerHTML = `<h3 style="margin-top:24px;cursor:pointer" onclick="const x=this.parentElement.querySelector('.completed-list');x.style.display=x.style.display==='none'?'block':'none';this.querySelector('.arrow').textContent=x.style.display==='none'?'▶':'▼'">📁 Vybavené dopyty (${completedPurchasedLeads.length}) <span class="arrow">▶</span></h3><div class="completed-list" style="display:none"></div>`;
 
 if (completedPurchasedLeads.length === 0) {
