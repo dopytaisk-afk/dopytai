@@ -516,7 +516,7 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
    <img src="${photo}" onclick="openPhoto(this.src)" style="width:100px;height:100px;object-fit:cover;border-radius:8px;margin:4px;cursor:pointer;">
   `).join('');
 });
-    availableLeads.forEach(async (lead) => {
+   leads.filter(lead => !unlockedIds.has(Number(lead.id))).forEach(async (lead) => {
   try {
     const photos = await getLeadPhotos(company.id, lead.id);
     const photoBox = document.getElementById(`photos-${lead.id}`);
