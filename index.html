@@ -494,7 +494,7 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
   if (!photoBox || !photos || !photos.length) return;
 
   photoBox.innerHTML = photos.map(photo => `
-    <img src="${photo.url}" style="width:100px;height:100px;object-fit:cover;border-radius:8px;margin:4px;">
+    <img src="${photo}" style="width:100px;height:100px;object-fit:cover;border-radius:8px;margin:4px;">
   `).join('');
 });
     if (activePurchasedLeads.length === 0) {
