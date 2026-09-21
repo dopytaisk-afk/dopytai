@@ -477,6 +477,7 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
     <b>${lead.typ_prace||'Dopyt'}</b><br>
     📍 ${lead.lokalita||''}<br>
     💰 Odhad: ${Number(lead.odhad_ceny||0).toLocaleString('sk-SK')} €<br>
+    📝 ${lead.popis ? 'Popis: ' + lead.popis : 'Popis: neuvedený'}<br>
     <div style="margin-top:10px">
       🔓 <b>Kontakt zákazníka</b><br>
       👤 ${lead.meno||''}<br>
