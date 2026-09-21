@@ -470,7 +470,8 @@ const activePurchasedLeads = purchasedLeads.filter(lead => {
 });  
  
     
-
+const purchasedCount = activePurchasedLeads.length;
+    console.log('Počet zakúpených dopytov:', purchasedCount);
 purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
   <div class="card" style="margin-top:12px">
     <b>${lead.typ_prace||'Dopyt'}</b><br>
