@@ -479,7 +479,7 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
     💰 Odhad: ${Number(lead.odhad_ceny||0).toLocaleString('sk-SK')} €<br>
     <div style="margin-top:10px;line-height:1.7">
   <b>📋 Detaily zákazky</b><br>
-  📝 ${lead.popis ? lead.popis : 'Bez doplňujúceho popisu'}
+ 📝 ${(lead.popis || 'Bez doplňujúceho popisu').replace(/ (Plocha:|Krytina:|Krov:|Kraj:|Termín:|E-mail:|Fotografie vybrané:)/g, '<br>$1')}
 </div>
     <div style="margin-top:10px">
       🔓 <b>Kontakt zákazníka</b><br>
