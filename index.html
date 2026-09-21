@@ -476,7 +476,7 @@ const ownUnlockedIds = new Set(
 }).join(''); 
     }
 const purchasedLeads = leads.filter(lead => unlocks.some(item => Number(item.dopyt_id) === Number(lead.id) && Number(item.firma_id) === Number(company.id)));
-
+console.log('DEBUG FIRMA:', company.id, 'UNLOCKS:', unlocks, 'PURCHASED:', purchasedLeads);
 const activePurchasedLeads = purchasedLeads.filter(lead => {
   
  const unlock = unlocks.find(item => Number(item.dopyt_id) === Number(lead.id) && Number(item.firma_id) === Number(company.id));
