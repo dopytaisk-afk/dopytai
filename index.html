@@ -479,7 +479,12 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
     💰 Odhad: ${Number(lead.odhad_ceny||0).toLocaleString('sk-SK')} €<br>
     <div style="margin-top:10px;line-height:1.7">
   <b>📋 Detaily zákazky</b><br>
- 📝 ${(lead.popis || 'Bez doplňujúceho popisu').replace(/ (Plocha:|Krytina:|Krov:|Kraj:|Termín:|E-mail:|Fotografie vybrané:)/g, '<br>$1')}
+ 📐 Plocha: ${(lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená'}<br>
+🏠 Krytina: ${(lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená'}<br>
+🔨 Krov: ${(lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
+📍 Kraj: ${(lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
+📅 Termín: ${(lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*E-mail:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
+📝 Popis: ${(lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu'}
 </div>
     <div style="margin-top:10px">
       🔓 <b>Kontakt zákazníka</b><br>
