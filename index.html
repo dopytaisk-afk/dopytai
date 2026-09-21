@@ -1128,49 +1128,160 @@ async function updateLeadState(select){
 if(accessToken) showPanel(); else showLogin();
 
 $('form').addEventListener('submit',async e=>{
- e.preventDefault();
- const btn=$('submitBtn');
- btn.disabled=true; btn.textContent='Odosielam dopyt…';
- $('result').innerHTML='';
- const area=Number($('area').value), type=$('type').value, cover=$('cover').value, truss=$('truss').value;
- const est=calcEstimate(area,type,cover,truss);
- const price=est.lo.toLocaleString('sk-SK')+' – '+est.hi.toLocaleString('sk-SK')+' €';
- const details=[
-   $('desc').value.trim()||'Bez doplňujúceho popisu',
-   'Plocha: '+area+' m²',
-   'Krytina: '+cover,
-   'Krov: '+truss,
-   'Kraj: '+$('leadRegion').value,
-   'Termín: '+$('term').value,
-   $('email').value.trim()?'E-mail: '+$('email').value.trim():null,
-   'Fotografie vybrané: '+$('photos').files.length
- ].filter(Boolean).join('\n');
- const payload={
-   meno:$('name').value.trim(),
-   telefon:$('phone').value.trim(),
-   email:$('email').value.trim(),
-   typ_prace:type,
-   lokalita:$('city').value.trim(),
-   region:$('leadRegion').value,
-   popis:details,
-   odhad_ceny:est.mid
- };
- try{
-   const r=await fetch(API_URL+'/dopyty',{
-     method:'POST',
-     headers:{'apikey':API_KEY,'Authorization':'Bearer '+API_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-     body:JSON.stringify(payload)
-   });
-   if(!r.ok){throw new Error((await r.text())||('HTTP '+r.status));}
-   $('result').innerHTML='<div class="success"><b>✅ Dopyt bol úspešne odoslaný</b><br><br>Orientačný odhad: <span class="price">'+price+'</span><br><br><span class="muted">Údaje sme uložili. Remeselník môže dopyt ďalej spracovať.</span></div>';
-   $('form').reset();
-   $('result').scrollIntoView({behavior:'smooth',block:'center'});
- }catch(err){
-   console.error(err);
-   $('result').innerHTML='<div class="error"><b>⚠️ Dopyt sa nepodarilo odoslať.</b><br>Skúste to prosím znova. Ak problém zostane, skontrolujeme nastavenie Supabase.</div>';
- }finally{
-   btn.disabled=false; btn.textContent='Vytvoriť dopyt a vypočítať odhad';
- }
+  e.preventDefault();
+
+  const btn=$('submitBtn');
+  btn.disabled=true;
+  btn.textContent='Odosielam dopyt…';
+  $('result').innerHTML='';
+
+  const area=Number($('area').value);
+  const type=$('type').value;
+  const cover=$('cover').value;
+  const truss=$('truss').value;
+
+  const est=calcEstimate(area,type,cover,truss);
+  const price=est.lo.toLocaleString('sk-SK')+' – '+est.hi.toLocaleString('sk-SK')+' €';
+
+  const selectedPhotos=Array.from($('photos').files);
+
+  const details=[
+    $('desc').value.trim()||'Bez doplňujúceho popisu',
+    'Plocha: '+area+' m²',
+    'Krytina: '+cover,
+    'Krov: '+truss,
+    'Kraj: '+$('leadRegion').value,
+    'Termín: '+$('term').value,
+    $('email').value.trim()?'E-mail: '+$('email').value.trim():null,
+    'Fotografie vybrané: '+selectedPhotos.length
+  ].filter(Boolean).join('\n');
+
+  const payload={
+    meno:$('name').value.trim(),
+    telefon:$('phone').value.trim(),
+    email:$('email').value.trim(),
+    typ_prace:type,
+    lokalita:$('city').value.trim(),
+    region:$('leadRegion').value,
+    popis:details,
+    odhad_ceny:est.mid
+  };
+
+  try{
+
+    // 1. Uložíme dopyt a necháme si vrátiť jeho ID
+    const r=await fetch(API_URL+'/dopyty',{
+      method:'POST',
+      headers:{
+        'apikey':API_KEY,
+        'Authorization':'Bearer '+API_KEY,
+        'Content-Type':'application/json',
+        'Prefer':'return=representation'
+      },
+      body:JSON.stringify(payload)
+    });
+
+    const created=await r.json();
+
+    if(!r.ok){
+      throw new Error(created.message||('HTTP '+r.status));
+    }
+
+    if(!created.length || !created[0].id){
+      throw new Error('Dopyt bol uložený, ale nepodarilo sa získať jeho ID.');
+    }
+
+    const leadId=created[0].id;
+    const photoPaths=[];
+
+    // 2. Nahráme vybrané fotografie do Supabase Storage
+    for(let i=0;i<selectedPhotos.length;i++){
+
+      const file=selectedPhotos[i];
+
+      const safeName=file.name
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g,'')
+        .replace(/[^a-zA-Z0-9._-]/g,'_');
+
+      const filePath=leadId+'/'+Date.now()+'_'+i+'_'+safeName;
+
+      const uploadRes=await fetch(
+        API_URL.replace('/rest/v1','')+
+        '/storage/v1/object/dopyt-fotky/'+
+        encodeURIComponent(filePath).replace(/%2F/g,'/'),
+        {
+          method:'POST',
+          headers:{
+            'apikey':API_KEY,
+            'Authorization':'Bearer '+API_KEY,
+            'Content-Type':file.type||'application/octet-stream',
+            'x-upsert':'false'
+          },
+          body:file
+        }
+      );
+
+      if(!uploadRes.ok){
+        const uploadError=await uploadRes.text();
+        throw new Error('Fotografiu sa nepodarilo nahrať: '+uploadError);
+      }
+
+      photoPaths.push(filePath);
+    }
+
+    // 3. Uložíme cesty fotografií k dopytu
+    if(photoPaths.length){
+
+      const updateRes=await fetch(
+        API_URL+'/dopyty?id=eq.'+encodeURIComponent(leadId),
+        {
+          method:'PATCH',
+          headers:{
+            'apikey':API_KEY,
+            'Authorization':'Bearer '+API_KEY,
+            'Content-Type':'application/json',
+            'Prefer':'return=minimal'
+          },
+          body:JSON.stringify({
+            fotky:photoPaths
+          })
+        }
+      );
+
+      if(!updateRes.ok){
+        throw new Error('Fotografie sa nahrali, ale nepodarilo sa ich priradiť k dopytu.');
+      }
+    }
+
+    $('result').innerHTML=
+      '<div class="success">'+
+      '<b>✅ Dopyt bol úspešne odoslaný</b><br><br>'+
+      'Orientačný odhad: <span class="price">'+price+'</span><br><br>'+
+      '<span class="muted">Údaje sme uložili'+
+      (photoPaths.length?' vrátane '+photoPaths.length+' fotografií':'')+
+      '. Remeselník môže dopyt ďalej spracovať.</span>'+
+      '</div>';
+
+    $('form').reset();
+    $('result').scrollIntoView({behavior:'smooth',block:'center'});
+
+  }catch(err){
+
+    console.error(err);
+
+    $('result').innerHTML=
+      '<div class="error">'+
+      '<b>⚠️ Dopyt sa nepodarilo úplne odoslať.</b><br>'+
+      esc(err.message)+
+      '</div>';
+
+  }finally{
+
+    btn.disabled=false;
+    btn.textContent='Vytvoriť dopyt a vypočítať odhad';
+
+  }
 });
 if(new URLSearchParams(window.location.search).get('payment')==='success'){
   setTimeout(()=>loadCompanyCredit(),1000);
