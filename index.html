@@ -1170,28 +1170,32 @@ $('form').addEventListener('submit',async e=>{
   try{
 
     // 1. Uložíme dopyt a necháme si vrátiť jeho ID
-    const r=await fetch(API_URL+'/dopyty',{
-      method:'POST',
-      headers:{
-        'apikey':API_KEY,
-        'Authorization':'Bearer '+API_KEY,
-        'Content-Type':'application/json',
-        'Prefer':'return=representation'
-      },
-      body:JSON.stringify(payload)
-    });
+    const r=await fetch(API_URL+'/rpc/vytvor_dopyt',{
+  method:'POST',
+  headers:{
+    'apikey':API_KEY,
+    'Authorization':'Bearer '+API_KEY,
+    'Content-Type':'application/json'
+  },
+  body:JSON.stringify({
+    p_meno:payload.meno,
+    p_telefon:payload.telefon,
+    p_email:payload.email,
+    p_typ_prace:payload.typ_prace,
+    p_lokalita:payload.lokalita,
+    p_region:payload.region,
+    p_popis:payload.popis,
+    p_odhad_ceny:payload.odhad_ceny
+  })
+});
 
-    const created=await r.json();
+const created=await r.json();
 
-    if(!r.ok){
-      throw new Error(created.message||('HTTP '+r.status));
-    }
+if(!r.ok){
+  throw new Error(created.message||('HTTP '+r.status));
+}
 
-    if(!created.length || !created[0].id){
-      throw new Error('Dopyt bol uložený, ale nepodarilo sa získať jeho ID.');
-    }
-
-    const leadId=created[0].id;
+const leadId=created;
     const photoPaths=[];
 
     // 2. Nahráme vybrané fotografie do Supabase Storage
