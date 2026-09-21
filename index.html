@@ -448,6 +448,7 @@ const unlockedIds=new Set(unlocks.map(item=>Number(item.dopyt_id)));
 📅 Termín: ${(lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*E-mail:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
 📝 Popis: ${(lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu'}
 </div>
+  <div id="photos-${lead.id}" style="margin-top:10px"></div>   
       ${isUnlocked ? `
         <div style="margin-top:10px">
           🔓 <b>Kontakt zákazníka</b><br>
@@ -514,6 +515,19 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
   photoBox.innerHTML = photos.map(photo => `
    <img src="${photo}" onclick="openPhoto(this.src)" style="width:100px;height:100px;object-fit:cover;border-radius:8px;margin:4px;cursor:pointer;">
   `).join('');
+});
+    availableLeads.forEach(async (lead) => {
+  try {
+    const photos = await getLeadPhotos(company.id, lead.id);
+    const photoBox = document.getElementById(`photos-${lead.id}`);
+    if (!photoBox || !photos || !photos.length) return;
+
+    photoBox.innerHTML = photos.map(photo =>
+      `<img src="${photo}" onclick="openPhoto(this.src)" style="width:100px;height:100px;object-fit:cover;border-radius:8px;margin:4px;cursor:pointer">`
+    ).join('');
+  } catch (e) {
+    console.error('Fotografie dostupného dopytu:', e);
+  }
 });
     if (activePurchasedLeads.length === 0) {
   purchasedBox.innerHTML = '<div class="card" style="margin-top:12px">Momentálne nemáte žiadne aktívne zakúpené dopyty.</div>';
