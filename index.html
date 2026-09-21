@@ -327,7 +327,23 @@ const company = companies[0];
   });
 });
 
+async function getLeadPhotos(companyId, leadId){
+  const r = await fetch(API_URL + '/rpc/ziskaj_fotky_dopytu',{
+    method:'POST',
+    headers:{
+      ...authHeaders(),
+      'Content-Type':'application/json'
+    },
+    body:JSON.stringify({
+      p_firma_id:companyId,
+      p_dopyt_id:leadId
+    })
+  });
 
+  const data = await r.json();
+
+  if(!r.ok){
+    throw new Error(data.message || 'Fotografie sa nepodarilo načítať.');
 async function loadCompanyLeads(){
   const token=localStorage.getItem('dopytai_company_token');
   const email=localStorage.getItem('dopytai_company_email');
