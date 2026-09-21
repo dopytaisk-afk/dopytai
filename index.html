@@ -494,7 +494,7 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
   if (!photoBox || !photos || !photos.length) return;
 
   photoBox.innerHTML = photos.map(photo => `
-    <img src="${photo}" style="width:100px;height:100px;object-fit:cover;border-radius:8px;margin:4px;">
+   <img src="${photo}" onclick="openPhoto(this.src)" style="width:100px;height:100px;object-fit:cover;border-radius:8px;margin:4px;cursor:pointer;">
   `).join('');
 });
     if (activePurchasedLeads.length === 0) {
@@ -612,7 +612,29 @@ $('companyCredit').textContent = balance.toLocaleString('sk-SK') + ' €';
   }
 }
 
+function openPhoto(src){
+  const modal = document.createElement('div');
 
+  modal.style.cssText = `
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.85);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:999999;
+    padding:20px;
+    cursor:pointer;
+  `;
+
+  modal.innerHTML = `
+    <img src="${src}" style="max-width:95%;max-height:90vh;object-fit:contain;border-radius:10px;">
+    <button type="button" style="position:absolute;top:15px;right:20px;background:white;border:0;border-radius:50%;width:42px;height:42px;font-size:25px;cursor:pointer;">×</button>
+  `;
+
+  modal.addEventListener('click',()=>modal.remove());
+  document.body.appendChild(modal);
+}
 function showSuccessModal(price){
   const modal = document.createElement('div');
   modal.style.cssText = `
