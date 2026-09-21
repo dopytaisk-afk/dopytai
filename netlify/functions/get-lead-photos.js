@@ -30,29 +30,7 @@ exports.handler = async function (event) {
       };
     }
 
-    // Overíme, že firma má tento dopyt skutočne odomknutý
-    const unlockResponse = await fetch(
-      `${supabaseUrl}/rest/v1/odomknute_dopyty?firma_id=eq.${firmaId}&dopyt_id=eq.${dopytId}&select=dopyt_id`,
-      {
-        headers: {
-          apikey: supabaseServiceKey,
-          Authorization: `Bearer ${supabaseServiceKey}`
-        }
-      }
-    );
-
-    if (!unlockResponse.ok) {
-      throw new Error("Nepodarilo sa overit zakupenie dopytu.");
-    }
-
-    const unlocked = await unlockResponse.json();
-
-    if (!Array.isArray(unlocked) || unlocked.length === 0) {
-      return {
-        statusCode: 403,
-        body: JSON.stringify({ error: "Firma nema tento dopyt odomknuty." })
-      };
-    }
+   
 
     // Získame cesty fotografií uložené pri dopyte
     const leadResponse = await fetch(
