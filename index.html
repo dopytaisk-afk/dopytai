@@ -403,7 +403,7 @@ async function loadCompanyLeads(){
     }
 
     const unlockRes=await fetch(
-API_URL+'/odomknute_dopyty?select=dopyt_id,firma_id,vybavene',
+API_URL+'/odomknute_dopyty?select=dopyt_id,firma_id,vybavene,created_at',
   {
     headers:{
       'apikey':API_KEY,
@@ -469,10 +469,15 @@ const unlockedIds=new Set(unlocks.map(item=>Number(item.dopyt_id)));
 const purchasedLeads = leads.filter(lead => unlocks.some(item => Number(item.dopyt_id) === Number(lead.id) && Number(item.firma_id) === Number(company.id)));
 
 const activePurchasedLeads = purchasedLeads.filter(lead => {
+  
  const unlock = unlocks.find(item => Number(item.dopyt_id) === Number(lead.id) && Number(item.firma_id) === Number(company.id));
   return !unlock || unlock.vybavene !== true;
 });
-
+activePurchasedLeads.sort((a, b) => {
+  const unlockA = unlocks.find(item => Number(item.dopyt_id) === Number(a.id) && Number(item.firma_id) === Number(company.id));
+  const unlockB = unlocks.find(item => Number(item.dopyt_id) === Number(b.id) && Number(item.firma_id) === Number(company.id));
+  return new Date(unlockB?.created_at || 0) - new Date(unlockA?.created_at || 0);
+});
   const completedPurchasedLeads = purchasedLeads.filter(lead => {
   const unlock = unlocks.find(item => Number(item.dopyt_id) === Number(lead.id) && Number(item.firma_id) === Number(company.id));
   return unlock && unlock.vybavene === true;
