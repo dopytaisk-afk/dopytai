@@ -402,16 +402,13 @@ async function loadCompanyLeads(){
       throw new Error('Dopyty sa nepodarilo načítať.');
     }
 
-    const unlockRes = await fetch(
-  API_URL + '/rpc/predane_dopyty',
+   const unlockRes = await fetch(
+  API_URL + '/rest/v1/odomknute_dopyty?select=dopyt_id,firma_id,vybavene,created_at',
   {
-    method: 'POST',
     headers: {
       'apikey': API_KEY,
-      'Authorization': 'Bearer ' + token,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({})
+      'Authorization': 'Bearer ' + token
+    }
   }
 );
 
