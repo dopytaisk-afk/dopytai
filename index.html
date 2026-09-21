@@ -519,6 +519,7 @@ completedBox.querySelector('.completed-list').innerHTML = completedPurchasedLead
         📞 ${lead.telefon || ''}<br>
         ✉️ ${lead.email || ''}
       </div>
+      <div id="completed-photos-${lead.id}" style="margin-top:10px"></div>
       <div style="margin-top:10px;font-weight:700">
         ✅ Vybavené
       </div>
@@ -526,7 +527,17 @@ completedBox.querySelector('.completed-list').innerHTML = completedPurchasedLead
   `).join('');
 }
 
-purchasedBox.insertAdjacentElement('afterend', completedBox); 
+purchasedBox.insertAdjacentElement('afterend', completedBox);
+    completedPurchasedLeads.forEach(async (lead) => {
+  const photos = await getLeadPhotos(company.id, lead.id);
+  const photoBox = document.getElementById(`completed-photos-${lead.id}`);
+
+  if (!photoBox || !photos || !photos.length) return;
+
+  photoBox.innerHTML = photos.map(photo => `
+    <img src="${photo}" style="width:100px;height:100px;object-fit:cover;border-radius:8px;margin:4px;">
+  `).join('');
+});
   }catch(err){
     console.error(err);
     $('companyDashboardMessage').innerHTML='Chyba: '+err.message;
