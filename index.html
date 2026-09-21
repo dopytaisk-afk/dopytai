@@ -403,12 +403,15 @@ async function loadCompanyLeads(){
     }
 
    const unlockRes = await fetch(
-  API_URL + '/rest/v1/odomknute_dopyty?select=dopyt_id,firma_id,vybavene,created_at',
+  API_URL + '/rpc/predane_dopyty',
   {
+    method: 'POST',
     headers: {
       'apikey': API_KEY,
-      'Authorization': 'Bearer ' + token
-    }
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({})
   }
 );
 
