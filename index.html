@@ -328,22 +328,25 @@ const company = companies[0];
 });
 
 async function getLeadPhotos(companyId, leadId){
-  const r = await fetch(API_URL + '/rpc/ziskaj_fotky_dopytu',{
+  const r = await fetch('/.netlify/functions/get-lead-photos',{
     method:'POST',
     headers:{
-      ...authHeaders(),
       'Content-Type':'application/json'
     },
     body:JSON.stringify({
-      p_firma_id:companyId,
-      p_dopyt_id:leadId
+      firma_id:companyId,
+      dopyt_id:leadId
     })
   });
 
   const data = await r.json();
 
   if(!r.ok){
-    throw new Error(data.message || 'Fotografie sa nepodarilo načítať.');
+    throw new Error(data.error || 'Fotografie sa nepodarilo načítať.');
+  }
+
+  return Array.isArray(data.photos) ? data.photos : [];
+}
 async function loadCompanyLeads(){
   const token=localStorage.getItem('dopytai_company_token');
   const email=localStorage.getItem('dopytai_company_email');
@@ -479,11 +482,21 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
       📞 ${lead.telefon||''}<br>
       ✉️ ${lead.email||''}
     </div>
+    <div id="photos-${lead.id}" style="margin-top:10px"></div>
   <button type="button" onclick="markLeadDone(${lead.id})" style="margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#16a34a;color:white;font-weight:700;cursor:pointer">
   ✅ Označiť ako vybavené
 </button>
   </div>
 `).join('');
+    activePurchasedLeads.forEach(async (lead) => {
+  const photos = await getLeadPhotos(company.id, lead.id);
+  const photoBox = document.getElementById(`photos-${lead.id}`);
+  if (!photoBox || !photos || !photos.length) return;
+
+  photoBox.innerHTML = photos.map(photo => `
+    <img src="${photo.url}" style="width:100px;height:100px;object-fit:cover;border-radius:8px;margin:4px;">
+  `).join('');
+});
     if (activePurchasedLeads.length === 0) {
   purchasedBox.innerHTML = '<div class="card" style="margin-top:12px">Momentálne nemáte žiadne aktívne zakúpené dopyty.</div>';
 }
