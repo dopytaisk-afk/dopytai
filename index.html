@@ -402,25 +402,34 @@ async function loadCompanyLeads(){
       throw new Error('Dopyty sa nepodarilo načítať.');
     }
 
-    const unlockRes=await fetch(
-API_URL+'/odomknute_dopyty?select=dopyt_id,firma_id,vybavene,created_at',
+    const unlockRes = await fetch(
+  API_URL + '/rpc/predane_dopyty',
   {
-    headers:{
-      'apikey':API_KEY,
-      'Authorization':'Bearer '+token
-    }
+    method: 'POST',
+    headers: {
+      'apikey': API_KEY,
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({})
   }
 );
 
-if(!unlockRes.ok){
+if (!unlockRes.ok) {
   throw new Error('Odomknuté kontakty sa nepodarilo načítať.');
 }
 
-const unlocks=await unlockRes.json();
-    console.log('UNLOCK DEBUG:', unlockRes.status, unlocks);
-const unlockedIds=new Set(unlocks.map(item=>Number(item.dopyt_id)));
-    const ownUnlockedIds=new Set(unlocks.filter(item=>Number(item.firma_id)===Number(company.id)).map(item=>Number(item.dopyt_id)));
-    console.log("UNLOCKS:", unlocks);
+const unlocks = await unlockRes.json();
+
+const unlockedIds = new Set(
+  unlocks.map(item => Number(item.dopyt_id))
+);
+
+const ownUnlockedIds = new Set(
+  unlocks
+    .filter(item => Number(item.firma_id) === Number(company.id))
+    .map(item => Number(item.dopyt_id))
+);
 
     const box=$('companyDashboardMessage');
     const purchasedBox=$('companyPurchasedLeads');
