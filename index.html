@@ -876,34 +876,39 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
       throw new Error(authData.msg || authData.message || 'Registrácia sa nepodarila.');
     }
 
-   
-  const companyResponse = await fetch(API_URL+'/firmy',{
-    method:'POST',
-    headers:{
-      'apikey':API_KEY,
-      'Authorization':'Bearer '+authData.access_token,
-      'Content-Type':'application/json',
-      'Prefer':'return=minimal'
-    },
-    body:JSON.stringify({
-      'názov':name,
-      kontaktna_osoba:'',
-      telefon:phone,
-      email:email,
-      region:region,
-      lokalita:'',
-      typ_prace:'Strechy',
-      stav:'aktívna',
-      auth_user_id:authData.user.id
-    })
-  });
+    const userId = authData.user?.id || authData.id;
 
-  if(!companyResponse.ok){
-    throw new Error('Účet vznikol, ale údaje firmy sa nepodarilo uložiť.');
-  }
+    if(!userId){
+      throw new Error('Účet bol vytvorený, ale nepodarilo sa načítať ID používateľa.');
+    }
 
+    const companyResponse = await fetch(API_URL+'/firmy',{
+      method:'POST',
+      headers:{
+        'apikey':API_KEY,
+        'Authorization':'Bearer '+(authData.access_token || API_KEY),
+        'Content-Type':'application/json',
+        'Prefer':'return=minimal'
+      },
+      body:JSON.stringify({
+        'názov':name,
+        kontaktna_osoba:'',
+        telefon:phone,
+        email:email,
+        region:region,
+        lokalita:'',
+        typ_prace:'Strechy',
+        stav:'aktívna',
+        auth_user_id:userId
+      })
+    });
 
-    msg.innerHTML='<div class="success">✅ Firemný účet bol vytvorený.</div>';
+    if(!companyResponse.ok){
+      const companyError = await companyResponse.text();
+      throw new Error('Účet vznikol, ale údaje firmy sa nepodarilo uložiť: '+companyError);
+    }
+
+    msg.innerHTML='<div class="success">✅ Firemný účet bol vytvorený. Teraz sa môžete prihlásiť.</div>';
 
   }catch(err){
     msg.innerHTML='<div class="error">❌ '+esc(err.message)+'</div>';
