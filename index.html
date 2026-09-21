@@ -1277,26 +1277,26 @@ const leadId=created;
     // 3. Uložíme cesty fotografií k dopytu
     if(photoPaths.length){
 
-      const updateRes=await fetch(
-        API_URL+'/dopyty?id=eq.'+encodeURIComponent(leadId),
-        {
-          method:'PATCH',
-          headers:{
-            'apikey':API_KEY,
-            'Authorization':'Bearer '+API_KEY,
-            'Content-Type':'application/json',
-            'Prefer':'return=representation'
-          },
-          body:JSON.stringify({
-            fotky:photoPaths
-          })
-        }
-      );
-console.log('PHOTO UPDATE:', updateRes.status, await updateRes.clone().text());
-      if(!updateRes.ok){
-        throw new Error('Fotografie sa nahrali, ale nepodarilo sa ich priradiť k dopytu.');
-      }
-    }
+     const updateRes = await fetch(
+  API_URL + '/rpc/uloz_fotky_dopytu',
+  {
+    method: 'POST',
+    headers: {
+      'apikey': API_KEY,
+      'Authorization': 'Bearer ' + API_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      p_dopyt_id: leadId,
+      p_fotky: photoPaths
+    })
+  }
+);
+
+if(!updateRes.ok){
+  throw new Error('Nepodarilo sa uložiť fotky k dopytu: ' + await updateRes.text());
+}
+      
 
     $('result').innerHTML=
       '<div class="success">'+
