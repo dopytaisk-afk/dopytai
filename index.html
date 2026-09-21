@@ -1292,7 +1292,7 @@ const leadId=created;
           })
         }
       );
-
+console.log('PHOTO UPDATE:', updateRes.status, await updateRes.clone().text());
       if(!updateRes.ok){
         throw new Error('Fotografie sa nahrali, ale nepodarilo sa ich priradiť k dopytu.');
       }
