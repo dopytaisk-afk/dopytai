@@ -439,7 +439,15 @@ const unlockedIds=new Set(unlocks.map(item=>Number(item.dopyt_id)));
       <b>${lead.typ_prace||'Dopyt'}</b><br>
       📍 ${lead.lokalita||''}<br>
       💰 Odhad: ${Number(lead.odhad_ceny||0).toLocaleString('sk-SK')} €<br>
-
+<div style="margin-top:10px;line-height:1.7">
+<b>📋 Detaily zákazky</b><br>
+📐 Plocha: ${(lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená'}<br>
+🏠 Krytina: ${(lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená'}<br>
+🔨 Krov: ${(lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
+📍 Kraj: ${(lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
+📅 Termín: ${(lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*E-mail:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
+📝 Popis: ${(lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu'}
+</div>
       ${isUnlocked ? `
         <div style="margin-top:10px">
           🔓 <b>Kontakt zákazníka</b><br>
