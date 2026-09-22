@@ -468,7 +468,7 @@ const ownUnlockedIds = new Set(
       ` : `
         <small>🔒 Kontakt zákazníka je skrytý</small>
         <button type="button" onclick="unlockLead(${lead.id})" style="margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#0A89E8;color:white;font-weight:700">
-          🔐 Odomknúť kontakt
+         🔐 Odomknúť kontakt za ${Number(lead.cena_dopytu || 25)} €
         </button>
       `}
     </div>
@@ -785,7 +785,7 @@ function showErrorModal(message){
 }
   
   async function unlockLead(leadId){
-  const CENA_DOPYTU = 25;
+ const CENA_DOPYTU = Number(lead.cena_dopytu || 25);
 
   try{
     const token = localStorage.getItem('dopytai_company_token');
