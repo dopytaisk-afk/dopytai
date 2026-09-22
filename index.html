@@ -785,7 +785,8 @@ function showErrorModal(message){
 }
   
   async function unlockLead(leadId){
- const CENA_DOPYTU = Number(lead.cena_dopytu || 25);
+const lead = allLeads.find(x => String(x.id) === String(leadId));
+const CENA_DOPYTU = Number(lead?.cena_dopytu || 25);
 
   try{
     const token = localStorage.getItem('dopytai_company_token');
