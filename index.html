@@ -420,7 +420,8 @@ if (!unlockRes.ok) {
 }
 
 const unlocks = await unlockRes.json();
-
+console.log('UNLOCKS DEBUG:', unlocks);
+console.log('LEADS DEBUG:', leads.map(x => ({id:x.id, lokalita:x.lokalita})));
 const unlockedIds = new Set(
   unlocks.map(item => Number(item.dopyt_id))
 );
