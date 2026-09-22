@@ -179,13 +179,50 @@ const API_KEY='sb_publishable_tD39CIcOeokbNGxDB5Lehg_EUYzmJ36';
 const $=id=>document.getElementById(id);
 
 function calcEstimate(area,type,cover,truss){
- let base=type.includes('Oprava')?650:area*92;
- if(cover.includes('Pálená')) base*=1.08;
- if(cover.includes('Plechová')) base*=.92;
- if(truss==='Nie'&&!type.includes('Oprava')) base+=area*38;
- const lo=Math.round(base*.9/100)*100;
- const hi=Math.round(base*1.15/100)*100;
- return {lo,hi,mid:Math.round((lo+hi)/2)};
+  area = Number(area) || 0;
+
+  let pricePerM2;
+
+  // Oprava strechy – menší rozsah prác
+  if(type.includes('Oprava')){
+    let base = 650;
+    const lo = Math.round(base * 0.75 / 100) * 100;
+    const hi = Math.round(base * 1.35 / 100) * 100;
+    return {lo, hi, mid: Math.round((lo + hi) / 2)};
+  }
+
+  // Nová strecha / rekonštrukcia – základ bez nového krovu
+  if(type.includes('Rekonštrukcia')){
+    pricePerM2 = 75;
+  }else{
+    pricePerM2 = 85;
+  }
+
+  // Typ krytiny
+  if(cover.includes('Pálená')) pricePerM2 *= 1.10;
+  if(cover.includes('Plechová')) pricePerM2 *= 0.90;
+
+  // Ak treba kompletne nový krov
+  if(truss === 'Nie'){
+    pricePerM2 += 55;
+  }
+
+  // Čiastočne hotový / potrebná časť krovu
+  if(truss === 'Čiastočne'){
+    pricePerM2 += 25;
+  }
+
+  const base = area * pricePerM2;
+
+  // Orientačné rozpätie približne -15 % až +20 %
+  const lo = Math.round(base * 0.85 / 100) * 100;
+  const hi = Math.round(base * 1.20 / 100) * 100;
+
+  return {
+    lo,
+    hi,
+    mid: Math.round((lo + hi) / 2)
+  };
 }
 
 
