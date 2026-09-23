@@ -297,7 +297,11 @@ $('companyDashboard').style.display='block';
 window.scrollTo({top:0,behavior:'smooth'});
 
   }catch(err){
-    alert('❌ '+err.message);
+   if(err.message === 'Email not confirmed'){
+  alert('📧 E-mail ešte nie je potvrdený. Skontrolujte svoju e-mailovú schránku a kliknite na potvrdzovací odkaz. Potom sa môžete prihlásiť.');
+}else{
+  alert('❌ '+err.message);
+}
   }finally{
     btn.disabled=false;
     btn.textContent='Prihlásiť firmu';
