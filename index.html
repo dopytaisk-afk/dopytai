@@ -316,7 +316,7 @@ window.scrollTo({top:0,behavior:'smooth'});
     $('companyLoginBtn').click();
   }
 }); 
- $('forgotCompanyPassword').addEventListener('click', async ()=>{
+$('forgotCompanyPassword').addEventListener('click', async ()=>{
   const email = $('portalCompanyEmail').value.trim();
 
   if(!email){
@@ -325,11 +325,23 @@ window.scrollTo({top:0,behavior:'smooth'});
   }
 
   try{
-    const { error } = await sb.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin
-    });
+    const r = await fetch(
+      AUTH_URL + '/recover?redirect_to=' + encodeURIComponent(window.location.origin),
+      {
+        method:'POST',
+        headers:{
+          'apikey':API_KEY,
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify({email})
+      }
+    );
 
-    if(error) throw error;
+    const data = await r.json().catch(()=>({}));
+
+    if(!r.ok){
+      throw new Error(data.msg || data.error_description || 'Odoslanie e-mailu zlyhalo.');
+    }
 
     alert('📧 Na váš e-mail sme poslali odkaz na obnovenie hesla. Skontrolujte si e-mailovú schránku.');
   }catch(err){
