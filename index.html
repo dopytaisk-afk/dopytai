@@ -95,6 +95,26 @@
 </p>
   </div>
 </section>
+  <section id="companyPasswordReset" style="display:none">
+  <div class="card">
+    <h2>Nastavenie nového hesla</h2>
+    <p>Zadajte nové heslo pre váš firemný účet.</p>
+
+    <div class="field">
+      <label>Nové heslo</label>
+      <input id="newCompanyPassword" type="password" placeholder="Nové heslo">
+    </div>
+
+    <div class="field">
+      <label>Potvrdiť nové heslo</label>
+      <input id="confirmNewCompanyPassword" type="password" placeholder="Zopakujte nové heslo">
+    </div>
+
+    <button class="btn" id="saveNewCompanyPassword" type="button">
+      Uložiť nové heslo
+    </button>
+  </div>
+</section>
 <section id="companyDashboard" style="display:none">
   <div class="card">
     <h2>Firemný panel</h2>
@@ -231,6 +251,28 @@ function calcEstimate(area,type,cover,truss){
 
 const AUTH_URL=API_URL.replace('/rest/v1','/auth/v1');
 let accessToken=localStorage.getItem('dopytai_access_token')||'';
+ const recoveryParams = new URLSearchParams(window.location.hash.substring(1));
+const recoveryAccessToken = recoveryParams.get('access_token');
+const recoveryType = recoveryParams.get('type');
+
+if(recoveryAccessToken && recoveryType === 'recovery'){
+  accessToken = recoveryAccessToken;
+  localStorage.setItem('dopytai_recovery_token', recoveryAccessToken);
+
+  window.addEventListener('DOMContentLoaded', ()=>{
+    const customer = document.getElementById('customer');
+    const companyPortal = document.getElementById('companyPortal');
+    const companyDashboard = document.getElementById('companyDashboard');
+    const passwordReset = document.getElementById('companyPasswordReset');
+
+    if(customer) customer.style.display='none';
+    if(companyPortal) companyPortal.style.display='none';
+    if(companyDashboard) companyDashboard.style.display='none';
+    if(passwordReset) passwordReset.style.display='block';
+
+    window.scrollTo(0,0);
+  });
+} 
 window.dopytaiCompanies=[];
 function authHeaders(){
   const token=localStorage.getItem('dopytai_company_token')||'';
@@ -348,7 +390,56 @@ $('forgotCompanyPassword').addEventListener('click', async ()=>{
     alert('❌ Nepodarilo sa odoslať e-mail na obnovenie hesla: ' + err.message);
   }
 });
- $('topUpCreditBtn').addEventListener('click',()=>{
+ $('saveNewCompanyPassword').addEventListener('click', async ()=>{
+  const password = $('newCompanyPassword').value;
+  const confirmPassword = $('confirmNewCompanyPassword').value;
+
+  if(password.length < 6){
+    alert('❌ Heslo musí mať aspoň 6 znakov.');
+    return;
+  }
+
+  if(password !== confirmPassword){
+    alert('❌ Heslá sa nezhodujú.');
+    return;
+  }
+
+  const token = localStorage.getItem('dopytai_recovery_token');
+
+  if(!token){
+    alert('❌ Odkaz na obnovenie hesla je neplatný alebo vypršal.');
+    return;
+  }
+
+  try{
+    const r = await fetch(AUTH_URL + '/user', {
+      method: 'PUT',
+      headers: {
+        'apikey': API_KEY,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        password: password
+      })
+    });
+
+    const data = await r.json().catch(()=>({}));
+
+    if(!r.ok){
+      throw new Error(data.msg || data.message || data.error_description || 'Heslo sa nepodarilo zmeniť.');
+    }
+
+    localStorage.removeItem('dopytai_recovery_token');
+
+    alert('✅ Heslo bolo úspešne zmenené. Teraz sa môžete prihlásiť novým heslom.');
+
+    window.location.href = window.location.origin;
+  }catch(err){
+    alert('❌ ' + err.message);
+  }
+});
+  $('topUpCreditBtn').addEventListener('click',()=>{
   const packages = $('creditPackages');
   packages.style.display = packages.style.display === 'none' ? 'block' : 'none';
 });
