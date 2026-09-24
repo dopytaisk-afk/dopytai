@@ -83,6 +83,9 @@
     </div>
 
     <button class="btn" id="companyLoginBtn" type="button">Prihlásiť firmu</button>
+    <button id="forgotCompanyPassword" type="button" style="display:block;margin:12px auto 0;background:none;border:0;color:#1687f8;font-weight:700;cursor:pointer;text-decoration:underline;">
+  Zabudli ste heslo?
+</button>
 <button class="btn" id="closeCompany" type="button" style="margin-top:12px;background:#fff;color:#1687f8;border:2px solid #1687f8;">Späť na web</button>
     <p style="margin-top:18px;text-align:center">
   Ešte nemáte účet?
@@ -313,7 +316,26 @@ window.scrollTo({top:0,behavior:'smooth'});
     $('companyLoginBtn').click();
   }
 }); 
- 
+ $('forgotCompanyPassword').addEventListener('click', async ()=>{
+  const email = $('portalCompanyEmail').value.trim();
+
+  if(!email){
+    alert('📧 Najprv zadajte svoj e-mail do poľa E-mail firmy.');
+    return;
+  }
+
+  try{
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin
+    });
+
+    if(error) throw error;
+
+    alert('📧 Na váš e-mail sme poslali odkaz na obnovenie hesla. Skontrolujte si e-mailovú schránku.');
+  }catch(err){
+    alert('❌ Nepodarilo sa odoslať e-mail na obnovenie hesla: ' + err.message);
+  }
+});
  $('topUpCreditBtn').addEventListener('click',()=>{
   const packages = $('creditPackages');
   packages.style.display = packages.style.display === 'none' ? 'block' : 'none';
