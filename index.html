@@ -288,6 +288,9 @@ function showLogin(){ $('loginBox').style.display='block'; $('adminPanel').style
 function esc(v){ return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
 $('openAdmin').addEventListener('click',showAdmin);
+  if(new URLSearchParams(window.location.search).get('admin') === '1'){
+  showAdmin();
+}
 $('openCompany').addEventListener('click',()=>{ $('customer').style.display='none'; $('admin').classList.remove('show'); $('companyPortal').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); });
   const savedCompanyToken=localStorage.getItem('dopytai_company_token');
 const savedCompanyEmail=localStorage.getItem('dopytai_company_email');
