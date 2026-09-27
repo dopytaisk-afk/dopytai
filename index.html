@@ -1119,11 +1119,11 @@ $('loginBtn').addEventListener('click', async () => {
   msg.textContent = 'Prihlasujem...';
 
   try {
-    const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+    const r = await fetch(AUTH_URL + '/token?grant_type=password', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        apikey: SUPABASE_ANON
+       apikey: API_KEY
       },
       body: JSON.stringify({ email, password })
     });
