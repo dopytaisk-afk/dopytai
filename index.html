@@ -1112,8 +1112,8 @@ if(password !== passwordConfirm){
 });
   $('closeAdmin').addEventListener('click',showCustomer);
 $('loginBtn').addEventListener('click', async () => {
-  const email = $('loginEmail').value.trim();
-  const password = $('loginPass').value;
+ const email = $('adminEmail').value.trim();
+  const password = $('adminPassword').value;
   const msg = $('loginMsg');
 
   msg.textContent = 'Prihlasujem...';
