@@ -1142,7 +1142,7 @@ $('loginBtn').addEventListener('click', async () => {
     localStorage.setItem('dopytai_access_token', accessToken);
 
     msg.textContent = '';
-    showAdminPanel();
+    showPanel();
     await loadLeads();
 
   } catch (err) {
