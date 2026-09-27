@@ -1111,18 +1111,45 @@ if(password !== passwordConfirm){
   }
 });
   $('closeAdmin').addEventListener('click',showCustomer);
-$('loginBtn').addEventListener('click',async()=>{
-  const email=$('adminEmail').value.trim(), password=$('adminPassword').value;
-  $('loginMsg').innerHTML='';
-  if(!email||!password){ $('loginMsg').innerHTML='<div class="error">Vyplň e-mail aj heslo.</div>'; return; }
-  const b=$('loginBtn'); b.disabled=true; b.textContent='Prihlasujem…';
-  try{
-    const r=await fetch(AUTH_URL+'/token?grant_type=password',{method:'POST',headers:{'apikey':API_KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password})});
-    const data=await r.json();
-    if(!r.ok||!data.access_token) throw new Error(data.error_description||data.msg||'Prihlásenie zlyhalo');
-    accessToken=data.access_token; localStorage.setItem('dopytai_access_token',accessToken); showPanel(); await loadLeads();
-  }catch(err){ $('loginMsg').innerHTML='<div class="error"><b>Prihlásenie sa nepodarilo.</b><br>'+esc(err.message)+'</div>'; }
-  finally{ b.disabled=false; b.textContent='Prihlásiť'; }
+$('loginBtn').addEventListener('click', async () => {
+  const email = $('loginEmail').value.trim();
+  const password = $('loginPass').value;
+  const msg = $('loginMsg');
+
+  msg.textContent = 'Prihlasujem...';
+
+  try {
+    const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SUPABASE_ANON
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await r.json();
+
+    if (!r.ok || !data.access_token) {
+      throw new Error(data.error_description || data.msg || 'Nesprávny e-mail alebo heslo.');
+    }
+
+    if (email.toLowerCase() !== 'info@dopytai24.sk') {
+      throw new Error('Tento účet nemá oprávnenie administrátora.');
+    }
+
+    accessToken = data.access_token;
+    localStorage.setItem('dopytai_access_token', accessToken);
+
+    msg.textContent = '';
+    showAdminPanel();
+    await loadLeads();
+
+  } catch (err) {
+    accessToken = '';
+    localStorage.removeItem('dopytai_access_token');
+    msg.textContent = err.message;
+  }
 });
 
 $('logoutBtn').addEventListener('click',()=>{
