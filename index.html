@@ -642,7 +642,7 @@ const ownUnlockedIds = new Set(
         </div>
       ` : `
         <small>🔒 Kontakt zákazníka je skrytý</small>
-        <button type="button" onclick="unlockLead(${lead.id})" style="margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#0A89E8;color:white;font-weight:700">
+       <button type="button" onclick="unlockLead(${lead.id})" style="margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#0A89E8;color:white;font-weight:700;cursor:pointer">
          🔐 Odomknúť kontakt za ${Number(lead.cena_dopytu || 25)} €
         </button>
       `}
