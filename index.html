@@ -1156,6 +1156,7 @@ $('loginBtn').addEventListener('click', async () => {
 });
 
 $('logoutBtn').addEventListener('click',()=>{
+  const wasAdmin = !!localStorage.getItem('dopytai_access_token');
   accessToken='';
   localStorage.removeItem('dopytai_access_token');
   localStorage.removeItem('dopytai_company_token');
@@ -1166,7 +1167,13 @@ $('logoutBtn').addEventListener('click',()=>{
   $('companyDashboard').style.display='none';
   $('companyPortal').style.display='none';
   $('companyRegister').style.display='none';
+ if(wasAdmin){
+  $('customer').style.display='none';
+  $('admin').classList.add('show');
+  showLogin();
+}else{
   $('customer').style.display='block';
+}
 
   window.scrollTo({top:0,behavior:'smooth'});
 });
