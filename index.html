@@ -1154,6 +1154,12 @@ $('loginBtn').addEventListener('click', async () => {
     msg.textContent = err.message;
   }
 });
+  $('adminPassword').addEventListener('keydown',(e)=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    $('loginBtn').click();
+  }
+});
 
 $('logoutBtn').addEventListener('click',()=>{
   const wasAdmin = !!localStorage.getItem('dopytai_access_token');
