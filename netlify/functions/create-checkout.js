@@ -52,12 +52,12 @@ exports.handler = async function (event) {
 
     params.append(
       "success_url",
-     "https://sparkly-choux-e2b050.netlify.app/?payment=success&session_id={CHECKOUT_SESSION_ID}"
+     "https://dopytai24.sk/?payment=success&session_id={CHECKOUT_SESSION_ID}"
     );
 
     params.append(
       "cancel_url",
-      "https://sparkly-choux-e2b050.netlify.app/?payment=cancel"
+     "https://dopytai24.sk/?payment=cancel"
     );
 
     const response = await fetch(
