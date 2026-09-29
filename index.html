@@ -189,6 +189,7 @@
   <label>Potvrdiť heslo</label>
   <input id="registerCompanyPasswordConfirm" type="password" placeholder="Zadajte heslo znova">
 </div>
+    <div style="margin:12px 0 16px;display:flex;align-items:flex-start;gap:9px;font-size:14px;line-height:1.4;color:#475569"><input id="companyTermsConsent" type="checkbox" style="width:auto;margin-top:3px"><label for="companyTermsConsent">Potvrdzujem, že som sa oboznámil/a s <a href="/obchodne-podmienky.html" target="_blank" rel="noopener noreferrer" style="color:#087cf0;font-weight:700">Obchodnými podmienkami DopytAI</a> a súhlasím s nimi.</label></div>
     <button class="btn" id="registerCompanySubmit" type="button">Vytvoriť účet firmy</button>
     <button class="btn" id="backToCompanyLogin" type="button" style="margin-top:12px;background:#fff;color:#1687f8;border:2px solid #1687f8;">Späť na prihlásenie</button>
 
@@ -1026,6 +1027,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   const password=$('registerCompanyPassword').value;
    const passwordConfirm=$('registerCompanyPasswordConfirm').value;
   const msg=$('registerCompanyMsg');
+    const termsConsent=$('companyTermsConsent').checked;
 
   msg.innerHTML='';
 
@@ -1033,6 +1035,10 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
     msg.innerHTML='<div class="error">Vyplňte všetky údaje.</div>';
     return;
   }
+    if(!termsConsent){
+  msg.innerHTML='<div class="error">Pre vytvorenie účtu musíte súhlasiť s Obchodnými podmienkami.</div>';
+  return;
+}
 
   if(password.length<6){
     msg.innerHTML='<div class="error">Heslo musí mať aspoň 6 znakov.</div>';
