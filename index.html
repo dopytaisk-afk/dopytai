@@ -563,7 +563,7 @@ async function loadCompanyLeads(){
     const company=companies[0];
 
     const leadsRes=await fetch(
-     API_URL+'/dopyty?select=*&stav=eq.novy&order=created_at.desc',
+    API_URL+'/dopyty?select=*&order=created_at.desc',
       {
         headers:{
           'apikey':API_KEY,
@@ -615,7 +615,7 @@ const ownUnlockedIds = new Set(
     if(!leads.length){
       box.innerHTML='Momentálne nemáte žiadne nové dopyty.';
     }else{
-    const availableLeads = leads.filter(lead => !unlockedIds.has(Number(lead.id)));
+    const availableLeads = leads.filter(lead => lead.stav === 'novy' && !unlockedIds.has(Number(lead.id)));
       if(!availableLeads.length) box.innerHTML='Momentálne nemáte žiadne nové dopyty.';
       if(availableLeads.length)box.innerHTML=availableLeads.map(lead=>{
   const isUnlocked=unlockedIds.has(Number(lead.id));
