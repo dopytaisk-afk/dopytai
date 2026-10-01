@@ -624,7 +624,7 @@ const ownUnlockedIds = new Set(
     <div class="card" style="margin-top:12px">
       <b>${lead.typ_prace||'Dopyt'}</b><br>
       📍 ${lead.lokalita||''}<br>
-      💰 Odhad: ${Number(lead.odhad_ceny||0).toLocaleString('sk-SK')} €<br>
+     💰 Odhad: ${((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €')}<br>
 <div style="margin-top:10px;line-height:1.7">
 <b>📋 Detaily zákazky</b><br>
 📐 Plocha: ${(lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená'}<br>
@@ -1495,6 +1495,7 @@ $('form').addEventListener('submit',async e=>{
     'Krov: '+truss,
     'Kraj: '+$('leadRegion').value,
     'Termín: '+$('term').value,
+    'Odhad: '+price,
     $('email').value.trim()?'E-mail: '+$('email').value.trim():null,
     'Fotografie vybrané: '+selectedPhotos.length
   ].filter(Boolean).join('\n');
