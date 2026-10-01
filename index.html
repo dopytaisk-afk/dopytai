@@ -667,7 +667,12 @@ activePurchasedLeads.sort((a, b) => {
   const completedPurchasedLeads = purchasedLeads.filter(lead => {
   const unlock = unlocks.find(item => Number(item.dopyt_id) === Number(lead.id) && Number(item.firma_id) === Number(company.id));
   return unlock && unlock.vybavene === true;
-});  
+});
+    completedPurchasedLeads.sort((a, b) => {
+  const unlockA = unlocks.find(item => Number(item.dopyt_id) === Number(a.id) && Number(item.firma_id) === Number(company.id));
+  const unlockB = unlocks.find(item => Number(item.dopyt_id) === Number(b.id) && Number(item.firma_id) === Number(company.id));
+  return new Date(unlockB?.created_at || 0) - new Date(unlockA?.created_at || 0);
+});
  
     
 const purchasedCount = activePurchasedLeads.length;
