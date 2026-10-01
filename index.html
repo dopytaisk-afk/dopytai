@@ -631,7 +631,7 @@ const ownUnlockedIds = new Set(
 🏠 Krytina: ${(lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená'}<br>
 🔨 Krov: ${(lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
 📍 Kraj: ${(lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
-📅 Termín: ${(lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*E-mail:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
+📅 Termín: ${((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený'}<br>
 📝 Popis: ${(lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu'}
 </div>
   <div id="photos-${lead.id}" style="margin-top:10px"></div>   
