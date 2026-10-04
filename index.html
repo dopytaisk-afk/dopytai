@@ -778,7 +778,7 @@ async function markLeadDone(leadId){
 
   try{
     const res = await fetch(
-      API_URL + '/odomknute_dopyty?dopyt_id=eq.' + encodeURIComponent(leadId),
+     API_URL + '/odomknute_dopyty?dopyt_id=eq.' + encodeURIComponent(leadId) + '&firma_id=eq.' + encodeURIComponent(company.id),
       {
         method: 'PATCH',
         headers:{
