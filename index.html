@@ -740,7 +740,7 @@ completedBox.querySelector('.completed-list').innerHTML = completedPurchasedLead
     <div class="card" style="margin-top:12px">
       <b>${lead.typ_prace || 'Dopyt'}</b><br>
       📍 ${lead.lokalita || ''}<br>
-      💰 Odhad: ${Number(lead.odhad_ceny || 0).toLocaleString('sk-SK')} €<br>
+     💰 Odhad: ${((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €')}<br>
       <div style="margin-top:10px">
         🔓 <b>Kontakt zákazníka</b><br>
         👤 ${lead.meno || ''}<br>
