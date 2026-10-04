@@ -772,13 +772,36 @@ purchasedBox.insertAdjacentElement('afterend', completedBox);
   }
 } 
 async function markLeadDone(leadId){
-  
   const token = localStorage.getItem('dopytai_company_token');
   if(!token) return;
 
   try{
+    const sessionRes = await fetch(`${AUTH_URL}/user`, {
+      headers:{
+        'apikey': API_KEY,
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if(!sessionRes.ok) throw new Error('Firma nie je prihlásená.');
+
+    const user = await sessionRes.json();
+
+    const companyRes = await fetch(
+      `${API_URL}/firmy?auth_user_id=eq.${user.id}&select=id`,
+      { headers: authHeaders() }
+    );
+
+    const companies = await companyRes.json();
+
+    if(!companyRes.ok || !companies.length){
+      throw new Error('Firmu sa nepodarilo nájsť.');
+    }
+
+    const firmaId = companies[0].id;
+
     const res = await fetch(
-     API_URL + '/odomknute_dopyty?dopyt_id=eq.' + encodeURIComponent(leadId) + '&firma_id=eq.' + encodeURIComponent(company.id),
+      API_URL + '/odomknute_dopyty?dopyt_id=eq.' + encodeURIComponent(leadId) + '&firma_id=eq.' + encodeURIComponent(firmaId),
       {
         method: 'PATCH',
         headers:{
@@ -797,6 +820,7 @@ async function markLeadDone(leadId){
 
     await loadCompanyLeads();
     location.reload();
+
   }catch(err){
     console.error(err);
     alert(err.message);
