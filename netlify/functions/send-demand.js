@@ -54,7 +54,7 @@ exports.handler = async function (event) {
           <tr>
             <td style="padding:11px 0;color:#6b7280;">Odhad zákazky</td>
             <td style="padding:11px 0;text-align:right;font-size:20px;font-weight:700;color:#1687f8;">
-              ${data.rozpocet || "-"} €
+              ${data.rozpocet || "-"} 
             </td>
           </tr>
         </table>
