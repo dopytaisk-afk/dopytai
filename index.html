@@ -1654,7 +1654,35 @@ const leadId=created;
 if(!updateRes.ok){
   throw new Error('Nepodarilo sa uložiť fotky k dopytu: ' + await updateRes.text());
 }
-    }      
+    } 
+// 4. Automaticky upozorníme vhodné firmy na nový dopyt
+try {
+  const notifyResponse = await fetch('/.netlify/functions/notify-new-demand', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      dopyt_id: leadId,
+      region: payload.region,
+      lokalita: payload.lokalita,
+      typ_prace: payload.typ_prace,
+      plocha: area,
+      rozpocet: price
+    })
+  });
+
+  const notifyResult = await notifyResponse.json().catch(() => ({}));
+
+  if (!notifyResponse.ok) {
+    console.error('Automatické upozornenie firiem zlyhalo:', notifyResult);
+  } else {
+    console.log('Firmy upozornené:', notifyResult);
+  }
+} catch (notifyError) {
+  console.error('Automatické upozornenie firiem zlyhalo:', notifyError);
+}
+    
 
     $('result').innerHTML=
       '<div class="success">'+
