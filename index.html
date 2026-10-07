@@ -19,7 +19,7 @@
 <div class="field"><label>Krytina</label><select id="cover"><option>Betónová škridla</option><option>Pálená škridla</option><option>Plechová krytina</option><option>Neviem – chcem odporúčanie</option></select></div>
 <div class="field"><label>Je krov hotový?</label><select id="truss"><option>Áno</option><option>Nie</option><option>Čiastočne</option></select></div>
 <div class="field"><label>Popíšte zákazku</label><textarea id="desc" placeholder="Napr. novostavba bungalovu, väzníkový krov..."></textarea></div>
-<div class="field"><label>Fotografie / projekt</label><div class="photo"><input id="photos" type="file" accept="image/*" multiple><p class="note">Môžete pridať fotografie alebo projekt, ktoré pomôžu firme lepšie posúdiť váš dopyt.</p></div></div>
+<div class="field"><label>Fotografie / projekt</label><div class="photo"><input id="photos" type="file" accept="image/*" multiple><p class="note">Môžete pridať maximálne 5 fotografií, ktoré pomôžu firme lepšie posúdiť váš dopyt.</p><div id="photoCount" class="note" style="margin-top:8px">Vybrané fotografie: 0/5</div></div></div>
 <div class="field"><label>Obec / mesto</label><input id="city" placeholder="napr. Žilina" required></div>
 <div class="field"><label>Kraj</label><select id="leadRegion" required><option value="">— Vyberte kraj —</option><option>Bratislavský kraj</option><option>Trnavský kraj</option><option>Trenčiansky kraj</option><option>Nitriansky kraj</option><option>Žilinský kraj</option><option>Banskobystrický kraj</option><option>Prešovský kraj</option><option>Košický kraj</option></select></div>
 <div class="field"><label>Požadovaný termín</label><select id="term"><option>Čo najskôr</option><option>Do 1–3 mesiacov</option><option>Do 3–6 mesiacov</option><option>Len zisťujem cenu</option></select></div>
@@ -202,6 +202,25 @@
 const API_URL='https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1';
 const API_KEY='sb_publishable_tD39CIcOeokbNGxDB5Lehg_EUYzmJ36';
 const $=id=>document.getElementById(id);
+ let selectedPhotoFiles=[];
+
+$('photos').addEventListener('change',()=>{
+  const newFiles=Array.from($('photos').files);
+
+  newFiles.forEach(file=>{
+    const alreadyExists=selectedPhotoFiles.some(f=>
+      f.name===file.name &&
+      f.size===file.size &&
+      f.lastModified===file.lastModified
+    );
+
+    if(!alreadyExists && selectedPhotoFiles.length<5){
+      selectedPhotoFiles.push(file);
+    }
+  });
+
+  $('photoCount').textContent='Vybrané fotografie: '+selectedPhotoFiles.length+'/5';
+});
 
 function calcEstimate(area,type,cover,truss){
   area = Number(area) || 0;
@@ -1515,7 +1534,13 @@ $('form').addEventListener('submit',async e=>{
   const est=calcEstimate(area,type,cover,truss);
   const price=est.lo.toLocaleString('sk-SK')+' – '+est.hi.toLocaleString('sk-SK')+' €';
 
-  const selectedPhotos=Array.from($('photos').files);
+ const selectedPhotos=[...selectedPhotoFiles];
+  if(selectedPhotos.length > 5){
+  $('result').innerHTML='<div class="error">Môžete pridať maximálne 5 fotografií.</div>';
+  btn.disabled=false;
+  btn.textContent='Vytvoriť dopyt a vypočítať odhad';
+  return;
+}
 
   const details=[
     $('desc').value.trim()||'Bez doplňujúceho popisu',
@@ -1641,6 +1666,8 @@ if(!updateRes.ok){
       '</div>';
 
     $('form').reset();
+    selectedPhotoFiles=[];
+$('photoCount').textContent='Vybrané fotografie: 0/5';
     $('result').scrollIntoView({behavior:'smooth',block:'center'});
 
   }catch(err){
