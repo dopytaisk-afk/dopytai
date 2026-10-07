@@ -1277,7 +1277,7 @@ if(activeLeadFilter==='novy'){
     if(!filteredRows.length){ $('leads').innerHTML='<div class="empty">Zatiaľ nie sú žiadne dopyty.</div>'; return; }
     $('leads').innerHTML=filteredRows.map(x=>{
       const d=x.created_at?new Date(x.created_at).toLocaleString('sk-SK',{dateStyle:'short',timeStyle:'short'}):'';
-      const price=x.odhad_ceny?Number(x.odhad_ceny).toLocaleString('sk-SK')+' €':'—';
+      const price=((x.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (x.odhad_ceny?Number(x.odhad_ceny).toLocaleString('sk-SK')+' €':'—');
       const state=x.stav||'novy';
       const assignedId=x.firma_id==null?'':String(x.firma_id);
       const companyOptions=window.dopytaiCompanies.map(c=>'<option value="'+esc(c.id)+'" '+(String(c.id)===assignedId?'selected':'')+'>'+esc(c['názov']||'Firma')+'</option>').join('');
