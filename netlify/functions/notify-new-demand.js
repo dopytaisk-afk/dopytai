@@ -55,7 +55,8 @@ exports.handler = async function (event) {
     });
 
     const results = [];
-
+console.log("Vsetky firmy z regionu:", JSON.stringify(companies));
+console.log("Firmy vybrane na upozornenie:", JSON.stringify(matchingCompanies));
     for (const company of matchingCompanies) {
       const response = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -109,7 +110,7 @@ exports.handler = async function (event) {
       });
 
       const result = await response.json();
-
+console.log("Vysledok odoslania:", company.email, response.status, JSON.stringify(result));
       results.push({
         companyId: company.id,
         email: company.email,
