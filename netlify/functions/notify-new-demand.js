@@ -64,7 +64,7 @@ exports.handler = async function (event) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "DopytAI <onboarding@resend.dev>",
+         from: "DopytAI <info@dopytai24.sk>",
           to: [company.email],
           subject: `Nový dopyt v regióne ${data.region}`,
           html: `
