@@ -43,8 +43,7 @@ const user = await userResponse.json();
     const firmaId = Number(body.firma_id);
     const dopytId = Number(body.dopyt_id);
 const companyResponse = await fetch(
-  `${supabaseUrl}/rest/v1/firmy?id=eq.${firmaId}&auth_user_id=eq.${encodeURIComponent(user.id)}&select=id,region,stav,typ_prace
-  {
+  `${supabaseUrl}/rest/v1/firmy?id=eq.${firmaId}&auth_user_id=eq.${encodeURIComponent(user.id)}&select=id,region,stav,typ_prace`,
     headers: {
       apikey: supabaseServiceKey,
       Authorization: `Bearer ${supabaseServiceKey}`
