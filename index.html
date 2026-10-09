@@ -542,6 +542,49 @@ async function getLeadPhotos(companyId, leadId){
 
   return Array.isArray(data.photos) ? data.photos : [];
 }
+  
+async function showLeadPhotos(companyId, leadId, button, completed = false) {
+  const boxId = completed ? `completed-photos-${leadId}` : `photos-${leadId}`;
+  const box = document.getElementById(boxId);
+  if (!box) return;
+
+  if (box.dataset.loaded === 'true') {
+    const isHidden = box.style.display === 'none';
+    box.style.display = isHidden ? 'block' : 'none';
+    button.textContent = isHidden ? '📷 Skryť fotografie' : '📷 Zobraziť fotografie';
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = '⏳ Načítavam fotografie...';
+
+  try {
+    const photos = await getLeadPhotos(companyId, leadId);
+
+    if (photos.length === 0) {
+      box.textContent = 'K tomuto dopytu nie sú priložené fotografie.';
+    } else {
+      photos.forEach(photo => {
+        const img = document.createElement('img');
+        img.src = photo;
+        img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:8px;margin:4px;cursor:pointer';
+        img.addEventListener('click', () => openPhoto(img.src));
+        box.appendChild(img);
+      });
+    }
+
+    box.dataset.loaded = 'true';
+    box.style.display = 'block';
+    button.textContent = '📷 Skryť fotografie';
+  } catch (err) {
+    box.textContent = 'Fotografie sa nepodarilo načítať.';
+    console.error(err);
+    button.textContent = '📷 Skúsiť znova';
+  } finally {
+    button.disabled = false;
+  }
+}
+
 async function loadCompanyLeads(){
   const token=localStorage.getItem('dopytai_company_token');
   const email=localStorage.getItem('dopytai_company_email');
@@ -653,7 +696,10 @@ const ownUnlockedIds = new Set(
 📅 Termín: ${((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený'}<br>
 📝 Popis: ${(lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu'}
 </div>
-  <div id="photos-${lead.id}" style="margin-top:10px"></div>   
+ <button type="button" onclick="showLeadPhotos(${company.id}, ${lead.id}, this)" style="margin-top:10px;padding:10px;border:1px solid #1687f8;border-radius:10px;background:white;color:#1687f8;font-weight:700;cursor:pointer">
+  📷 Zobraziť fotografie
+</button>
+<div id="photos-${lead.id}" style="margin-top:10px"></div>   
       ${isUnlocked ? `
         <div style="margin-top:10px">
           🔓 <b>Kontakt zákazníka</b><br>
@@ -716,34 +762,17 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
       📞 ${lead.telefon||''}<br>
       ✉️ ${lead.email||''}
     </div>
-    <div id="photos-${lead.id}" style="margin-top:10px"></div>
+   <button type="button" onclick="showLeadPhotos(${company.id}, ${lead.id}, this)" style="margin-top:10px;padding:10px;border:1px solid #1687f8;border-radius:10px;background:white;color:#1687f8;font-weight:700;cursor:pointer">
+  📷 Zobraziť fotografie
+</button>
+<div id="photos-${lead.id}" style="margin-top:10px"></div>
   <button type="button" onclick="markLeadDone(${lead.id})" style="margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#16a34a;color:white;font-weight:700;cursor:pointer">
   ✅ Označiť ako vybavené
 </button>
   </div>
 `).join('');
-    activePurchasedLeads.forEach(async (lead) => {
-  const photos = await getLeadPhotos(company.id, lead.id);
-  const photoBox = document.getElementById(`photos-${lead.id}`);
-  if (!photoBox || !photos || !photos.length) return;
+   
 
-  photoBox.innerHTML = photos.map(photo => `
-   <img src="${photo}" onclick="openPhoto(this.src)" style="width:100px;height:100px;object-fit:cover;border-radius:8px;margin:4px;cursor:pointer;">
-  `).join('');
-});
-   leads.filter(lead => !unlockedIds.has(Number(lead.id))).forEach(async (lead) => {
-  try {
-    const photos = await getLeadPhotos(company.id, lead.id);
-    const photoBox = document.getElementById(`photos-${lead.id}`);
-    if (!photoBox || !photos || !photos.length) return;
-
-    photoBox.innerHTML = photos.map(photo =>
-      `<img src="${photo}" onclick="openPhoto(this.src)" style="width:100px;height:100px;object-fit:cover;border-radius:8px;margin:4px;cursor:pointer">`
-    ).join('');
-  } catch (e) {
-    console.error('Fotografie dostupného dopytu:', e);
-  }
-});
     if (activePurchasedLeads.length === 0) {
   purchasedBox.innerHTML = '<div class="card" style="margin-top:12px">Momentálne nemáte žiadne aktívne zakúpené dopyty.</div>';
 }
@@ -766,7 +795,10 @@ completedBox.querySelector('.completed-list').innerHTML = completedPurchasedLead
         📞 ${lead.telefon || ''}<br>
         ✉️ ${lead.email || ''}
       </div>
-      <div id="completed-photos-${lead.id}" style="margin-top:10px"></div>
+    <button type="button" onclick="showLeadPhotos(${company.id}, ${lead.id}, this, true)" style="margin-top:10px;padding:10px;border:1px solid #1687f8;border-radius:10px;background:white;color:#1687f8;font-weight:700;cursor:pointer">
+  📷 Zobraziť fotografie
+</button>
+<div id="completed-photos-${lead.id}" style="margin-top:10px"></div>
       <div style="margin-top:10px;font-weight:700">
         ✅ Vybavené
       </div>
@@ -775,16 +807,7 @@ completedBox.querySelector('.completed-list').innerHTML = completedPurchasedLead
 }
 
 purchasedBox.insertAdjacentElement('afterend', completedBox);
-    completedPurchasedLeads.forEach(async (lead) => {
-  const photos = await getLeadPhotos(company.id, lead.id);
-  const photoBox = document.getElementById(`completed-photos-${lead.id}`);
-
-  if (!photoBox || !photos || !photos.length) return;
-
-  photoBox.innerHTML = photos.map(photo => `
-    <img src="${photo}" style="width:100px;height:100px;object-fit:cover;border-radius:8px;margin:4px;">
-  `).join('');
-});
+   
   }catch(err){
     console.error(err);
     $('companyDashboardMessage').innerHTML='Chyba: '+err.message;
