@@ -110,7 +110,7 @@ const company = companies[0];
 });
 const lead = leads[0];
 
-if (String(company.stav || "").trim().toLowerCase() !== "aktivna") {
+if (!["aktivna", "aktívna"].includes(String(company.stav || "").trim().toLowerCase())) {
   return {
     statusCode: 403,
     body: JSON.stringify({ error: "Firma nie je aktivna." })
