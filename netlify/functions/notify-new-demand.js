@@ -22,7 +22,7 @@ exports.handler = async function (event) {
 
     // Nájdeme aktívne firmy v rovnakom regióne
     const companiesResponse = await fetch(
-      `${SUPABASE_URL}/rest/v1/firmy?select=id,názov,email,region,typ_prace,stav&region=eq.${encodeURIComponent(data.region)}&stav=eq.aktivna`,
+     `${SUPABASE_URL}/rest/v1/firmy?select=id,názov,email,region,typ_prace,stav&region=eq.${encodeURIComponent(data.region)}&stav=in.(aktivna,aktívna)`,
       {
         headers: {
           apikey: SUPABASE_SERVICE_ROLE_KEY,
