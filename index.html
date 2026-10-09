@@ -525,9 +525,10 @@ const company = companies[0];
 async function getLeadPhotos(companyId, leadId){
   const r = await fetch('/.netlify/functions/get-lead-photos',{
     method:'POST',
-    headers:{
-      'Content-Type':'application/json'
-    },
+   headers:{
+  'Content-Type':'application/json',
+  'Authorization':'Bearer '+localStorage.getItem('dopytai_company_token')
+},
     body:JSON.stringify({
       firma_id:companyId,
       dopyt_id:leadId
