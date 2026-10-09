@@ -102,6 +102,12 @@ if (!Array.isArray(companies) || companies.length !== 1) {
 }
 
 const company = companies[0];
+    console.log("PHOTO COMPANY DEBUG:", {
+  firmaId,
+  companyId: company.id,
+  stav: company.stav,
+  typStavu: typeof company.stav
+});
 const lead = leads[0];
 
 if (String(company.stav || "").trim().toLowerCase() !== "aktivna") {
