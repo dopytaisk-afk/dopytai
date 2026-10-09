@@ -132,10 +132,7 @@ const purchasedByCompany = unlocks.some(
 
 const availableToBuy =
   lead.stav === "novy" &&
-  unlocks.length === 0 &&
-  lead.region &&
-  company.region &&
-  lead.region.trim().toLowerCase() === company.region.trim().toLowerCase();
+  unlocks.length === 0;
 
 if (!purchasedByCompany && !availableToBuy) {
   return {
