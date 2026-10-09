@@ -82,7 +82,7 @@
       <label>Heslo</label>
       <input id="portalCompanyPassword" type="password" placeholder="Vaše heslo">
     </div>
-
+<div id="companyLoginError" style="display:none;color:#b42318;background:#fff1f0;border:1px solid #ffc9c5;border-radius:10px;padding:12px;margin-bottom:12px;font-size:14px;font-weight:600;"></div>
     <button class="btn" id="companyLoginBtn" type="button">Prihlásiť firmu</button>
     <button id="forgotCompanyPassword" type="button" style="display:block;margin:12px auto 0;background:none;border:0;color:#1687f8;font-weight:700;cursor:pointer;text-decoration:underline;">
   Zabudli ste heslo?
@@ -328,6 +328,7 @@ if(savedCompanyToken && savedCompanyEmail){
 }
   $('closeCompany').addEventListener('click',showCustomer);
   $('companyLoginBtn').addEventListener('click',async()=>{
+    $('companyLoginError').style.display = 'none';
   const email=$('portalCompanyEmail').value.trim();
   const password=$('portalCompanyPassword').value;
 
@@ -371,7 +372,9 @@ window.scrollTo({top:0,behavior:'smooth'});
    if(err.message === 'Email not confirmed'){
   alert('📧 E-mail ešte nie je potvrdený. Skontrolujte svoju e-mailovú schránku a kliknite na potvrdzovací odkaz. Potom sa môžete prihlásiť.');
 }else{
-  alert('❌ '+err.message);
+const errorBox = $('companyLoginError');
+errorBox.textContent = '❌ Nesprávny e-mail alebo heslo. Skúste to znova.';
+errorBox.style.display = 'block';
 }
   }finally{
     btn.disabled=false;
