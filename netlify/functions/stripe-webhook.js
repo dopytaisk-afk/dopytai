@@ -83,7 +83,8 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   throw new Error("Supabase nie je nastaveny.");
 }
 const eventId = stripeEvent.id;
-const paymentId = session.payment_intent || session.id;      
+const paymentId = session.payment_intent || session.id; 
+      const livemode = stripeEvent.livemode;
 const checkResponse = await fetch(
   `${supabaseUrl}/rest/v1/stripe_platby?event_id=eq.${encodeURIComponent(eventId)}&select=event_id`,
   {
@@ -115,7 +116,8 @@ const checkResponse = await fetch(
       p_firma_id: firmaId,
       p_suma: amount,
       p_event_id: eventId,
-      p_payment_id: paymentId
+     p_payment_id: paymentId,
+p_livemode: livemode
     })
   }
 );
