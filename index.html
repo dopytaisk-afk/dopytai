@@ -684,7 +684,7 @@ const ownUnlockedIds = new Set(
     if(!leads.length){
       box.innerHTML='Momentálne nemáte žiadne nové dopyty.';
     }else{
-    const availableLeads = leads.filter(lead => lead.stav === 'novy' && !unlockedIds.has(Number(lead.id)));
+   const availableLeads = leads.filter(lead => lead.stav === 'novy' && !unlockedIds.has(Number(lead.id))).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
       if(!availableLeads.length) box.innerHTML='Momentálne nemáte žiadne nové dopyty.';
       if(availableLeads.length)box.innerHTML=availableLeads.map(lead=>{
   const isUnlocked=unlockedIds.has(Number(lead.id));
