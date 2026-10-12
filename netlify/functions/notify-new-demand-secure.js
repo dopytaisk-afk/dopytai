@@ -98,7 +98,7 @@ exports.handler = async (event) => {
     }
 
     const leads = await db(
-      `dopyty?select=id,created_at,region,lokalita,typ_prace,odhad_ceny,stav&id=eq.${leadId}`
+`dopyty?select=id,created_at,region,lokalita,typ_prace,odhad_ceny,stav,popis&id=eq.${leadId}`
     );
 
     if (!Array.isArray(leads) || leads.length !== 1) {
