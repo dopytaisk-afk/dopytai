@@ -629,7 +629,7 @@ async function loadCompanyLeads(){
     const company=companies[0];
 
     const leadsRes=await fetch(
-    API_URL+'/dopyty?select=*&order=created_at.desc',
+   API_URL+'/rpc/bezpecne_dopyty'
       {
         headers:{
           'apikey':API_KEY,
@@ -1288,7 +1288,7 @@ async function loadLeads(){
     const companies=await cr.json();
     if(!cr.ok) throw new Error(companies.message||'Nepodarilo sa načítať firmy');
     window.dopytaiCompanies=companies||[];
-    const r=await fetch(API_URL+'/dopyty?select=*&order=created_at.desc',{headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken}});
+    const r=await fetch(API_URL+'/rpc/bezpecne_dopyty',{headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken}});
     if(r.status===401){ accessToken=''; localStorage.removeItem('dopytai_access_token'); showLogin(); throw new Error('Relácia vypršala. Prihlás sa znova.'); }
     const rows=await r.json();
     let filteredRows=rows;
