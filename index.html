@@ -628,15 +628,18 @@ async function loadCompanyLeads(){
 
     const company=companies[0];
 
-    const leadsRes=await fetch(
-   API_URL+'/rpc/bezpecne_dopyty'
-      {
-        headers:{
-          'apikey':API_KEY,
-          'Authorization':'Bearer '+token
-        }
-      }
-    );
+const leadsRes=await fetch(
+  API_URL+'/rpc/bezpecne_dopyty',
+  {
+    method:'POST',
+    headers:{
+      'apikey':API_KEY,
+      'Authorization':'Bearer '+token,
+      'Content-Type':'application/json'
+    },
+    body:JSON.stringify({})
+  }
+);
 
     const leads=await leadsRes.json();
 
@@ -1288,7 +1291,15 @@ async function loadLeads(){
     const companies=await cr.json();
     if(!cr.ok) throw new Error(companies.message||'Nepodarilo sa načítať firmy');
     window.dopytaiCompanies=companies||[];
-    const r=await fetch(API_URL+'/rpc/bezpecne_dopyty',{headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken}});
+   const r=await fetch(API_URL+'/rpc/bezpecne_dopyty',{
+  method:'POST',
+  headers:{
+    'apikey':API_KEY,
+    'Authorization':'Bearer '+accessToken,
+    'Content-Type':'application/json'
+  },
+  body:JSON.stringify({})
+});
     if(r.status===401){ accessToken=''; localStorage.removeItem('dopytai_access_token'); showLogin(); throw new Error('Relácia vypršala. Prihlás sa znova.'); }
     const rows=await r.json();
     let filteredRows=rows;
