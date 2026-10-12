@@ -142,7 +142,7 @@ exports.handler = async (event) => {
 
     const safeWork = escapeHtml(lead.typ_prace || "Nový dopyt");
     const safeLocation = escapeHtml(lead.lokalita || "-");
-    const safeArea = "-";
+   const safeArea = escapeHtml((String(lead.popis || "").match(/Plocha:\s*(\d+(?:[.,]\d+)?)\s*m²/i) || [])[1] || "-");
     const safeBudget = escapeHtml(
       lead.odhad_ceny == null ? "-" : `${lead.odhad_ceny} €`
     );
