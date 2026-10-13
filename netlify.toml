@@ -7,3 +7,5 @@
 
 [functions."test-invoice"]
   included_files = ["netlify/functions/Roboto-Regular.ttf"]
+[functions."test-invoice-email"]
+  included_files = ["netlify/functions/Roboto-Regular.ttf"]
