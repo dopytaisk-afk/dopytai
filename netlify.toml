@@ -1,0 +1,9 @@
+
+[functions]
+  node_bundler = "esbuild"
+
+[functions."generate-invoice"]
+  included_files = ["netlify/functions/Roboto-Regular.ttf"]
+
+[functions."test-invoice"]
+  included_files = ["netlify/functions/Roboto-Regular.ttf"]
