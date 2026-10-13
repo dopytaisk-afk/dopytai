@@ -11,3 +11,5 @@
   included_files = ["netlify/functions/Roboto-Regular.ttf"]
 [functions."stripe-webhook"]
   included_files = ["netlify/functions/Roboto-Regular.ttf"]
+[functions."retry-invoices"]
+  included_files = ["netlify/functions/Roboto-Regular.ttf"]
