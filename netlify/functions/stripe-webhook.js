@@ -1,5 +1,6 @@
 
 const crypto = require("crypto");
+const { dorucFakturu } = require("./invoice-delivery");
 
 const jsonHeaders = key => ({
   apikey: key,
@@ -201,10 +202,23 @@ exports.handler = async function (event) {
       );
     }
 
-    console.log("Stripe payment and invoice recorded", {
-      paymentId,
-      invoiceId: await invoice.json()
-    });
+   
+const invoiceId = await invoice.json();
+
+console.log("Stripe payment and invoice recorded", {
+  paymentId,
+  invoiceId
+});
+
+// Odosielanie faktúr zatiaľ nechávame vypnuté.
+if (process.env.DOPYTAI_ENABLE_INVOICE_EMAIL === "true") {
+  try {
+    await dorucFakturu(invoiceId);
+  } catch (error) {
+    console.error("Invoice delivery failed:", error);
+  }
+}
+
 
     return {
       statusCode: 200,
