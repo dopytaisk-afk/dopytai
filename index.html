@@ -205,8 +205,8 @@
 
   
 <script>
-const API_URL='https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1';
-const API_KEY='sb_publishable_tD39CIcOeokbNGxDB5Lehg_EUYzmJ36';
+const API_URL=window.location.hostname.startsWith('deploy-preview-')?'https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1':'https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1';
+const API_KEY=window.location.hostname.startsWith('deploy-preview-')?'sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-':'sb_publishable_tD39CIcOeokbNGxDB5Lehg_EUYzmJ36';
 const $=id=>document.getElementById(id);
  let selectedPhotoFiles=[];
 
