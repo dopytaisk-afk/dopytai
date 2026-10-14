@@ -510,10 +510,13 @@ if (!companyRes.ok || !companies.length) throw new Error('Firma sa nenašla.');
 const company = companies[0];
       const response = await fetch('/.netlify/functions/create-checkout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-       body: JSON.stringify({ amount, companyId: company.id })
+       
+headers: {
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer ' + token
+},
+body: JSON.stringify({ amount })
+
       });
 
       const data = await response.json();
