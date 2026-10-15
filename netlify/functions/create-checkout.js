@@ -52,10 +52,15 @@ exports.handler = async function (event) {
     });
 
     if (!userResponse.ok) {
-      return json(401, {
-        error: "Prihlásenie vypršalo. Prihláste sa znova."
-      });
-    }
+  console.error("Supabase auth failed", {
+    status: userResponse.status,
+    supabaseProject: new URL(supabaseUrl).hostname
+  });
+
+  return json(401, {
+    error: "Prihlásenie sa nepodarilo overiť."
+  });
+}
 
     const user = await userResponse.json();
 
