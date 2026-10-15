@@ -82,6 +82,10 @@ exports.handler = async function (event) {
     );
 
     if (!companyResponse.ok) {
+      console.error("Supabase company lookup failed", {
+  status: companyResponse.status,
+  response: (await companyResponse.text()).slice(0, 500)
+});
       throw new Error("Overenie firmy v databáze zlyhalo.");
     }
 
