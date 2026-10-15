@@ -58,7 +58,10 @@ function getEnvironment() {
     };
   }
 
-  if (context === "deploy-preview") {
+  if (
+  context === "deploy-preview" ||
+  (context === "branch-deploy" && process.env.BRANCH === "test-fakturacia")
+) {
     if (url !== TEST_SUPABASE_URL) {
       throw new Error(
         "BEZPEČNOSTNÁ KONTROLA: Deploy Preview nemá testovaciu databázu"
