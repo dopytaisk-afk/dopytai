@@ -189,6 +189,12 @@
   <label>Potvrdiť heslo</label>
   <input id="registerCompanyPasswordConfirm" type="password" placeholder="Zadajte heslo znova">
 </div>
+    <h3 style="margin-top:24px">Fakturačné údaje</h3>
+    <div class="field"><label for="registerCompanyIco">IČO</label><input id="registerCompanyIco" inputmode="numeric" maxlength="8" placeholder="8 číslic"></div>
+    <div class="field"><label for="registerCompanyDic">DIČ (ak máte)</label><input id="registerCompanyDic" inputmode="numeric" maxlength="10" placeholder="10 číslic"></div>
+    <div class="field"><label for="registerCompanyStreet">Ulica a číslo</label><input id="registerCompanyStreet" placeholder="Ulica a číslo"></div>
+    <div class="field"><label for="registerCompanyPsc">PSČ</label><input id="registerCompanyPsc" inputmode="numeric" placeholder="napr. 010 01"></div>
+    <div class="field"><label for="registerCompanyCity">Mesto / obec</label><input id="registerCompanyCity" placeholder="Mesto alebo obec"></div>
     <div style="margin:12px 0 16px;display:flex;align-items:flex-start;gap:9px;font-size:14px;line-height:1.4;color:#475569"><input id="companyTermsConsent" type="checkbox" style="width:auto;margin-top:3px"><label for="companyTermsConsent">Potvrdzujem, že som sa oboznámil/a s <a href="/obchodne-podmienky.html" target="_blank" rel="noopener noreferrer" style="color:#087cf0;font-weight:700">Obchodnými podmienkami DopytAI</a> a súhlasím s nimi.</label></div>
     <button class="btn" id="registerCompanySubmit" type="button">Vytvoriť účet firmy</button>
     <button class="btn" id="backToCompanyLogin" type="button" style="margin-top:12px;background:#fff;color:#1687f8;border:2px solid #1687f8;">Späť na prihlásenie</button>
@@ -199,8 +205,8 @@
 
   
 <script>
-const API_URL='https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1';
-const API_KEY='sb_publishable_tD39CIcOeokbNGxDB5Lehg_EUYzmJ36';
+const API_URL=window.location.hostname.startsWith('deploy-preview-')?'https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1':'https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1';
+const API_KEY=window.location.hostname.startsWith('deploy-preview-')?'sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-':'sb_publishable_tD39CIcOeokbNGxDB5Lehg_EUYzmJ36';
 const $=id=>document.getElementById(id);
  let selectedPhotoFiles=[];
 
@@ -504,10 +510,13 @@ if (!companyRes.ok || !companies.length) throw new Error('Firma sa nenašla.');
 const company = companies[0];
       const response = await fetch('/.netlify/functions/create-checkout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-       body: JSON.stringify({ amount, companyId: company.id })
+       
+headers: {
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer ' + token
+},
+body: JSON.stringify({ amount })
+
       });
 
       const data = await response.json();
@@ -1124,99 +1133,48 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   const phone=$('registerCompanyPhone').value.trim();
   const region=$('registerCompanyRegion').value;
   const password=$('registerCompanyPassword').value;
-   const passwordConfirm=$('registerCompanyPasswordConfirm').value;
+  const passwordConfirm=$('registerCompanyPasswordConfirm').value;
+  const ico=$('registerCompanyIco').value.replace(/\s/g,'');
+  const dic=$('registerCompanyDic').value.replace(/\s/g,'');
+  const fakturacna_ulica=$('registerCompanyStreet').value.trim();
+  const fakturacne_psc=$('registerCompanyPsc').value.trim();
+  const fakturacne_mesto=$('registerCompanyCity').value.trim();
   const msg=$('registerCompanyMsg');
-    const termsConsent=$('companyTermsConsent').checked;
-
   msg.innerHTML='';
-
-  if(!name || !email || !phone || !region || !password){
-    msg.innerHTML='<div class="error">Vyplňte všetky údaje.</div>';
-    return;
+  if(!name || !email || !phone || !region || !password || !ico || !fakturacna_ulica || !fakturacne_psc || !fakturacne_mesto){
+    msg.innerHTML='<div class="error">Vyplňte povinné údaje vrátane fakturačnej adresy a IČO.</div>';return;
   }
-    if(!termsConsent){
-  msg.innerHTML='<div class="error">Pre vytvorenie účtu musíte súhlasiť s Obchodnými podmienkami.</div>';
-  return;
-}
-
-  if(password.length<6){
-    msg.innerHTML='<div class="error">Heslo musí mať aspoň 6 znakov.</div>';
-    return;
+  if(!/^\d{8}$/.test(ico)){
+    msg.innerHTML='<div class="error">IČO musí obsahovať 8 číslic.</div>';return;
   }
-if(password !== passwordConfirm){
-  msg.innerHTML='<div class="error">❌ Heslá sa nezhodujú.</div>';
-  return;
-}
-  const btn=$('registerCompanySubmit');
-  btn.disabled=true;
-  btn.textContent='Vytváram účet...';
-
+  if(dic && !/^\d{10}$/.test(dic)){
+    msg.innerHTML='<div class="error">DIČ musí obsahovať 10 číslic.</div>';return;
+  }
+  if(!/^\d{3}\s?\d{2}$/.test(fakturacne_psc)){
+    msg.innerHTML='<div class="error">PSČ musí mať formát 010 01 alebo 01001.</div>';return;
+  }
+  if(!$('companyTermsConsent').checked){
+    msg.innerHTML='<div class="error">Pre vytvorenie účtu musíte súhlasiť s Obchodnými podmienkami.</div>';return;
+  }
+  if(password.length<6 || password!==passwordConfirm){
+    msg.innerHTML='<div class="error">Heslo musí mať aspoň 6 znakov a obe heslá sa musia zhodovať.</div>';return;
+  }
+  const btn=$('registerCompanySubmit');btn.disabled=true;btn.textContent='Vytváram účet...';
   try{
     const authResponse=await fetch(AUTH_URL+'/signup',{
-      method:'POST',
-      headers:{
-        'apikey':API_KEY,
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({
-        email,
-        password,
-        data:{
-          company_name:name,
-          phone,
-          region
-        }
-      })
+      method:'POST',headers:{apikey:API_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email,password,data:{
+        company_name:name,phone,region,ico,dic,
+        fakturacna_ulica,fakturacne_psc,fakturacne_mesto
+      }})
     });
-
     const authData=await authResponse.json();
-
-    if(!authResponse.ok){
-      throw new Error(authData.msg || authData.message || 'Registrácia sa nepodarila.');
-    }
-
-    const userId = authData.user?.id || authData.id;
-
-    if(!userId){
-      throw new Error('Účet bol vytvorený, ale nepodarilo sa načítať ID používateľa.');
-    }
-
-   if(authData.access_token){
-  const companyResponse = await fetch(API_URL+'/firmy',{
-    method:'POST',
-    headers:{
-      'apikey':API_KEY,
-      'Authorization':'Bearer '+authData.access_token,
-      'Content-Type':'application/json',
-      'Prefer':'return=minimal'
-    },
-    body:JSON.stringify({
-      'názov':name,
-      kontaktna_osoba:'',
-      telefon:phone,
-      email:email,
-      region:region,
-      lokalita:'',
-      typ_prace:'Strechy',
-      stav:'aktivna',
-      auth_user_id:userId
-    })
-  });
-
-  if(!companyResponse.ok){
-    const companyError = await companyResponse.text();
-    throw new Error('Účet vznikol, ale údaje firmy sa nepodarilo uložiť: '+companyError);
-  }
-}
-
-   msg.innerHTML='<div class="success">✅ Firemný účet bol vytvorený. 📧 Na váš e-mail sme poslali potvrdzovací odkaz. Potvrďte e-mail a potom sa môžete prihlásiť.</div>';
-
-  }catch(err){
-    msg.innerHTML='<div class="error">❌ '+esc(err.message)+'</div>';
-  }finally{
-    btn.disabled=false;
-    btn.textContent='Vytvoriť účet firmy';
-  }
+    if(!authResponse.ok)throw new Error(authData.msg||authData.message||authData.error_description||'Registrácia sa nepodarila.');
+    // Profil firmy vytvorí existujúci databázový trigger on_auth_user_created.
+    // Nevykonávame druhý INSERT do public.firmy.
+    msg.innerHTML='<div class="success">✅ Žiadosť o registráciu bola prijatá. Skontrolujte e-mail, potvrďte adresu a potom sa prihláste.</div>';
+  }catch(err){msg.innerHTML='<div class="error">❌ '+esc(err.message)+'</div>';}
+  finally{btn.disabled=false;btn.textContent='Vytvoriť účet firmy';}
 });
   $('closeAdmin').addEventListener('click',showCustomer);
 $('loginBtn').addEventListener('click', async () => {
