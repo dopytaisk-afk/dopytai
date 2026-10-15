@@ -35,7 +35,14 @@ async function supabaseRequest(url, key, path, options = {}) {
 }
 
 function getEnvironment() {
-  const context = process.env.CONTEXT;
+ const context =
+  process.env.CONTEXT ||
+  (
+    (process.env.SUPABASE_URL || "").replace(/\/$/, "") ===
+    "https://pwtvquyefpucjufvwnxp.supabase.co"
+      ? "deploy-preview"
+      : "production"
+  );
   const url = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
