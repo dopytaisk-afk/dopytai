@@ -79,7 +79,7 @@ function getEnvironment() {
       url,
       key,
       livemode: false,
-      allowInvoiceEmail: false
+     allowInvoiceEmail: true
     };
   }
 
