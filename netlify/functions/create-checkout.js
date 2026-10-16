@@ -124,14 +124,18 @@ exports.handler = async function (event) {
 
     params.append("line_items[0][quantity]", "1");
 
+       const baseUrl = process.env.CONTEXT === "deploy-preview"
+      ? "https://deploy-preview-1--sparkly-choux-e2b050.netlify.app"
+      : "https://dopytai24.sk";
+
     params.append(
       "success_url",
-      "https://dopytai24.sk/?payment=success&session_id={CHECKOUT_SESSION_ID}"
+      `${baseUrl}/?payment=success&session_id={CHECKOUT_SESSION_ID}`
     );
 
     params.append(
       "cancel_url",
-      "https://dopytai24.sk/?payment=cancel"
+      `${baseUrl}/?payment=cancel`
     );
 
     const response = await fetch(
