@@ -49,17 +49,25 @@ async function supabaseRequest(url, key, cesta, options = {}) {
 }
 
 async function dorucFakturu(fakturaId) {
-    const context = process.env.CONTEXT;
-  const supabaseUrl = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
+  const context = process.env.CONTEXT;
+  const supabaseUrl =
+    (process.env.SUPABASE_URL || "").replace(/\/$/, "");
+
+  const productionUrl =
+    "https://unwoolvttaljwbkgwmuy.supabase.co";
+
+  const testUrl =
+    "https://pwtvquyefpucjufvwnxp.supabase.co";
 
   if (context === "production") {
-    if (supabaseUrl !== "https://unwoolvttaljwbkgwmuy.supabase.co") {
+    if (supabaseUrl !== productionUrl) {
       throw new Error("Nesprávna produkčná databáza.");
     }
-  } else if (context === "deploy-preview") {
-    if (supabaseUrl !== "https://pwtvquyefpucjufvwnxp.supabase.co") {
-      throw new Error("Nesprávna testovacia databáza.");
-    }
+  } else if (
+    supabaseUrl === testUrl &&
+    context !== "production"
+  ) {
+    // Testovacia databáza je povolená.
   } else {
     throw new Error("Nepovolené prostredie fakturácie.");
   }
@@ -129,7 +137,7 @@ async function dorucFakturu(fakturaId) {
     const platba = platby.find(p =>
       Number(p.firma_id) === Number(faktura.firma_id) &&
       Number(p.suma) === Number(faktura.suma) &&
-     p.livemode === (process.env.CONTEXT === "production")
+   p.livemode === (supabaseUrl === productionUrl)
     );
 
     if (!platba) {
@@ -186,11 +194,11 @@ async function dorucFakturu(fakturaId) {
         headers: {
           Authorization: `Bearer ${resendKey}`,
           "Content-Type": "application/json",
-          "Idempotency-Key": `dopytai-${process.env.CONTEXT}-faktura-${id}`
+         "Idempotency-Key": `dopytai-${supabaseUrl === testUrl ? "test" : "production"}-faktura-${id}`
         },
         body: JSON.stringify({
           from: ODOSIELATEL,
-         to: [process.env.CONTEXT === "deploy-preview" ? "mirochovanec28@gmail.com" : faktura.odberatel_email],
+        to: [supabaseUrl === testUrl ? "mirochovanec28@gmail.com" : faktura.odberatel_email],
           subject:
             `DopytAI – faktúra ${faktura.cislo_faktury}`,
           text:
