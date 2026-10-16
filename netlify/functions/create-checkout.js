@@ -124,7 +124,7 @@ exports.handler = async function (event) {
 
     params.append("line_items[0][quantity]", "1");
 
-       const baseUrl = process.env.CONTEXT === "deploy-preview"
+           const baseUrl = stripeKey.startsWith("sk_test_")
       ? "https://deploy-preview-1--sparkly-choux-e2b050.netlify.app"
       : "https://dopytai24.sk";
 
