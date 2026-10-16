@@ -49,6 +49,20 @@ async function supabaseRequest(url, key, cesta, options = {}) {
 }
 
 async function dorucFakturu(fakturaId) {
+    const context = process.env.CONTEXT;
+  const supabaseUrl = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
+
+  if (context === "production") {
+    if (supabaseUrl !== "https://unwoolvttaljwbkgwmuy.supabase.co") {
+      throw new Error("Nesprávna produkčná databáza.");
+    }
+  } else if (context === "deploy-preview") {
+    if (supabaseUrl !== "https://pwtvquyefpucjufvwnxp.supabase.co") {
+      throw new Error("Nesprávna testovacia databáza.");
+    }
+  } else {
+    throw new Error("Nepovolené prostredie fakturácie.");
+  }
   const { url, key, resendKey } = konfiguracia();
 
   const id = Number(fakturaId);
@@ -115,11 +129,11 @@ async function dorucFakturu(fakturaId) {
     const platba = platby.find(p =>
       Number(p.firma_id) === Number(faktura.firma_id) &&
       Number(p.suma) === Number(faktura.suma) &&
-      p.livemode === true
+     p.livemode === (process.env.CONTEXT === "production")
     );
 
     if (!platba) {
-      throw new Error("Chýba overená živá Stripe platba.");
+     throw new Error("Chýba overená Stripe platba pre toto prostredie.");
     }
 
     const cesta = `${id}/${faktura.cislo_faktury}.pdf`;
@@ -172,11 +186,11 @@ async function dorucFakturu(fakturaId) {
         headers: {
           Authorization: `Bearer ${resendKey}`,
           "Content-Type": "application/json",
-          "Idempotency-Key": `dopytai-faktura-${id}`
+          "Idempotency-Key": `dopytai-${process.env.CONTEXT}-faktura-${id}`
         },
         body: JSON.stringify({
           from: ODOSIELATEL,
-          to: [faktura.odberatel_email],
+         to: [process.env.CONTEXT === "deploy-preview" ? "mirochovanec28@gmail.com" : faktura.odberatel_email],
           subject:
             `DopytAI – faktúra ${faktura.cislo_faktury}`,
           text:
