@@ -16,16 +16,8 @@ console.log("TEST DEPLOY CHECK", {
   deployPrimeUrl: process.env.DEPLOY_PRIME_URL || "nezname",
   context: process.env.CONTEXT || "nezname"
 });
-if (
-  siteUrl !== "https://dopytai24.sk" ||
-  deployUrl !== "https://deploy-preview-1--sparkly-choux-e2b050.netlify.app"
-) {
-  return {
-    statusCode: 403,
-    body: "Nepovolene nasadenie."
-  };
-}
-    const secret = process.env.DOPYTAI_WEBHOOK_SECRET;
+
+    const secret = process.env.DOPYTAI_TEST_INVOICE_TOKEN;
   const supplied = event.headers["x-dopytai-secret"] || "";
 
   if (!secret || !supplied ||
