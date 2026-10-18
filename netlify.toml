@@ -14,4 +14,5 @@
 [functions."retry-invoices"]
   included_files = ["netlify/functions/Roboto-Regular.ttf"]
   schedule = "*/30 * * * *"
- 
+ [functions."test-send-invoice"]
+  included_files = ["netlify/functions/Roboto-Regular.ttf"]
