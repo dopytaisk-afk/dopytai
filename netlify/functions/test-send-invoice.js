@@ -8,13 +8,18 @@ const TEST_SUPABASE_URL =
   "https://pwtvquyefpucjufvwnxp.supabase.co";
 
 exports.handler = async function (event) {
-    if (process.env.DEPLOY_PRIME_URL !==
-      "https://deploy-preview-1--sparkly-choux-e2b050.netlify.app") {
-    return {
-      statusCode: 403,
-      body: "Povolene iba testovacie nasadenie."
-    };
-  }
+   const siteUrl = (process.env.URL || "").replace(/\/$/, "");
+const deployUrl = (process.env.DEPLOY_URL || "").replace(/\/$/, "");
+
+if (
+  siteUrl !== "https://dopytai24.sk" ||
+  deployUrl !== "https://deploy-preview-1--sparkly-choux-e2b050.netlify.app"
+) {
+  return {
+    statusCode: 403,
+    body: "Nepovolene nasadenie."
+  };
+}
     const secret = process.env.DOPYTAI_WEBHOOK_SECRET;
   const supplied = event.headers["x-dopytai-secret"] || "";
 
