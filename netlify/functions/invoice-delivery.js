@@ -49,8 +49,9 @@ async function supabaseRequest(url, key, cesta, options = {}) {
 }
 
 async function dorucFakturu(fakturaId) {
-  const context = process.env.CONTEXT;
-  const supabaseUrl =
+ const context = process.env.DOPYTAI_TEST_INVOICE_TOKEN
+  ? "deploy-preview"
+  : process.env.CONTEXT;
     (process.env.SUPABASE_URL || "").replace(/\/$/, "");
 
   const productionUrl =
