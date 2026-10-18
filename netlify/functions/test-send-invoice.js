@@ -10,7 +10,12 @@ const TEST_SUPABASE_URL =
 exports.handler = async function (event) {
    const siteUrl = (process.env.URL || "").replace(/\/$/, "");
 const deployUrl = (process.env.DEPLOY_URL || "").replace(/\/$/, "");
-
+console.log("TEST DEPLOY CHECK", {
+  url: process.env.URL || "nezname",
+  deployUrl: process.env.DEPLOY_URL || "nezname",
+  deployPrimeUrl: process.env.DEPLOY_PRIME_URL || "nezname",
+  context: process.env.CONTEXT || "nezname"
+});
 if (
   siteUrl !== "https://dopytai24.sk" ||
   deployUrl !== "https://deploy-preview-1--sparkly-choux-e2b050.netlify.app"
