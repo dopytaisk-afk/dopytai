@@ -83,7 +83,7 @@ if (process.env.DOPYTAI_ENABLE_INVOICE_ALERTS !== "true") {
     headers: {
       Authorization: `Bearer ${resendKey}`,
       "Content-Type": "application/json",
-      "Idempotency-Key": `dopytai-test-invoice-alert-${dnes}`
+     "Idempotency-Key": `dopytai-test-invoice-alert-${Math.floor(Date.now() / 1800000)}`
     },
     body: JSON.stringify({
       from: ODOSIELATEL,
