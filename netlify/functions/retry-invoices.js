@@ -3,7 +3,7 @@
 
 const { dorucFakturu } = require("./invoice-delivery");
 
-// Automatická kontrola každých 30 minút.
+// Automatická kontrola každých 30 minút – test fakturácie.
 exports.config = {
   schedule: "*/30 * * * *"
 };
