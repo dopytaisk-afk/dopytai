@@ -11,10 +11,13 @@ const ADMIN_EMAIL = "dopytai.sk@gmail.com";
 const ODOSIELATEL = "DopytAI <info@dopytai24.sk>";
 
 exports.handler = async function () {
-  if (process.env.DOPYTAI_ENABLE_INVOICE_ALERTS !== "true") {
-    console.log("Upozornenia na faktúry sú vypnuté.");
-    return;
-  }
+if (process.env.DOPYTAI_ENABLE_INVOICE_ALERTS !== "true") {
+  console.log("Upozornenia na faktúry sú vypnuté.");
+  return {
+    statusCode: 200,
+    body: "OK - upozornenia su vypnute."
+  };
+}
 
   const url = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -52,10 +55,13 @@ exports.handler = async function () {
 
   const faktury = await response.json();
 
-  if (faktury.length === 0) {
-    console.log("Žiadne zaseknuté faktúry.");
-    return;
-  }
+ if (faktury.length === 0) {
+  console.log("Žiadne zaseknuté faktúry.");
+  return {
+    statusCode: 200,
+    body: "OK - ziadne zaseknute faktury."
+  };
+}
 
   const dnes = new Date().toISOString().slice(0, 10);
 
@@ -92,4 +98,9 @@ exports.handler = async function () {
   }
 
   console.log("Upozornenie na faktúry bolo spracované.");
+
+return {
+  statusCode: 200,
+  body: "OK - upozornenie bolo spracovane."
 };
+  };
