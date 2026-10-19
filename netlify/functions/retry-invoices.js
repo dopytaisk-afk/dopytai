@@ -27,6 +27,7 @@ exports.handler = async function () {
     `${url.replace(/\/$/, "")}/rest/v1/faktury` +
      "?odoslane_at=is.null" +
 "&odosielanie_zacate_at=is.null" +
+    "&stav=eq.pripravena" +
       "&select=id" +
       "&order=created_at.asc" +
       "&limit=20",
