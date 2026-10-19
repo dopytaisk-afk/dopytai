@@ -7,6 +7,7 @@ exports.config = {
 };
 
 const TEST_URL = "https://pwtvquyefpucjufvwnxp.supabase.co";
+const LIVE_URL = "https://unwoolvttaljwbkgwmuy.supabase.co";
 const ADMIN_EMAIL = "dopytai.sk@gmail.com";
 const ODOSIELATEL = "DopytAI <info@dopytai24.sk>";
 
@@ -23,9 +24,9 @@ if (process.env.DOPYTAI_ENABLE_INVOICE_ALERTS !== "true") {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const resendKey = process.env.RESEND_API_KEY;
 
-  // Zatiaľ povolíme výhradne testovaciu databázu.
-  if (url !== TEST_URL) {
-    throw new Error("Kontrola je povolená iba v TEST prostredí.");
+// Povolené sú iba známe TEST a LIVE databázy.
+if (url !== TEST_URL && url !== LIVE_URL) {
+    throw new Error("Nepovolená databáza pre kontrolu faktúr.");
   }
 
   if (!key || !resendKey) {
@@ -66,7 +67,7 @@ if (process.env.DOPYTAI_ENABLE_INVOICE_ALERTS !== "true") {
   const dnes = new Date().toISOString().slice(0, 10);
 
   const text = [
-    "DopytAI TEST – upozornenie na nedokončené faktúry",
+   `DopytAI ${url === TEST_URL ? "TEST" : "LIVE"} – upozornenie na nedokončené faktúry`,
     "",
     `Počet nájdených faktúr: ${faktury.length}`,
     "",
@@ -83,12 +84,12 @@ if (process.env.DOPYTAI_ENABLE_INVOICE_ALERTS !== "true") {
     headers: {
       Authorization: `Bearer ${resendKey}`,
       "Content-Type": "application/json",
-     "Idempotency-Key": `dopytai-test-invoice-alert-${Math.floor(Date.now() / 1800000)}`
+     "Idempotency-Key": `dopytai-${url === TEST_URL ? "test" : "live"}-invoice-alert-${Math.floor(Date.now() / 1800000)}`
     },
     body: JSON.stringify({
       from: ODOSIELATEL,
       to: [ADMIN_EMAIL],
-      subject: "DopytAI TEST – POZOR: nedokončené faktúry",
+     subject: `DopytAI ${url === TEST_URL ? "TEST" : "LIVE"} – POZOR: nedokončené faktúry`,
       text
     })
   });
