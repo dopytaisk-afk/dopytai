@@ -3,7 +3,7 @@
 
 const { dorucFakturu } = require("./invoice-delivery");
 
-// Automatická kontrola každých 30 minút – test fakturácie.
+// Automatická kontrola každých 30 minút – test fakturácie po nastavení Supabase.
 exports.config = {
   schedule: "*/30 * * * *"
 };
