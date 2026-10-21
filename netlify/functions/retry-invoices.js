@@ -25,9 +25,10 @@ exports.handler = async function () {
   // Vyhľadáme najviac 20 faktúr, ktoré ešte neboli odoslané.
   const response = await fetch(
     `${url.replace(/\/$/, "")}/rest/v1/faktury` +
-     "?odoslane_at=is.null" +
-"&odosielanie_zacate_at=is.null" +
-    "&stav=eq.pripravena" +
+    "?odoslane_at=is.null" +
+ "&or=(stav.eq.pripravena,and(stav.eq.odosiela_sa,odosielanie_zacate_at.lt." +
+ encodeURIComponent(new Date(Date.now() - 15 * 60 * 1000).toISOString()) +
+ "))" +
       "&select=id" +
       "&order=created_at.asc" +
       "&limit=20",
