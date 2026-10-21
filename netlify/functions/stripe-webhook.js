@@ -35,26 +35,21 @@ async function supabaseRequest(url, key, path, options = {}) {
 }
 
 function getEnvironment() {
- const context =
-  process.env.CONTEXT ||
-  (
-    (process.env.SUPABASE_URL || "").replace(/\/$/, "") ===
-    "https://pwtvquyefpucjufvwnxp.supabase.co"
-      ? "deploy-preview"
-      : "production"
-  );
+  const paymentEnv = process.env.DOPYTAI_PAYMENT_ENV;
   const url = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
 
-  if (!url || !key) {
-    throw new Error("Supabase nie je nastavený");
+  if (!url || !key || !stripeKey) {
+    throw new Error("Chýba konfigurácia platobného prostredia.");
   }
 
-  if (context === "production") {
-    if (url !== LIVE_SUPABASE_URL) {
-      throw new Error(
-        "BEZPEČNOSTNÁ KONTROLA: Production nemá ostrú databázu"
-      );
+  if (paymentEnv === "live") {
+    if (
+      url !== LIVE_SUPABASE_URL ||
+      !stripeKey.startsWith("sk_live_")
+    ) {
+      throw new Error("Nesprávna konfigurácia produkčného webhooku.");
     }
 
     return {
@@ -65,27 +60,23 @@ function getEnvironment() {
     };
   }
 
-  if (
-  context === "deploy-preview" ||
-  (context === "branch-deploy" && process.env.BRANCH === "test-fakturacia")
-) {
-    if (url !== TEST_SUPABASE_URL) {
-      throw new Error(
-        "BEZPEČNOSTNÁ KONTROLA: Deploy Preview nemá testovaciu databázu"
-      );
+  if (paymentEnv === "test") {
+    if (
+      url !== TEST_SUPABASE_URL ||
+      !stripeKey.startsWith("sk_test_")
+    ) {
+      throw new Error("Nesprávna konfigurácia testovacieho webhooku.");
     }
 
     return {
       url,
       key,
       livemode: false,
-     allowInvoiceEmail: true
+      allowInvoiceEmail: true
     };
   }
 
-  throw new Error(
-    `Nepovolené prostredie pre Stripe webhook: ${context || "neznáme"}`
-  );
+  throw new Error("Nepovolené platobné prostredie.");
 }
 
 function verifyStripeSignature(event, secret) {
