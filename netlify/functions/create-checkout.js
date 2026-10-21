@@ -25,7 +25,11 @@ exports.handler = async function (event) {
     }
 const context = process.env.CONTEXT;
 const branch = process.env.BRANCH;
-
+console.log("CHECKOUT ENV DEBUG:", {
+  context: process.env.CONTEXT || null,
+  branch: process.env.BRANCH || null,
+  netlify: process.env.NETLIFY || null
+});
 const TEST_SUPABASE =
   "https://pwtvquyefpucjufvwnxp.supabase.co";
 
