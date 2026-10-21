@@ -23,7 +23,39 @@ exports.handler = async function (event) {
     if (!stripeKey || !supabaseUrl || !serviceKey) {
       throw new Error("Chýba konfigurácia platby alebo overenia firmy.");
     }
+const context = process.env.CONTEXT;
+const branch = process.env.BRANCH;
 
+const TEST_SUPABASE =
+  "https://pwtvquyefpucjufvwnxp.supabase.co";
+
+const LIVE_SUPABASE =
+  "https://unwoolvttaljwbkgwmuy.supabase.co";
+
+if (context === "production") {
+  if (
+    supabaseUrl !== LIVE_SUPABASE ||
+    !stripeKey.startsWith("sk_live_")
+  ) {
+    throw new Error(
+      "Produkcia vyžaduje ostrú databázu a ostrý Stripe kľúč."
+    );
+  }
+} else if (
+  context === "deploy-preview" ||
+  (context === "branch-deploy" && branch === "test-fakturacia")
+) {
+  if (
+    supabaseUrl !== TEST_SUPABASE ||
+    !stripeKey.startsWith("sk_test_")
+  ) {
+    throw new Error(
+      "Testovanie vyžaduje testovaciu databázu a testovací Stripe kľúč."
+    );
+  }
+} else {
+  throw new Error("Nepovolené prostredie pre Stripe Checkout.");
+}
     const authHeader =
       event.headers?.authorization || event.headers?.Authorization || "";
 
