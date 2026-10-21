@@ -21,13 +21,28 @@ if (process.env.DOPYTAI_ENABLE_INVOICE_ALERTS !== "true") {
 }
 
   const url = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const resendKey = process.env.RESEND_API_KEY;
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const resendKey = process.env.RESEND_API_KEY;
 
-// Povolené sú iba známe TEST a LIVE databázy.
-if (url !== TEST_URL && url !== LIVE_URL) {
-    throw new Error("Nepovolená databáza pre kontrolu faktúr.");
+const context = process.env.CONTEXT;
+const branch = process.env.BRANCH;
+
+// Produkcia smie používať iba ostrú databázu.
+if (context === "production") {
+  if (url !== LIVE_URL) {
+    throw new Error("Produkcia nemá správnu databázu.");
   }
+} else if (
+  context === "deploy-preview" ||
+  (context === "branch-deploy" && branch === "test-fakturacia")
+) {
+  // Testovacie nasadenia smú používať iba TEST databázu.
+  if (url !== TEST_URL) {
+    throw new Error("Testovacie nasadenie nemá správnu databázu.");
+  }
+} else {
+  throw new Error("Nepovolené prostredie kontroly faktúr.");
+}
 
   if (!key || !resendKey) {
     throw new Error("Chýba konfigurácia kontroly faktúr.");
