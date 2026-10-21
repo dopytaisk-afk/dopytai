@@ -23,42 +23,30 @@ exports.handler = async function (event) {
     if (!stripeKey || !supabaseUrl || !serviceKey) {
       throw new Error("Chýba konfigurácia platby alebo overenia firmy.");
     }
-const context = process.env.CONTEXT;
-const branch = process.env.BRANCH;
-console.log("CHECKOUT ENV DEBUG:", {
-  context: process.env.CONTEXT || null,
-  branch: process.env.BRANCH || null,
-  netlify: process.env.NETLIFY || null
-});
+const paymentEnv = process.env.DOPYTAI_PAYMENT_ENV;
+
 const TEST_SUPABASE =
   "https://pwtvquyefpucjufvwnxp.supabase.co";
 
 const LIVE_SUPABASE =
   "https://unwoolvttaljwbkgwmuy.supabase.co";
 
-if (context === "production") {
+if (paymentEnv === "live") {
   if (
     supabaseUrl !== LIVE_SUPABASE ||
     !stripeKey.startsWith("sk_live_")
   ) {
-    throw new Error(
-      "Produkcia vyžaduje ostrú databázu a ostrý Stripe kľúč."
-    );
+    throw new Error("Nesprávna konfigurácia ostrej platby.");
   }
-} else if (
-  context === "deploy-preview" ||
-  (context === "branch-deploy" && branch === "test-fakturacia")
-) {
+} else if (paymentEnv === "test") {
   if (
     supabaseUrl !== TEST_SUPABASE ||
     !stripeKey.startsWith("sk_test_")
   ) {
-    throw new Error(
-      "Testovanie vyžaduje testovaciu databázu a testovací Stripe kľúč."
-    );
+    throw new Error("Nesprávna konfigurácia testovacej platby.");
   }
 } else {
-  throw new Error("Nepovolené prostredie pre Stripe Checkout.");
+  throw new Error("Neznáme platobné prostredie.");
 }
     const authHeader =
       event.headers?.authorization || event.headers?.Authorization || "";
