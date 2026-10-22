@@ -189,6 +189,12 @@
   <label>Potvrdiť heslo</label>
   <input id="registerCompanyPasswordConfirm" type="password" placeholder="Zadajte heslo znova">
 </div>
+    <h3 style="margin-top:24px">Fakturačné údaje</h3>
+    <div class="field"><label for="registerCompanyIco">IČO</label><input id="registerCompanyIco" inputmode="numeric" maxlength="8" placeholder="8 číslic"></div>
+    <div class="field"><label for="registerCompanyDic">DIČ (ak máte)</label><input id="registerCompanyDic" inputmode="numeric" maxlength="10" placeholder="10 číslic"></div>
+    <div class="field"><label for="registerCompanyStreet">Ulica a číslo</label><input id="registerCompanyStreet" placeholder="Ulica a číslo"></div>
+    <div class="field"><label for="registerCompanyPsc">PSČ</label><input id="registerCompanyPsc" inputmode="numeric" placeholder="napr. 010 01"></div>
+    <div class="field"><label for="registerCompanyCity">Mesto / obec</label><input id="registerCompanyCity" placeholder="Mesto alebo obec"></div>
     <div style="margin:12px 0 16px;display:flex;align-items:flex-start;gap:9px;font-size:14px;line-height:1.4;color:#475569"><input id="companyTermsConsent" type="checkbox" style="width:auto;margin-top:3px"><label for="companyTermsConsent">Potvrdzujem, že som sa oboznámil/a s <a href="/obchodne-podmienky.html" target="_blank" rel="noopener noreferrer" style="color:#087cf0;font-weight:700">Obchodnými podmienkami DopytAI</a> a súhlasím s nimi.</label></div>
     <button class="btn" id="registerCompanySubmit" type="button">Vytvoriť účet firmy</button>
     <button class="btn" id="backToCompanyLogin" type="button" style="margin-top:12px;background:#fff;color:#1687f8;border:2px solid #1687f8;">Späť na prihlásenie</button>
@@ -199,8 +205,15 @@
 
   
 <script>
-const API_URL='https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1';
-const API_KEY='sb_publishable_tD39CIcOeokbNGxDB5Lehg_EUYzmJ36';
+
+const API_URL = ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname)
+  ? 'https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1'
+  : 'https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1';
+
+const API_KEY = ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname)
+  ? 'sb_publishable_tD39CIcOeokbNGxDB5Lehg_EUYzmJ36'
+  : 'sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-';
+
 const $=id=>document.getElementById(id);
  let selectedPhotoFiles=[];
 
@@ -302,7 +315,7 @@ function authHeaders(){
     Authorization:`Bearer ${token}`
   };
 }
-function showCustomer(){ $('admin').classList.remove('show'); $('customer').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }
+function showCustomer(){ $('admin').classList.remove('show'); ['companyPortal','companyDashboard','companyRegister','companyPasswordReset'].forEach(id => $(id).style.display='none'); $('customer').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }
 function showAdmin(){ $('customer').style.display='none'; $('admin').classList.add('show'); window.scrollTo({top:0,behavior:'smooth'}); if(accessToken){ showPanel(); loadLeads(); } }
 function showPanel(){ $('loginBox').style.display='none'; $('adminPanel').style.display='block'; }
 function showLogin(){ $('loginBox').style.display='block'; $('adminPanel').style.display='none'; }
@@ -316,15 +329,31 @@ $('openCompany').addEventListener('click',()=>{ $('customer').style.display='non
   const savedCompanyToken=localStorage.getItem('dopytai_company_token');
 const savedCompanyEmail=localStorage.getItem('dopytai_company_email');
 if(savedCompanyToken && savedCompanyEmail){
-  $('customer').style.display='none';
-  $('admin').classList.remove('show');
-  $('companyPortal').style.display='none';
-  $('companyRegister').style.display='none';
- 
-  $('companyDashboard').style.display='block';
-  $('logoutBtn').style.display='block';
-  loadCompanyLeads();
-  loadCompanyCredit();
+  (async () => {
+    try {
+      const r = await fetch(AUTH_URL+'/user', {
+        headers: { apikey: API_KEY, Authorization: 'Bearer '+savedCompanyToken }
+      });
+      if (!r.ok) throw new Error('Firemné prihlásenie vypršalo.');
+      const user = await r.json();
+      if (!user.id) throw new Error('Neplatné firemné prihlásenie.');
+      $('customer').style.display='none';
+      $('admin').classList.remove('show');
+      $('companyPortal').style.display='none';
+      $('companyRegister').style.display='none';
+      $('companyDashboard').style.display='block';
+      $('logoutBtn').style.display='block';
+      await loadCompanyLeads();
+      await loadCompanyCredit();
+    } catch (err) {
+      // Only clear an invalid token, not an unrelated temporary network failure.
+      if (err.message.includes('vypršalo') || err.message.includes('Neplatné')) {
+        localStorage.removeItem('dopytai_company_token');
+        localStorage.removeItem('dopytai_company_email');
+      }
+      console.warn('Automatické prihlásenie sa nepodarilo:', err.message);
+    }
+  })();
 }
   $('closeCompany').addEventListener('click',showCustomer);
   $('companyLoginBtn').addEventListener('click',async()=>{
@@ -504,10 +533,13 @@ if (!companyRes.ok || !companies.length) throw new Error('Firma sa nenašla.');
 const company = companies[0];
       const response = await fetch('/.netlify/functions/create-checkout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-       body: JSON.stringify({ amount, companyId: company.id })
+       
+headers: {
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer ' + token
+},
+body: JSON.stringify({ amount })
+
       });
 
       const data = await response.json();
@@ -712,17 +744,17 @@ const ownUnlockedIds = new Set(
 
   return `
     <div class="card" style="margin-top:12px">
-      <b>${lead.typ_prace||'Dopyt'}</b><br>
-      📍 ${lead.lokalita||''}<br>
-     💰 Odhad: ${((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €')}<br>
+      <b>${esc(lead.typ_prace||'Dopyt')}</b><br>
+      📍 ${esc(lead.lokalita||'')}<br>
+     💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
 <div style="margin-top:10px;line-height:1.7">
 <b>📋 Detaily zákazky</b><br>
-📐 Plocha: ${(lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená'}<br>
-🏠 Krytina: ${(lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená'}<br>
-🔨 Krov: ${(lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
-📍 Kraj: ${(lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
-📅 Termín: ${((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený'}<br>
-📝 Popis: ${(lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu'}
+📐 Plocha: ${esc((lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+🏠 Krytina: ${esc((lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+🔨 Krov: ${esc((lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+📍 Kraj: ${esc((lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+📅 Termín: ${esc(((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený')}<br>
+📝 Popis: ${esc((lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
 </div>
  <button type="button" onclick="showLeadPhotos(${company.id}, ${lead.id}, this)" style="margin-top:10px;padding:10px;border:1px solid #1687f8;border-radius:10px;background:white;color:#1687f8;font-weight:700;cursor:pointer">
   📷 Zobraziť fotografie
@@ -731,9 +763,9 @@ const ownUnlockedIds = new Set(
       ${isUnlocked ? `
         <div style="margin-top:10px">
           🔓 <b>Kontakt zákazníka</b><br>
-          👤 ${lead.meno||''}<br>
-          📞 ${lead.telefon||''}<br>
-          ✉️ ${lead.email||''}
+          👤 ${esc(lead.meno||'')}<br>
+          📞 ${esc(lead.telefon||'')}<br>
+          ✉️ ${esc(lead.email||'')}
         </div>
       ` : `
         <small>🔒 Kontakt zákazníka je skrytý</small>
@@ -772,23 +804,23 @@ const purchasedCount = activePurchasedLeads.length;
     console.log('Počet zakúpených dopytov:', purchasedCount);
 purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
   <div class="card" style="margin-top:12px">
-    <b>${lead.typ_prace||'Dopyt'}</b><br>
-    📍 ${lead.lokalita||''}<br>
-    💰 Odhad: ${((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €')}<br>
+    <b>${esc(lead.typ_prace||'Dopyt')}</b><br>
+    📍 ${esc(lead.lokalita||'')}<br>
+    💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
     <div style="margin-top:10px;line-height:1.7">
   <b>📋 Detaily zákazky</b><br>
- 📐 Plocha: ${(lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená'}<br>
-🏠 Krytina: ${(lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená'}<br>
-🔨 Krov: ${(lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
-📍 Kraj: ${(lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
-📅 Termín: ${((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený'}<br> 
-📝 Popis: ${(lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu'}
+ 📐 Plocha: ${esc((lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+🏠 Krytina: ${esc((lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+🔨 Krov: ${esc((lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+📍 Kraj: ${esc((lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+📅 Termín: ${esc(((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený')}<br> 
+📝 Popis: ${esc((lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
 </div>
     <div style="margin-top:10px">
       🔓 <b>Kontakt zákazníka</b><br>
-      👤 ${lead.meno||''}<br>
-      📞 ${lead.telefon||''}<br>
-      ✉️ ${lead.email||''}
+      👤 ${esc(lead.meno||'')}<br>
+      📞 ${esc(lead.telefon||'')}<br>
+      ✉️ ${esc(lead.email||'')}
     </div>
    <button type="button" onclick="showLeadPhotos(${company.id}, ${lead.id}, this)" style="margin-top:10px;padding:10px;border:1px solid #1687f8;border-radius:10px;background:white;color:#1687f8;font-weight:700;cursor:pointer">
   📷 Zobraziť fotografie
@@ -814,14 +846,14 @@ if (completedPurchasedLeads.length === 0) {
 } else {
 completedBox.querySelector('.completed-list').innerHTML = completedPurchasedLeads.map(lead => `  
     <div class="card" style="margin-top:12px">
-      <b>${lead.typ_prace || 'Dopyt'}</b><br>
-      📍 ${lead.lokalita || ''}<br>
-     💰 Odhad: ${((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €')}<br>
+      <b>${esc(lead.typ_prace || 'Dopyt')}</b><br>
+      📍 ${esc(lead.lokalita || '')}<br>
+     💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
       <div style="margin-top:10px">
         🔓 <b>Kontakt zákazníka</b><br>
-        👤 ${lead.meno || ''}<br>
-        📞 ${lead.telefon || ''}<br>
-        ✉️ ${lead.email || ''}
+        👤 ${esc(lead.meno || '')}<br>
+        📞 ${esc(lead.telefon || '')}<br>
+        ✉️ ${esc(lead.email || '')}
       </div>
     <button type="button" onclick="showLeadPhotos(${company.id}, ${lead.id}, this, true)" style="margin-top:10px;padding:10px;border:1px solid #1687f8;border-radius:10px;background:white;color:#1687f8;font-weight:700;cursor:pointer">
   📷 Zobraziť fotografie
@@ -838,7 +870,7 @@ purchasedBox.insertAdjacentElement('afterend', completedBox);
    
   }catch(err){
     console.error(err);
-    $('companyDashboardMessage').innerHTML='Chyba: '+err.message;
+    $('companyDashboardMessage').textContent='Chyba: '+err.message;
   }
 } 
 async function markLeadDone(leadId){
@@ -870,19 +902,28 @@ async function markLeadDone(leadId){
 
     const firmaId = companies[0].id;
 
-    const res = await fetch(
-      API_URL + '/odomknute_dopyty?dopyt_id=eq.' + encodeURIComponent(leadId) + '&firma_id=eq.' + encodeURIComponent(firmaId),
-      {
-        method: 'PATCH',
-        headers:{
-          'apikey': API_KEY,
-          'Authorization': 'Bearer ' + token,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({ vybavene: true })
-      }
-    );
+    
+const res = await fetch(
+  API_URL + (
+    ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname)
+      ? '/odomknute_dopyty?dopyt_id=eq.' + encodeURIComponent(leadId) + '&firma_id=eq.' + encodeURIComponent(firmaId)
+      : '/rpc/oznac_dopyt_vybaveny'
+  ),
+  {
+    method: ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname) ? 'PATCH' : 'POST',
+    headers: {
+      'apikey': API_KEY,
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(
+      ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname)
+        ? { vybavene: true }
+        : { p_dopyt_id: leadId }
+    )
+  }
+);
+
 
     if(!res.ok){
       throw new Error('Dopyt sa nepodarilo označiť ako vybavený.');
@@ -949,10 +990,14 @@ function openPhoto(src){
     cursor:pointer;
   `;
 
-  modal.innerHTML = `
-    <img src="${src}" style="max-width:95%;max-height:90vh;object-fit:contain;border-radius:10px;">
-    <button type="button" style="position:absolute;top:15px;right:20px;background:white;border:0;border-radius:50%;width:42px;height:42px;font-size:25px;cursor:pointer;">×</button>
-  `;
+  const preview = document.createElement('img');
+  preview.src = src;
+  preview.style.cssText = 'max-width:95%;max-height:90vh;object-fit:contain;border-radius:10px;';
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.textContent = '×';
+  close.style.cssText = 'position:absolute;top:15px;right:20px;background:white;border:0;border-radius:50%;width:42px;height:42px;font-size:25px;cursor:pointer;';
+  modal.append(preview, close);
 
   modal.addEventListener('click',()=>modal.remove());
   document.body.appendChild(modal);
@@ -1124,99 +1169,48 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   const phone=$('registerCompanyPhone').value.trim();
   const region=$('registerCompanyRegion').value;
   const password=$('registerCompanyPassword').value;
-   const passwordConfirm=$('registerCompanyPasswordConfirm').value;
+  const passwordConfirm=$('registerCompanyPasswordConfirm').value;
+  const ico=$('registerCompanyIco').value.replace(/\s/g,'');
+  const dic=$('registerCompanyDic').value.replace(/\s/g,'');
+  const fakturacna_ulica=$('registerCompanyStreet').value.trim();
+  const fakturacne_psc=$('registerCompanyPsc').value.trim();
+  const fakturacne_mesto=$('registerCompanyCity').value.trim();
   const msg=$('registerCompanyMsg');
-    const termsConsent=$('companyTermsConsent').checked;
-
   msg.innerHTML='';
-
-  if(!name || !email || !phone || !region || !password){
-    msg.innerHTML='<div class="error">Vyplňte všetky údaje.</div>';
-    return;
+  if(!name || !email || !phone || !region || !password || !ico || !fakturacna_ulica || !fakturacne_psc || !fakturacne_mesto){
+    msg.innerHTML='<div class="error">Vyplňte povinné údaje vrátane fakturačnej adresy a IČO.</div>';return;
   }
-    if(!termsConsent){
-  msg.innerHTML='<div class="error">Pre vytvorenie účtu musíte súhlasiť s Obchodnými podmienkami.</div>';
-  return;
-}
-
-  if(password.length<6){
-    msg.innerHTML='<div class="error">Heslo musí mať aspoň 6 znakov.</div>';
-    return;
+  if(!/^\d{8}$/.test(ico)){
+    msg.innerHTML='<div class="error">IČO musí obsahovať 8 číslic.</div>';return;
   }
-if(password !== passwordConfirm){
-  msg.innerHTML='<div class="error">❌ Heslá sa nezhodujú.</div>';
-  return;
-}
-  const btn=$('registerCompanySubmit');
-  btn.disabled=true;
-  btn.textContent='Vytváram účet...';
-
+  if(dic && !/^\d{10}$/.test(dic)){
+    msg.innerHTML='<div class="error">DIČ musí obsahovať 10 číslic.</div>';return;
+  }
+  if(!/^\d{3}\s?\d{2}$/.test(fakturacne_psc)){
+    msg.innerHTML='<div class="error">PSČ musí mať formát 010 01 alebo 01001.</div>';return;
+  }
+  if(!$('companyTermsConsent').checked){
+    msg.innerHTML='<div class="error">Pre vytvorenie účtu musíte súhlasiť s Obchodnými podmienkami.</div>';return;
+  }
+  if(password.length<6 || password!==passwordConfirm){
+    msg.innerHTML='<div class="error">Heslo musí mať aspoň 6 znakov a obe heslá sa musia zhodovať.</div>';return;
+  }
+  const btn=$('registerCompanySubmit');btn.disabled=true;btn.textContent='Vytváram účet...';
   try{
     const authResponse=await fetch(AUTH_URL+'/signup',{
-      method:'POST',
-      headers:{
-        'apikey':API_KEY,
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({
-        email,
-        password,
-        data:{
-          company_name:name,
-          phone,
-          region
-        }
-      })
+      method:'POST',headers:{apikey:API_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email,password,data:{
+        company_name:name,phone,region,ico,dic,
+        fakturacna_ulica,fakturacne_psc,fakturacne_mesto
+      }})
     });
-
     const authData=await authResponse.json();
-
-    if(!authResponse.ok){
-      throw new Error(authData.msg || authData.message || 'Registrácia sa nepodarila.');
-    }
-
-    const userId = authData.user?.id || authData.id;
-
-    if(!userId){
-      throw new Error('Účet bol vytvorený, ale nepodarilo sa načítať ID používateľa.');
-    }
-
-   if(authData.access_token){
-  const companyResponse = await fetch(API_URL+'/firmy',{
-    method:'POST',
-    headers:{
-      'apikey':API_KEY,
-      'Authorization':'Bearer '+authData.access_token,
-      'Content-Type':'application/json',
-      'Prefer':'return=minimal'
-    },
-    body:JSON.stringify({
-      'názov':name,
-      kontaktna_osoba:'',
-      telefon:phone,
-      email:email,
-      region:region,
-      lokalita:'',
-      typ_prace:'Strechy',
-      stav:'aktivna',
-      auth_user_id:userId
-    })
-  });
-
-  if(!companyResponse.ok){
-    const companyError = await companyResponse.text();
-    throw new Error('Účet vznikol, ale údaje firmy sa nepodarilo uložiť: '+companyError);
-  }
-}
-
-   msg.innerHTML='<div class="success">✅ Firemný účet bol vytvorený. 📧 Na váš e-mail sme poslali potvrdzovací odkaz. Potvrďte e-mail a potom sa môžete prihlásiť.</div>';
-
-  }catch(err){
-    msg.innerHTML='<div class="error">❌ '+esc(err.message)+'</div>';
-  }finally{
-    btn.disabled=false;
-    btn.textContent='Vytvoriť účet firmy';
-  }
+    if(!authResponse.ok)throw new Error(authData.msg||authData.message||authData.error_description||'Registrácia sa nepodarila.');
+    // Profil firmy vytvorí existujúci databázový trigger on_auth_user_created.
+    // Nevykonávame druhý INSERT do public.firmy.
+    msg.innerHTML='<div class="success">✅ Žiadosť o registráciu bola prijatá. Skontrolujte e-mail, potvrďte adresu a potom sa prihláste.</div>';
+  }catch(err){msg.innerHTML='<div class="error">❌ '+esc(err.message)+'</div>';}
+  finally{btn.disabled=false;btn.textContent='Vytvoriť účet firmy';}
 });
   $('closeAdmin').addEventListener('click',showCustomer);
 $('loginBtn').addEventListener('click', async () => {
@@ -1460,7 +1454,9 @@ async function sendLeadToCompany(leadId,companyId){
        plocha:(lead.popis||'').match(/Plocha:\s*(\d+)/)?.[1]||'',
 rozpocet:((lead.popis||'').match(/Odhad:\s*([0-9\s]+[–-][0-9\s]+\s*€?)/)?.[1]?.trim()) || (lead.odhad_ceny||''),
      telefon:lead.telefon||'',
-      email_zakaznika:(lead.popis||'').match(/E-mail:\s*([^\n]+)/)?.[1]?.trim()||''  
+      
+email_zakaznika:lead.email||''
+ 
       })
     });
 
@@ -1610,7 +1606,7 @@ $('form').addEventListener('submit',async e=>{
     'Kraj: '+$('leadRegion').value,
     'Termín: '+$('term').value,
     'Odhad: '+price,
-    $('email').value.trim()?'E-mail: '+$('email').value.trim():null,
+   
     'Fotografie vybrané: '+selectedPhotos.length
   ].filter(Boolean).join('\n');
 
@@ -1628,7 +1624,15 @@ $('form').addEventListener('submit',async e=>{
   try{
 
     // 1. Uložíme dopyt a necháme si vrátiť jeho ID
-    const r=await fetch(API_URL+'/rpc/vytvor_dopyt',{
+ 
+const r=await fetch(
+  API_URL + (
+    ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname)
+      ? '/rpc/vytvor_dopyt'
+      : '/rpc/vytvor_dopyt_s_token'
+  ),
+  {
+
   method:'POST',
   headers:{
     'apikey':API_KEY,
@@ -1653,8 +1657,22 @@ if(!r.ok){
   throw new Error(created.message||('HTTP '+r.status));
 }
 
-const leadId=created;
-    const photoPaths=[];
+
+const isProduction = ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname);
+
+const leadId = isProduction ? created : created.id;
+const uploadToken = isProduction ? null : created.upload_token;
+
+if (!Number.isSafeInteger(Number(leadId)) || !leadId) {
+  throw new Error('Nepodarilo sa získať ID vytvoreného dopytu.');
+}
+
+if (!isProduction && !uploadToken) {
+  throw new Error('Chýba overovací token na nahrávanie fotografií.');
+}
+
+const photoPaths = [];
+
 
     // 2. Nahráme vybrané fotografie do Supabase Storage
     for(let i=0;i<selectedPhotos.length;i++){
@@ -1706,7 +1724,11 @@ const optimizedFile = await new Promise((resolve, reject) => {
         .replace(/[\u0300-\u036f]/g,'')
         .replace(/[^a-zA-Z0-9._-]/g,'_');
 
-      const filePath=leadId+'/'+Date.now()+'_'+i+'_'+safeName;
+     
+const filePath = isProduction
+  ? leadId + '/' + Date.now() + '_' + i + '_' + safeName
+  : leadId + '/' + uploadToken + '/' + Date.now() + '_' + i + '_' + safeName;
+
 
       const uploadRes=await fetch(
         API_URL.replace('/rest/v1','')+
@@ -1736,7 +1758,11 @@ const optimizedFile = await new Promise((resolve, reject) => {
     if(photoPaths.length){
 
      const updateRes = await fetch(
-  API_URL + '/rpc/uloz_fotky_dopytu',
+ 
+API_URL + (isProduction
+  ? '/rpc/uloz_fotky_dopytu'
+  : '/rpc/potvrd_fotky_dopytu'),
+
   {
     method: 'POST',
     headers: {
@@ -1744,12 +1770,23 @@ const optimizedFile = await new Promise((resolve, reject) => {
       'Authorization': 'Bearer ' + API_KEY,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      p_dopyt_id: leadId,
-      p_fotky: photoPaths
-    })
-  }
-);
+    
+body: JSON.stringify(
+  isProduction
+    ? {
+        p_dopyt_id: leadId,
+        p_fotky: photoPaths
+      }
+    : {
+        p_dopyt_id: leadId,
+        p_token: uploadToken,
+        p_fotky: photoPaths
+      }
+)
+
+
+});
+
 
 if(!updateRes.ok){
   throw new Error('Nepodarilo sa uložiť fotky k dopytu: ' + await updateRes.text());
