@@ -1566,7 +1566,16 @@ async function editCompany(id){
     const location=prompt('Lokalita:',x.lokalita||''); if(location===null) return;
     const work=prompt('Typ práce:',x.typ_prace||''); if(work===null) return;
     const state=prompt('Stav firmy:',x.stav||'aktivna'); if(state===null) return;
-    const u=await fetch(API_URL+'/firmy?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({'názov':name.trim(),kontaktna_osoba:contact.trim(),telefon:phone.trim(),email:email.trim(),region:region.trim(),lokalita:location.trim(),typ_prace:work.trim(),stav:state.trim()||'aktivna'})});
+    
+    const ico=prompt('IČO:',x.ico||''); if(ico===null) return;
+    const dic=prompt('DIČ (ak máte):',x.dic||''); if(dic===null) return;
+    const street=prompt('Fakturačná ulica a číslo:',x.fakturacna_ulica||''); if(street===null) return;
+    const psc=prompt('Fakturačné PSČ:',x.fakturacne_psc||''); if(psc===null) return;
+    const city=prompt('Fakturačné mesto / obec:',x.fakturacne_mesto||''); if(city===null) return;
+
+   
+    const u=await fetch(API_URL+'/firmy?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({'názov':name,kontaktna_osoba:contact,telefon:phone,email:email,region:region,lokalita:location,typ_prace:work,stav:state,ico:ico.trim()||null,dic:dic.trim()||null,fakturacna_ulica:street.trim()||null,fakturacne_psc:psc.trim()||null,fakturacne_mesto:city.trim()||null})});
+
     if(!u.ok) throw new Error((await u.text())||('HTTP '+u.status)); await loadCompanies();
   }catch(err){ alert('Firmu sa nepodarilo upraviť: '+err.message); }
 }
