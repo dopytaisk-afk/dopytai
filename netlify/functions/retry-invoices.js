@@ -21,7 +21,28 @@ exports.handler = async function () {
   if (!url || !key) {
     throw new Error("Chýba konfigurácia Supabase.");
   }
+  const paymentEnv = process.env.DOPYTAI_PAYMENT_ENV;
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
+  const supabaseUrl = url.replace(/\/$/, "");
 
+  if (paymentEnv === "test") {
+    if (
+      supabaseUrl !== "https://pwtvquyefpucjufvwnxp.supabase.co" ||
+      !stripeKey?.startsWith("sk_test_")
+    ) {
+      throw new Error("Nesprávne testovacie prostredie fakturácie.");
+    }
+  } else if (paymentEnv === "live") {
+    if (
+      supabaseUrl !== "https://unwoolvttaljwbkgwmuy.supabase.co" ||
+      !stripeKey?.startsWith("sk_live_")
+    ) {
+      throw new Error("Nesprávne produkčné prostredie fakturácie.");
+    }
+  } else {
+    throw new Error("Nepovolené prostredie fakturácie.");
+  }
+  
   // Vyhľadáme najviac 20 faktúr, ktoré ešte neboli odoslané.
   const response = await fetch(
     `${url.replace(/\/$/, "")}/rest/v1/faktury` +
