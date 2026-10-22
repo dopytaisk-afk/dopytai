@@ -1533,11 +1533,20 @@ async function loadCompanies(){
 
 async function addCompany(){
   const name=$('companyName').value.trim(), contact=$('companyContact').value.trim(), phone=$('companyPhone').value.trim(), email=$('companyEmail').value.trim(), region=$('companyRegion').value.trim(), location=$('companyLocation').value.trim(), work=$('companyWork').value.trim();
+  
+  const ico = $('companyIco').value.trim();
+  const dic = $('companyDic').value.trim();
+  const street = $('companyStreet').value.trim();
+  const psc = $('companyPsc').value.trim();
+  const city = $('companyCity').value.trim();
+
   $('companyMsg').innerHTML='';
   if(!name){ $('companyMsg').innerHTML='<div class="error">Zadaj názov firmy.</div>'; return; }
   const b=$('addCompanyBtn'); b.disabled=true; b.textContent='Pridávam…';
   try{
-    const r=await fetch(API_URL+'/firmy',{method:'POST',headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({'názov':name,kontaktna_osoba:contact,telefon:phone,email:email,region:region,lokalita:location,typ_prace:work,stav:'aktivna'})});
+    
+    const r=await fetch(API_URL+'/firmy',{method:'POST',headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({'názov':name,kontaktna_osoba:contact,telefon:phone,email:email,region:region,lokalita:location,typ_prace:work,stav:'aktivna',ico:ico||null,dic:dic||null,fakturacna_ulica:street||null,fakturacne_psc:psc||null,fakturacne_mesto:city||null})});
+
     if(!r.ok) throw new Error((await r.text())||('HTTP '+r.status));
     ['companyName','companyContact','companyPhone','companyEmail','companyRegion','companyLocation','companyWork'].forEach(id=>$(id).value=''); $('companyMsg').innerHTML='<div class="success">✅ Firma bola pridaná.</div>'; await loadCompanies();
   }catch(err){ $('companyMsg').innerHTML='<div class="error"><b>Firmu sa nepodarilo pridať.</b><br>'+esc(err.message)+'</div>'; }
