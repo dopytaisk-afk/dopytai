@@ -902,19 +902,28 @@ async function markLeadDone(leadId){
 
     const firmaId = companies[0].id;
 
-    const res = await fetch(
-      API_URL + '/odomknute_dopyty?dopyt_id=eq.' + encodeURIComponent(leadId) + '&firma_id=eq.' + encodeURIComponent(firmaId),
-      {
-        method: 'PATCH',
-        headers:{
-          'apikey': API_KEY,
-          'Authorization': 'Bearer ' + token,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({ vybavene: true })
-      }
-    );
+    
+const res = await fetch(
+  API_URL + (
+    ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname)
+      ? '/odomknute_dopyty?dopyt_id=eq.' + encodeURIComponent(leadId) + '&firma_id=eq.' + encodeURIComponent(firmaId)
+      : '/rpc/oznac_dopyt_vybaveny'
+  ),
+  {
+    method: ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname) ? 'PATCH' : 'POST',
+    headers: {
+      'apikey': API_KEY,
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(
+      ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname)
+        ? { vybavene: true }
+        : { p_dopyt_id: leadId }
+    )
+  }
+);
+
 
     if(!res.ok){
       throw new Error('Dopyt sa nepodarilo označiť ako vybavený.');
