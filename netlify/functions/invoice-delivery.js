@@ -49,10 +49,9 @@ async function supabaseRequest(url, key, cesta, options = {}) {
 }
 
 async function dorucFakturu(fakturaId) {
- const context = process.env.DOPYTAI_TEST_INVOICE_TOKEN
-  ? "deploy-preview"
-  : process.env.CONTEXT;
-   const supabaseUrl = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
+  const paymentEnv = process.env.DOPYTAI_PAYMENT_ENV;
+  const supabaseUrl = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
 
   const productionUrl =
     "https://unwoolvttaljwbkgwmuy.supabase.co";
@@ -60,15 +59,20 @@ async function dorucFakturu(fakturaId) {
   const testUrl =
     "https://pwtvquyefpucjufvwnxp.supabase.co";
 
-  if (context === "production") {
-    if (supabaseUrl !== productionUrl) {
-      throw new Error("Nesprávna produkčná databáza.");
+  if (paymentEnv === "live") {
+    if (
+      supabaseUrl !== productionUrl ||
+      !stripeKey?.startsWith("sk_live_")
+    ) {
+      throw new Error("Nesprávne produkčné prostredie fakturácie.");
     }
-  } else if (
-    supabaseUrl === testUrl &&
-    context !== "production"
-  ) {
-    // Testovacia databáza je povolená.
+  } else if (paymentEnv === "test") {
+    if (
+      supabaseUrl !== testUrl ||
+      !stripeKey?.startsWith("sk_test_")
+    ) {
+      throw new Error("Nesprávne testovacie prostredie fakturácie.");
+    }
   } else {
     throw new Error("Nepovolené prostredie fakturácie.");
   }
