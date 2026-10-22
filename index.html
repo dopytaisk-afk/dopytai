@@ -1615,7 +1615,15 @@ $('form').addEventListener('submit',async e=>{
   try{
 
     // 1. Uložíme dopyt a necháme si vrátiť jeho ID
-    const r=await fetch(API_URL+'/rpc/vytvor_dopyt',{
+ 
+const r=await fetch(
+  API_URL + (
+    ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname)
+      ? '/rpc/vytvor_dopyt'
+      : '/rpc/vytvor_dopyt_s_token'
+  ),
+  {
+
   method:'POST',
   headers:{
     'apikey':API_KEY,
@@ -1640,8 +1648,22 @@ if(!r.ok){
   throw new Error(created.message||('HTTP '+r.status));
 }
 
-const leadId=created;
-    const photoPaths=[];
+
+const isProduction = ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname);
+
+const leadId = isProduction ? created : created.id;
+const uploadToken = isProduction ? null : created.upload_token;
+
+if (!Number.isSafeInteger(Number(leadId)) || !leadId) {
+  throw new Error('Nepodarilo sa získať ID vytvoreného dopytu.');
+}
+
+if (!isProduction && !uploadToken) {
+  throw new Error('Chýba overovací token na nahrávanie fotografií.');
+}
+
+const photoPaths = [];
+
 
     // 2. Nahráme vybrané fotografie do Supabase Storage
     for(let i=0;i<selectedPhotos.length;i++){
@@ -1693,7 +1715,11 @@ const optimizedFile = await new Promise((resolve, reject) => {
         .replace(/[\u0300-\u036f]/g,'')
         .replace(/[^a-zA-Z0-9._-]/g,'_');
 
-      const filePath=leadId+'/'+Date.now()+'_'+i+'_'+safeName;
+     
+const filePath = isProduction
+  ? leadId + '/' + Date.now() + '_' + i + '_' + safeName
+  : leadId + '/' + uploadToken + '/' + Date.now() + '_' + i + '_' + safeName;
+
 
       const uploadRes=await fetch(
         API_URL.replace('/rest/v1','')+
@@ -1723,7 +1749,11 @@ const optimizedFile = await new Promise((resolve, reject) => {
     if(photoPaths.length){
 
      const updateRes = await fetch(
-  API_URL + '/rpc/uloz_fotky_dopytu',
+ 
+API_URL + (isProduction
+  ? '/rpc/uloz_fotky_dopytu'
+  : '/rpc/potvrd_fotky_dopytu'),
+
   {
     method: 'POST',
     headers: {
@@ -1731,11 +1761,20 @@ const optimizedFile = await new Promise((resolve, reject) => {
       'Authorization': 'Bearer ' + API_KEY,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      p_dopyt_id: leadId,
-      p_fotky: photoPaths
-    })
-  }
+    
+body: JSON.stringify(
+  isProduction
+    ? {
+        p_dopyt_id: leadId,
+        p_fotky: photoPaths
+      }
+    : {
+        p_dopyt_id: leadId,
+        p_token: uploadToken,
+        p_fotky: photoPaths
+      }
+)
+
 );
 
 if(!updateRes.ok){
