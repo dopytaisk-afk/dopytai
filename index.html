@@ -63,6 +63,34 @@
 <div class="field"><label>Región</label><input id="companyRegion" placeholder="napr. Žilinský kraj"></div>
 <div class="field"><label>Lokalita</label><input id="companyLocation" placeholder="napr. Žilina"></div>
 <div class="field"><label>Typ práce</label><input id="companyWork" placeholder="napr. Strechy"></div>
+        
+<h4 style="margin:22px 0 8px">Fakturačné údaje</h4>
+
+<div class="field">
+  <label>IČO</label>
+  <input id="companyIco" inputmode="numeric" maxlength="8" placeholder="8 číslic">
+</div>
+
+<div class="field">
+  <label>DIČ (ak máte)</label>
+  <input id="companyDic" inputmode="numeric" maxlength="10" placeholder="10 číslic">
+</div>
+
+<div class="field">
+  <label>Fakturačná ulica a číslo</label>
+  <input id="companyStreet" placeholder="Ulica a číslo">
+</div>
+
+<div class="field">
+  <label>Fakturačné PSČ</label>
+  <input id="companyPsc" placeholder="napr. 010 01">
+</div>
+
+<div class="field">
+  <label>Fakturačné mesto / obec</label>
+  <input id="companyCity" placeholder="Mesto alebo obec">
+</div>
+
 <button class="btn" id="addCompanyBtn" type="button">Pridať firmu</button><div id="companyMsg"></div></div>
       <div id="companies" class="adminlist"></div>
     </div>
