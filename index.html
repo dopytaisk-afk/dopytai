@@ -308,7 +308,7 @@ function authHeaders(){
     Authorization:`Bearer ${token}`
   };
 }
-function showCustomer(){ $('admin').classList.remove('show'); $('customer').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }
+function showCustomer(){ $('admin').classList.remove('show'); ['companyPortal','companyDashboard','companyRegister','companyPasswordReset'].forEach(id => $(id).style.display='none'); $('customer').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }
 function showAdmin(){ $('customer').style.display='none'; $('admin').classList.add('show'); window.scrollTo({top:0,behavior:'smooth'}); if(accessToken){ showPanel(); loadLeads(); } }
 function showPanel(){ $('loginBox').style.display='none'; $('adminPanel').style.display='block'; }
 function showLogin(){ $('loginBox').style.display='block'; $('adminPanel').style.display='none'; }
@@ -322,15 +322,31 @@ $('openCompany').addEventListener('click',()=>{ $('customer').style.display='non
   const savedCompanyToken=localStorage.getItem('dopytai_company_token');
 const savedCompanyEmail=localStorage.getItem('dopytai_company_email');
 if(savedCompanyToken && savedCompanyEmail){
-  $('customer').style.display='none';
-  $('admin').classList.remove('show');
-  $('companyPortal').style.display='none';
-  $('companyRegister').style.display='none';
- 
-  $('companyDashboard').style.display='block';
-  $('logoutBtn').style.display='block';
-  loadCompanyLeads();
-  loadCompanyCredit();
+  (async () => {
+    try {
+      const r = await fetch(AUTH_URL+'/user', {
+        headers: { apikey: API_KEY, Authorization: 'Bearer '+savedCompanyToken }
+      });
+      if (!r.ok) throw new Error('Firemné prihlásenie vypršalo.');
+      const user = await r.json();
+      if (!user.id) throw new Error('Neplatné firemné prihlásenie.');
+      $('customer').style.display='none';
+      $('admin').classList.remove('show');
+      $('companyPortal').style.display='none';
+      $('companyRegister').style.display='none';
+      $('companyDashboard').style.display='block';
+      $('logoutBtn').style.display='block';
+      await loadCompanyLeads();
+      await loadCompanyCredit();
+    } catch (err) {
+      // Only clear an invalid token, not an unrelated temporary network failure.
+      if (err.message.includes('vypršalo') || err.message.includes('Neplatné')) {
+        localStorage.removeItem('dopytai_company_token');
+        localStorage.removeItem('dopytai_company_email');
+      }
+      console.warn('Automatické prihlásenie sa nepodarilo:', err.message);
+    }
+  })();
 }
   $('closeCompany').addEventListener('click',showCustomer);
   $('companyLoginBtn').addEventListener('click',async()=>{
@@ -721,17 +737,17 @@ const ownUnlockedIds = new Set(
 
   return `
     <div class="card" style="margin-top:12px">
-      <b>${lead.typ_prace||'Dopyt'}</b><br>
-      📍 ${lead.lokalita||''}<br>
-     💰 Odhad: ${((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €')}<br>
+      <b>${esc(lead.typ_prace||'Dopyt')}</b><br>
+      📍 ${esc(lead.lokalita||'')}<br>
+     💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
 <div style="margin-top:10px;line-height:1.7">
 <b>📋 Detaily zákazky</b><br>
-📐 Plocha: ${(lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená'}<br>
-🏠 Krytina: ${(lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená'}<br>
-🔨 Krov: ${(lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
-📍 Kraj: ${(lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
-📅 Termín: ${((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený'}<br>
-📝 Popis: ${(lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu'}
+📐 Plocha: ${esc((lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+🏠 Krytina: ${esc((lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+🔨 Krov: ${esc((lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+📍 Kraj: ${esc((lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+📅 Termín: ${esc(((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený')}<br>
+📝 Popis: ${esc((lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
 </div>
  <button type="button" onclick="showLeadPhotos(${company.id}, ${lead.id}, this)" style="margin-top:10px;padding:10px;border:1px solid #1687f8;border-radius:10px;background:white;color:#1687f8;font-weight:700;cursor:pointer">
   📷 Zobraziť fotografie
@@ -740,9 +756,9 @@ const ownUnlockedIds = new Set(
       ${isUnlocked ? `
         <div style="margin-top:10px">
           🔓 <b>Kontakt zákazníka</b><br>
-          👤 ${lead.meno||''}<br>
-          📞 ${lead.telefon||''}<br>
-          ✉️ ${lead.email||''}
+          👤 ${esc(lead.meno||'')}<br>
+          📞 ${esc(lead.telefon||'')}<br>
+          ✉️ ${esc(lead.email||'')}
         </div>
       ` : `
         <small>🔒 Kontakt zákazníka je skrytý</small>
@@ -781,23 +797,23 @@ const purchasedCount = activePurchasedLeads.length;
     console.log('Počet zakúpených dopytov:', purchasedCount);
 purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
   <div class="card" style="margin-top:12px">
-    <b>${lead.typ_prace||'Dopyt'}</b><br>
-    📍 ${lead.lokalita||''}<br>
-    💰 Odhad: ${((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €')}<br>
+    <b>${esc(lead.typ_prace||'Dopyt')}</b><br>
+    📍 ${esc(lead.lokalita||'')}<br>
+    💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
     <div style="margin-top:10px;line-height:1.7">
   <b>📋 Detaily zákazky</b><br>
- 📐 Plocha: ${(lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená'}<br>
-🏠 Krytina: ${(lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená'}<br>
-🔨 Krov: ${(lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
-📍 Kraj: ${(lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený'}<br>
-📅 Termín: ${((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený'}<br> 
-📝 Popis: ${(lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu'}
+ 📐 Plocha: ${esc((lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+🏠 Krytina: ${esc((lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+🔨 Krov: ${esc((lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+📍 Kraj: ${esc((lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+📅 Termín: ${esc(((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený')}<br> 
+📝 Popis: ${esc((lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
 </div>
     <div style="margin-top:10px">
       🔓 <b>Kontakt zákazníka</b><br>
-      👤 ${lead.meno||''}<br>
-      📞 ${lead.telefon||''}<br>
-      ✉️ ${lead.email||''}
+      👤 ${esc(lead.meno||'')}<br>
+      📞 ${esc(lead.telefon||'')}<br>
+      ✉️ ${esc(lead.email||'')}
     </div>
    <button type="button" onclick="showLeadPhotos(${company.id}, ${lead.id}, this)" style="margin-top:10px;padding:10px;border:1px solid #1687f8;border-radius:10px;background:white;color:#1687f8;font-weight:700;cursor:pointer">
   📷 Zobraziť fotografie
@@ -823,14 +839,14 @@ if (completedPurchasedLeads.length === 0) {
 } else {
 completedBox.querySelector('.completed-list').innerHTML = completedPurchasedLeads.map(lead => `  
     <div class="card" style="margin-top:12px">
-      <b>${lead.typ_prace || 'Dopyt'}</b><br>
-      📍 ${lead.lokalita || ''}<br>
-     💰 Odhad: ${((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €')}<br>
+      <b>${esc(lead.typ_prace || 'Dopyt')}</b><br>
+      📍 ${esc(lead.lokalita || '')}<br>
+     💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
       <div style="margin-top:10px">
         🔓 <b>Kontakt zákazníka</b><br>
-        👤 ${lead.meno || ''}<br>
-        📞 ${lead.telefon || ''}<br>
-        ✉️ ${lead.email || ''}
+        👤 ${esc(lead.meno || '')}<br>
+        📞 ${esc(lead.telefon || '')}<br>
+        ✉️ ${esc(lead.email || '')}
       </div>
     <button type="button" onclick="showLeadPhotos(${company.id}, ${lead.id}, this, true)" style="margin-top:10px;padding:10px;border:1px solid #1687f8;border-radius:10px;background:white;color:#1687f8;font-weight:700;cursor:pointer">
   📷 Zobraziť fotografie
@@ -847,7 +863,7 @@ purchasedBox.insertAdjacentElement('afterend', completedBox);
    
   }catch(err){
     console.error(err);
-    $('companyDashboardMessage').innerHTML='Chyba: '+err.message;
+    $('companyDashboardMessage').textContent='Chyba: '+err.message;
   }
 } 
 async function markLeadDone(leadId){
@@ -958,10 +974,14 @@ function openPhoto(src){
     cursor:pointer;
   `;
 
-  modal.innerHTML = `
-    <img src="${src}" style="max-width:95%;max-height:90vh;object-fit:contain;border-radius:10px;">
-    <button type="button" style="position:absolute;top:15px;right:20px;background:white;border:0;border-radius:50%;width:42px;height:42px;font-size:25px;cursor:pointer;">×</button>
-  `;
+  const preview = document.createElement('img');
+  preview.src = src;
+  preview.style.cssText = 'max-width:95%;max-height:90vh;object-fit:contain;border-radius:10px;';
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.textContent = '×';
+  close.style.cssText = 'position:absolute;top:15px;right:20px;background:white;border:0;border-radius:50%;width:42px;height:42px;font-size:25px;cursor:pointer;';
+  modal.append(preview, close);
 
   modal.addEventListener('click',()=>modal.remove());
   document.body.appendChild(modal);
