@@ -16,3 +16,6 @@
   schedule = "*/30 * * * *"
  [functions."test-send-invoice"]
   included_files = ["netlify/functions/Roboto-Regular.ttf"]
+
+[functions."check-invoice-alerts"]
+  schedule = "*/30 * * * *"
