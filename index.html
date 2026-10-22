@@ -205,8 +205,15 @@
 
   
 <script>
-const API_URL=window.location.hostname.startsWith('deploy-preview-')?'https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1':'https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1';
-const API_KEY=window.location.hostname.startsWith('deploy-preview-')?'sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-':'sb_publishable_tD39CIcOeokbNGxDB5Lehg_EUYzmJ36';
+
+const API_URL = ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname)
+  ? 'https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1'
+  : 'https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1';
+
+const API_KEY = ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname)
+  ? 'sb_publishable_tD39CIcOeokbNGxDB5Lehg_EUYzmJ36'
+  : 'sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-';
+
 const $=id=>document.getElementById(id);
  let selectedPhotoFiles=[];
 
@@ -1438,7 +1445,9 @@ async function sendLeadToCompany(leadId,companyId){
        plocha:(lead.popis||'').match(/Plocha:\s*(\d+)/)?.[1]||'',
 rozpocet:((lead.popis||'').match(/Odhad:\s*([0-9\s]+[–-][0-9\s]+\s*€?)/)?.[1]?.trim()) || (lead.odhad_ceny||''),
      telefon:lead.telefon||'',
-      email_zakaznika:(lead.popis||'').match(/E-mail:\s*([^\n]+)/)?.[1]?.trim()||''  
+      
+email_zakaznika:lead.email||''
+ 
       })
     });
 
@@ -1588,7 +1597,7 @@ $('form').addEventListener('submit',async e=>{
     'Kraj: '+$('leadRegion').value,
     'Termín: '+$('term').value,
     'Odhad: '+price,
-    $('email').value.trim()?'E-mail: '+$('email').value.trim():null,
+   
     'Fotografie vybrané: '+selectedPhotos.length
   ].filter(Boolean).join('\n');
 
