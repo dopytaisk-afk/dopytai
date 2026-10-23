@@ -345,7 +345,13 @@ function authHeaders(){
 }
 function showCustomer(){ $('admin').classList.remove('show'); ['companyPortal','companyDashboard','companyRegister','companyPasswordReset'].forEach(id => $(id).style.display='none'); $('customer').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }
 function showAdmin(){ $('customer').style.display='none'; $('admin').classList.add('show'); window.scrollTo({top:0,behavior:'smooth'}); if(accessToken){ showPanel(); loadLeads(); } }
-function showPanel(){ $('loginBox').style.display='none'; $('adminPanel').style.display='block'; }
+
+function showPanel(){
+  $('loginBox').style.display='none';
+  $('adminPanel').style.display='block';
+  $('logoutBtn').style.display='block';
+}
+
 function showLogin(){ $('loginBox').style.display='block'; $('adminPanel').style.display='none'; }
 function esc(v){ return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
