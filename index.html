@@ -63,6 +63,34 @@
 <div class="field"><label>Región</label><input id="companyRegion" placeholder="napr. Žilinský kraj"></div>
 <div class="field"><label>Lokalita</label><input id="companyLocation" placeholder="napr. Žilina"></div>
 <div class="field"><label>Typ práce</label><input id="companyWork" placeholder="napr. Strechy"></div>
+        
+<h4 style="margin:22px 0 8px">Fakturačné údaje</h4>
+
+<div class="field">
+  <label>IČO</label>
+  <input id="companyIco" inputmode="numeric" maxlength="8" placeholder="8 číslic">
+</div>
+
+<div class="field">
+  <label>DIČ (ak máte)</label>
+  <input id="companyDic" inputmode="numeric" maxlength="10" placeholder="10 číslic">
+</div>
+
+<div class="field">
+  <label>Fakturačná ulica a číslo</label>
+  <input id="companyStreet" placeholder="Ulica a číslo">
+</div>
+
+<div class="field">
+  <label>Fakturačné PSČ</label>
+  <input id="companyPsc" placeholder="napr. 010 01">
+</div>
+
+<div class="field">
+  <label>Fakturačné mesto / obec</label>
+  <input id="companyCity" placeholder="Mesto alebo obec">
+</div>
+
 <button class="btn" id="addCompanyBtn" type="button">Pridať firmu</button><div id="companyMsg"></div></div>
       <div id="companies" class="adminlist"></div>
     </div>
@@ -1505,11 +1533,20 @@ async function loadCompanies(){
 
 async function addCompany(){
   const name=$('companyName').value.trim(), contact=$('companyContact').value.trim(), phone=$('companyPhone').value.trim(), email=$('companyEmail').value.trim(), region=$('companyRegion').value.trim(), location=$('companyLocation').value.trim(), work=$('companyWork').value.trim();
+  
+  const ico = $('companyIco').value.trim();
+  const dic = $('companyDic').value.trim();
+  const street = $('companyStreet').value.trim();
+  const psc = $('companyPsc').value.trim();
+  const city = $('companyCity').value.trim();
+
   $('companyMsg').innerHTML='';
   if(!name){ $('companyMsg').innerHTML='<div class="error">Zadaj názov firmy.</div>'; return; }
   const b=$('addCompanyBtn'); b.disabled=true; b.textContent='Pridávam…';
   try{
-    const r=await fetch(API_URL+'/firmy',{method:'POST',headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({'názov':name,kontaktna_osoba:contact,telefon:phone,email:email,region:region,lokalita:location,typ_prace:work,stav:'aktivna'})});
+    
+    const r=await fetch(API_URL+'/firmy',{method:'POST',headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({'názov':name,kontaktna_osoba:contact,telefon:phone,email:email,region:region,lokalita:location,typ_prace:work,stav:'aktivna',ico:ico||null,dic:dic||null,fakturacna_ulica:street||null,fakturacne_psc:psc||null,fakturacne_mesto:city||null})});
+
     if(!r.ok) throw new Error((await r.text())||('HTTP '+r.status));
     ['companyName','companyContact','companyPhone','companyEmail','companyRegion','companyLocation','companyWork'].forEach(id=>$(id).value=''); $('companyMsg').innerHTML='<div class="success">✅ Firma bola pridaná.</div>'; await loadCompanies();
   }catch(err){ $('companyMsg').innerHTML='<div class="error"><b>Firmu sa nepodarilo pridať.</b><br>'+esc(err.message)+'</div>'; }
@@ -1529,7 +1566,16 @@ async function editCompany(id){
     const location=prompt('Lokalita:',x.lokalita||''); if(location===null) return;
     const work=prompt('Typ práce:',x.typ_prace||''); if(work===null) return;
     const state=prompt('Stav firmy:',x.stav||'aktivna'); if(state===null) return;
-    const u=await fetch(API_URL+'/firmy?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({'názov':name.trim(),kontaktna_osoba:contact.trim(),telefon:phone.trim(),email:email.trim(),region:region.trim(),lokalita:location.trim(),typ_prace:work.trim(),stav:state.trim()||'aktivna'})});
+    
+    const ico=prompt('IČO:',x.ico||''); if(ico===null) return;
+    const dic=prompt('DIČ (ak máte):',x.dic||''); if(dic===null) return;
+    const street=prompt('Fakturačná ulica a číslo:',x.fakturacna_ulica||''); if(street===null) return;
+    const psc=prompt('Fakturačné PSČ:',x.fakturacne_psc||''); if(psc===null) return;
+    const city=prompt('Fakturačné mesto / obec:',x.fakturacne_mesto||''); if(city===null) return;
+
+   
+    const u=await fetch(API_URL+'/firmy?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{'apikey':API_KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({'názov':name,kontaktna_osoba:contact,telefon:phone,email:email,region:region,lokalita:location,typ_prace:work,stav:state,ico:ico.trim()||null,dic:dic.trim()||null,fakturacna_ulica:street.trim()||null,fakturacne_psc:psc.trim()||null,fakturacne_mesto:city.trim()||null})});
+
     if(!u.ok) throw new Error((await u.text())||('HTTP '+u.status)); await loadCompanies();
   }catch(err){ alert('Firmu sa nepodarilo upraviť: '+err.message); }
 }
