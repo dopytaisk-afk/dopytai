@@ -1532,7 +1532,9 @@ async function loadCompanies(){
     if(!rows.length){ $('companies').innerHTML='<div class="empty">Zatiaľ nie sú pridané žiadne firmy.</div>'; return; }
     $('companies').innerHTML=rows.map(x=>{
       const d=x.created_at?new Date(x.created_at).toLocaleString('sk-SK',{dateStyle:'short',timeStyle:'short'}):'';
-      return '<article class="company"><h3>'+esc(x['názov']||'Firma')+'</h3><div class="meta"><b>Kontaktná osoba:</b> '+esc(x.kontaktna_osoba||'—')+'<br><b>Telefón:</b> '+esc(x.telefon||'—')+'<br><b>E-mail:</b> '+esc(x.email||'—')+'<br><b>Región:</b> '+esc(x.region||'—')+'<br><b>Lokalita:</b> '+esc(x.lokalita||'—')+'<br><b>Typ práce:</b> '+esc(x.typ_prace||'—')+'<br><b>Stav:</b> '+esc(x.stav||'—')+'<br>Pridaná: '+esc(d)+'</div><div class="stateRow"><button class="adminbtn" type="button" onclick="editCompany(\''+esc(x.id)+'\')">Upraviť firmu</button></div></article>';
+     
+      return '<article class="company"><h3>'+esc(x['názov']||'Firma')+'</h3><div class="meta"><b>Kontaktná osoba:</b> '+esc(x.kontaktna_osoba||'—')+'<br><b>Telefón:</b> '+esc(x.telefon||'—')+'<br><b>E-mail:</b> '+esc(x.email||'—')+'<br><b>Región:</b> '+esc(x.region||'—')+'<br><b>Lokalita:</b> '+esc(x.lokalita||'—')+'<br><b>Typ práce:</b> '+esc(x.typ_prace||'—')+'<br><b>Stav:</b> '+esc(x.stav||'—')+'<br>Pridaná: '+esc(d)+'</div><div class="stateRow"><button class="adminbtn" type="button" onclick="editCompany(\''+esc(x.id)+'\')">Upraviť firmu</button><button class="adminbtn" type="button" style="color:#b42318" onclick="removeCompany(\''+esc(x.id)+'\')">Odstrániť firmu</button></div></article>';
+
     }).join('');
   }catch(err){ $('companies').innerHTML='<div class="error"><b>Chyba pri načítaní firiem.</b><br>'+esc(err.message)+'</div>'; }
 }
@@ -1584,6 +1586,71 @@ async function editCompany(id){
 
     if(!u.ok) throw new Error((await u.text())||('HTTP '+u.status)); await loadCompanies();
   }catch(err){ alert('Firmu sa nepodarilo upraviť: '+err.message); }
+}
+
+async function removeCompany(id){
+  if(!accessToken){
+    alert('Najprv sa prihlás ako administrátor.');
+    return;
+  }
+
+  try{
+    const r = await fetch(
+      API_URL+'/firmy?id=eq.'+encodeURIComponent(id)+'&select=id,názov',
+      {
+        headers:{
+          'apikey':API_KEY,
+          'Authorization':'Bearer '+accessToken
+        }
+      }
+    );
+
+    if(!r.ok) throw new Error('Nepodarilo sa načítať firmu.');
+
+    const rows = await r.json();
+    if(rows.length !== 1) throw new Error('Firma sa nenašla.');
+
+    const nazov = rows[0]['názov'] || 'Firma';
+
+    const potvrdenie = prompt(
+      'Naozaj chceš odstrániť firmu "'+nazov+'"?\n\n'+
+      'Pre potvrdenie napíš ODSTRANIT:'
+    );
+
+    if(potvrdenie !== 'ODSTRANIT') return;
+
+    const response = await fetch(
+      API_URL+'/rpc/admin_odstran_firmu',
+      {
+        method:'POST',
+        headers:{
+          'apikey':API_KEY,
+          'Authorization':'Bearer '+accessToken,
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify({p_firma_id:Number(id)})
+      }
+    );
+
+    const result = await response.json().catch(()=>null);
+
+    if(!response.ok){
+      throw new Error(
+        result?.message || result?.error ||
+        'Firmu sa nepodarilo odstrániť.'
+      );
+    }
+
+    if(result !== true){
+      throw new Error('Databáza nepotvrdila odstránenie.');
+    }
+
+    alert('Firma "'+nazov+'" bola odstránená.');
+    await loadCompanies();
+
+  }catch(err){
+    alert('Firmu sa nepodarilo odstrániť: '+err.message);
+  }
 }
 
 async function updateLeadCompany(select){
