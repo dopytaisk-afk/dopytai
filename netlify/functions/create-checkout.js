@@ -150,9 +150,10 @@ if (![25, 50, 100, 200].includes(amount)) {
 
     params.append("line_items[0][quantity]", "1");
 
-           const baseUrl = stripeKey.startsWith("sk_test_")
-      ? "https://deploy-preview-1--sparkly-choux-e2b050.netlify.app"
-      : "https://dopytai24.sk";
+         
+const baseUrl = stripeKey.startsWith("sk_test_")
+  ? "https://test-fakturacia--sparkly-choux-e2b050.netlify.app"
+  : "https://dopytai24.sk";
 
     params.append(
       "success_url",
