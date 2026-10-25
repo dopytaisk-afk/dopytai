@@ -212,7 +212,9 @@ exports.handler = async function(event) {
     if (
       !Number.isSafeInteger(firmaId) ||
       firmaId <= 0 ||
-      ![50, 100, 200].includes(amount) ||
+     
+![25, 50, 100, 200].includes(amount) ||
+
       !eventId ||
       !paymentId
     ) {
