@@ -63,7 +63,9 @@ if (paymentEnv === "live") {
     const body = JSON.parse(event.body || "{}");
     const amount = Number(body.amount);
 
-    if (![50, 100, 200].includes(amount)) {
+   
+if (![25, 50, 100, 200].includes(amount)) {
+
       return json(400, { error: "Neplatná suma." });
     }
 
