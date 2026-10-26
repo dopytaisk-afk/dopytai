@@ -1748,11 +1748,7 @@ $('form').addEventListener('submit',async e=>{
     // 1. Uložíme dopyt a necháme si vrátiť jeho ID
  
 const r=await fetch(
-  API_URL + (
-    ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname)
-      ? '/rpc/vytvor_dopyt'
-      : '/rpc/vytvor_dopyt_s_token'
-  ),
+  API_URL + '/rpc/vytvor_dopyt_s_token',
   {
 
   method:'POST',
@@ -1780,16 +1776,14 @@ if(!r.ok){
 }
 
 
-const isProduction = ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname);
-
-const leadId = isProduction ? created : created.id;
-const uploadToken = isProduction ? null : created.upload_token;
+const leadId = created.id;
+const uploadToken = created.upload_token;
 
 if (!Number.isSafeInteger(Number(leadId)) || !leadId) {
   throw new Error('Nepodarilo sa získať ID vytvoreného dopytu.');
 }
 
-if (!isProduction && !uploadToken) {
+if (!uploadToken) {
   throw new Error('Chýba overovací token na nahrávanie fotografií.');
 }
 
@@ -1847,9 +1841,7 @@ const optimizedFile = await new Promise((resolve, reject) => {
         .replace(/[^a-zA-Z0-9._-]/g,'_');
 
      
-const filePath = isProduction
-  ? leadId + '/' + Date.now() + '_' + i + '_' + safeName
-  : leadId + '/' + uploadToken + '/' + Date.now() + '_' + i + '_' + safeName;
+const filePath = leadId + '/' + uploadToken + '/' + Date.now() + '_' + i + '_' + safeName;
 
 
       const uploadRes=await fetch(
@@ -1881,9 +1873,7 @@ const filePath = isProduction
 
      const updateRes = await fetch(
  
-API_URL + (isProduction
-  ? '/rpc/uloz_fotky_dopytu'
-  : '/rpc/potvrd_fotky_dopytu'),
+API_URL + '/rpc/potvrd_fotky_dopytu',
 
   {
     method: 'POST',
@@ -1893,18 +1883,11 @@ API_URL + (isProduction
       'Content-Type': 'application/json'
     },
     
-body: JSON.stringify(
-  isProduction
-    ? {
-        p_dopyt_id: leadId,
-        p_fotky: photoPaths
-      }
-    : {
-        p_dopyt_id: leadId,
-        p_token: uploadToken,
-        p_fotky: photoPaths
-      }
-)
+body: JSON.stringify({
+  p_dopyt_id: leadId,
+  p_token: uploadToken,
+  p_fotky: photoPaths
+})
 
 
 });
