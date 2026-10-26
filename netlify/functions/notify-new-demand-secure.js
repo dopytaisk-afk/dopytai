@@ -195,7 +195,7 @@ if (lead.stav !== "novy") {
                         Prihláste sa do DopytAI a odomknite kontakt zákazníka za 25 €.
                       </div>
                       <div style="margin-top:24px;text-align:center;">
-                        <a href="https://dopytai24.sk/"
+                        <a href="https://overenie-emailu--sparkly-choux-e2b050.netlify.app/"
                            style="display:inline-block;background:#1687f8;color:white;text-decoration:none;padding:14px 24px;border-radius:10px;font-weight:700;">
                           Zobraziť nový dopyt
                         </a>
@@ -225,18 +225,7 @@ if (lead.stav !== "novy") {
           error.message
         );
 
-        try {
-          await db(
-            `upozornenia_dopytov?dopyt_id=eq.${leadId}&firma_id=eq.${company.id}`,
-            { method: "DELETE" }
-          );
-        } catch (releaseError) {
-          console.error(
-            "Reservation release failed:",
-            releaseError.message
-          );
-        }
-      }
+       
     }
 
     if (failed) {
