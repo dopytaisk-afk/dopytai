@@ -31,10 +31,10 @@ exports.handler = async (event) => {
   }
 
   // Samostatné testovacie nastavenia.
-  const secret = process.env.DOPYTAI_VERIFICATION_SECRET;
-  const url = process.env.TEST_SUPABASE_URL;
-  const key = process.env.TEST_SUPABASE_SERVICE_ROLE_KEY;
-  const resendKey = process.env.TEST_RESEND_API_KEY;
+ const secret = process.env.DOPYTAI_VERIFICATION_SECRET;
+const url = process.env.SUPABASE_URL;
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const resendKey = process.env.RESEND_API_KEY;
 
   if (!secret || !url || !key || !resendKey) {
     return reply(503, { error: "Testovacia konfiguracia chyba" });
