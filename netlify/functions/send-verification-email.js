@@ -85,8 +85,8 @@ if (!Number.isSafeInteger(leadId) || leadId <= 0) {
     ) {
       return reply(400, { error: "Neplatny email zakaznika" });
     }
-   const reservationResponse = await fetch(
-  `${url.replace(/\/$/, "")}/rest/v1/rpc/server_rezervuj_overovaci_email_v2`,
+  const startResponse = await fetch(
+  `${url.replace(/\/$/, "")}/rest/v1/rpc/server_zacni_overovaci_email_v3`,
   {
     method: "POST",
     headers: {
@@ -100,51 +100,33 @@ if (!Number.isSafeInteger(leadId) || leadId <= 0) {
   }
 );
 
-if (!reservationResponse.ok) {
+if (!startResponse.ok) {
   return reply(502, {
-    error: "Rezervacia overovacieho emailu zlyhala"
+    error: "Nepodarilo sa pripravit overovaci email"
   });
 }
 
-const attemptId = await reservationResponse.json();
+const preparation = await startResponse.json();
+
+if (!preparation) {
+  return reply(409, {
+    error: "Overovaci email je uz rezervovany alebo odoslany"
+  });
+}
+
+const token = preparation.token;
+const attemptId = preparation.attempt_id;
 
 if (
+  typeof token !== "string" ||
+  !/^[0-9a-f]{64}$/.test(token) ||
   typeof attemptId !== "string" ||
-  !/^[0-9a-f-]{36}$/i.test(attemptId)
+  !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(attemptId)
 ) {
-  return reply(409, {
-    error: "Overovaci email uz bol rezervovany"
-  });
-}
-    const tokenResponse = await fetch(
-  `${url.replace(/\/$/, "")}/rest/v1/rpc/server_priprav_overenie_emailu`,
-  {
-    method: "POST",
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      p_dopyt_id: leadId
-    })
-  }
-);
-
-if (!tokenResponse.ok) {
-  return reply(502, {
-    error: "Nepodarilo sa vytvorit overovaci token"
-  });
-}
-
-const token = await tokenResponse.json();
-
-if (typeof token !== "string" || !/^[0-9a-f]{64}$/.test(token)) {
   return reply(502, {
     error: "Neplatna odpoved databazy"
   });
 }
-
     // Overovací odkaz smeruje do testovacieho prostredia.
     // Jeho presnú adresu nastavíme pri integrácii.
     const verificationBase =
