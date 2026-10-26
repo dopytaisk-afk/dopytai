@@ -236,32 +236,35 @@ const estimate =
     });
 
 if (!sent.ok) {
-  try {
-    await fetch(
-      `${url.replace(/\/$/, "")}/rest/v1/rpc/server_zaznamenaj_chybu_emailu_v2`,
-      {
-        method: "POST",
-        headers: {
-          apikey: key,
-          Authorization: `Bearer ${key}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          p_dopyt_id: leadId,
-          p_attempt_id: attemptId,
-          p_error: `Resend HTTP ${sent.status}`
-        })
-      }
-    );
-  } catch (logError) {
-    console.error("Nepodarilo sa zaznamenat chybu emailu");
+  const errorResponse = await fetch(
+    `${url.replace(/\/$/, "")}/rest/v1/rpc/server_zaznamenaj_chybu_emailu_v2`,
+    {
+      method: "POST",
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        p_dopyt_id: leadId,
+        p_attempt_id: attemptId,
+        p_error: `Resend HTTP ${sent.status}`
+      })
+    }
+  ).catch(() => null);
+
+  const errorSaved =
+    errorResponse?.ok === true &&
+    (await errorResponse.json().catch(() => null)) === true;
+
+  if (!errorSaved) {
+    console.error("Nepodarilo sa zaznamenat chybu Resendu");
   }
 
   return reply(502, {
     error: "Email sa nepodarilo odoslat"
   });
 }
-
 const resendResult = await sent.json().catch(() => null);
 
 const resendId = resendResult?.id;
