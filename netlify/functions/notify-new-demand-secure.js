@@ -83,13 +83,17 @@ exports.handler = async (event) => {
   try {
     const payload = JSON.parse(event.body || "{}");
 
-    if (
-      payload.type !== "INSERT" ||
-      payload.table !== "dopyty" ||
-      payload.schema !== "public"
-    ) {
-      return reply(400, { error: "Invalid webhook event" });
-    }
+   if (
+  payload.type !== "UPDATE" ||
+  payload.table !== "dopyty" ||
+  payload.schema !== "public" ||
+  payload.record?.stav !== "novy" ||
+  payload.old_record?.stav !== "caka_na_overenie"
+) {
+  return reply(200, {
+    skipped: "Nie je to potvrdenie emailu"
+  });
+}
 
     const leadId = Number(payload.record?.id);
 
