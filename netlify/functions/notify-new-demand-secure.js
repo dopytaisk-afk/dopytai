@@ -102,7 +102,7 @@ exports.handler = async (event) => {
     }
 
     const leads = await db(
-`dopyty?select=id,created_at,region,lokalita,typ_prace,odhad_ceny,stav,popis&id=eq.${leadId}`
+`dopyty?select=id,created_at,region,lokalita,typ_prace,odhad_ceny,cena_dopytu,stav,popis&id=eq.${leadId}`
     );
 
     if (!Array.isArray(leads) || leads.length !== 1) {
@@ -147,10 +147,22 @@ if (lead.stav !== "novy") {
     const safeWork = escapeHtml(lead.typ_prace || "Nový dopyt");
     const safeLocation = escapeHtml(lead.lokalita || "-");
  const safeArea = escapeHtml((String(lead.popis || "").match(/Plocha:\s*(\d+(?:[.,]\d+)?)\s*m²/i) || [])[1] || "-");
-    const safeBudget = escapeHtml(
-      lead.odhad_ceny == null ? "-" : `${lead.odhad_ceny} €`
-    );
+   const priceMatch = String(lead.popis || "")
+  .match(/(?:^|\n)Odhad:\s*([^\r\n]+)/i);
 
+const priceRange = priceMatch?.[1]?.trim();
+
+const safeBudget = escapeHtml(
+  priceRange ||
+  (lead.odhad_ceny == null
+    ? "-"
+    : `${Number(lead.odhad_ceny).toLocaleString("sk-SK")} €`)
+);
+const safeUnlockPrice = escapeHtml(
+  lead.cena_dopytu == null
+    ? "cenu uvedenú na stránke"
+    : `${Number(lead.cena_dopytu).toLocaleString("sk-SK")} €`
+);
     let sent = 0;
     let failed = 0;
 
@@ -192,7 +204,7 @@ if (lead.stav !== "novy") {
                       <p><strong>💰 Orientačný odhad:</strong> ${safeBudget}</p>
                       <div style="margin-top:24px;padding:18px;background:#eef6ff;border-radius:12px;line-height:1.6;">
                         <strong>🔒 Kontakt zákazníka je skrytý.</strong><br>
-                        Prihláste sa do DopytAI a odomknite kontakt zákazníka za 25 €.
+                        Prihláste sa do DopytAI a odomknite kontakt zákazníka za ${safeUnlockPrice}.
                       </div>
                       <div style="margin-top:24px;text-align:center;">
                         <a href="https://overenie-emailu--sparkly-choux-e2b050.netlify.app/"
