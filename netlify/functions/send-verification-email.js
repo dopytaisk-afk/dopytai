@@ -85,6 +85,37 @@ if (!Number.isSafeInteger(leadId) || leadId <= 0) {
     ) {
       return reply(400, { error: "Neplatny email zakaznika" });
     }
+   const reservationResponse = await fetch(
+  `${url.replace(/\/$/, "")}/rest/v1/rpc/server_rezervuj_overovaci_email_v2`,
+  {
+    method: "POST",
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      p_dopyt_id: leadId
+    })
+  }
+);
+
+if (!reservationResponse.ok) {
+  return reply(502, {
+    error: "Rezervacia overovacieho emailu zlyhala"
+  });
+}
+
+const attemptId = await reservationResponse.json();
+
+if (
+  typeof attemptId !== "string" ||
+  !/^[0-9a-f-]{36}$/i.test(attemptId)
+) {
+  return reply(409, {
+    error: "Overovaci email uz bol rezervovany"
+  });
+}
     const tokenResponse = await fetch(
   `${url.replace(/\/$/, "")}/rest/v1/rpc/server_priprav_overenie_emailu`,
   {
@@ -222,11 +253,65 @@ const estimate =
       })
     });
 
-    if (!sent.ok) {
-      return reply(502, { error: "Email sa nepodarilo odoslat" });
-    }
+if (!sent.ok) {
+  try {
+    await fetch(
+      `${url.replace(/\/$/, "")}/rest/v1/rpc/server_zaznamenaj_chybu_emailu_v2`,
+      {
+        method: "POST",
+        headers: {
+          apikey: key,
+          Authorization: `Bearer ${key}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          p_dopyt_id: leadId,
+          p_attempt_id: attemptId,
+          p_error: `Resend HTTP ${sent.status}`
+        })
+      }
+    );
+  } catch (logError) {
+    console.error("Nepodarilo sa zaznamenat chybu emailu");
+  }
 
-    return reply(200, { success: true });
+  return reply(502, {
+    error: "Email sa nepodarilo odoslat"
+  });
+}
+
+const markedResponse = await fetch(
+  `${url.replace(/\/$/, "")}/rest/v1/rpc/server_oznac_overovaci_email_odoslany_v2`,
+  {
+    method: "POST",
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      p_dopyt_id: leadId,
+      p_attempt_id: attemptId
+    })
+  }
+);
+
+if (!markedResponse.ok) {
+  console.error("Nepodarilo sa zaznamenat odoslanie emailu");
+  return reply(502, {
+    error: "Email bol prijaty poskytovatelom, ale evidencia zlyhala"
+  });
+}
+
+const marked = await markedResponse.json();
+
+if (marked !== true) {
+  return reply(502, {
+    error: "Nepodarilo sa potvrdit stav odosielania"
+  });
+}
+
+return reply(200, { success: true });
   } catch (error) {
     console.error("Verification email error:", error.message);
     return reply(500, { error: "Internal server error" });
