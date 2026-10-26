@@ -261,6 +261,40 @@ if (!sent.ok) {
     console.error("Nepodarilo sa zaznamenat chybu Resendu");
   }
 
+  // Iba vybrane jednoznacne odmietnutia.
+  const definiteRejection = [400, 422].includes(sent.status);
+
+  if (errorSaved && definiteRejection) {
+    const releaseResponse = await fetch(
+      `${url.replace(/\/$/, "")}/rest/v1/rpc/server_uvolni_overovaci_email_v2`,
+      {
+        method: "POST",
+        headers: {
+          apikey: key,
+          Authorization: `Bearer ${key}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          p_dopyt_id: leadId,
+          p_attempt_id: attemptId
+        })
+      }
+    ).catch(() => null);
+
+    const released =
+      releaseResponse?.ok === true &&
+      (await releaseResponse.json().catch(() => null)) === true;
+
+    if (!released) {
+      console.error("Nepodarilo sa uvolnit rezervaciu emailu");
+    }
+  }
+
+  return reply(502, {
+    error: "Email sa nepodarilo odoslat"
+  });
+}
+
   return reply(502, {
     error: "Email sa nepodarilo odoslat"
   });
