@@ -1900,14 +1900,53 @@ if(!updateRes.ok){
 
     
 
-    $('result').innerHTML=
-      '<div class="success">'+
-      '<b>✅ Dopyt bol úspešne odoslaný</b><br><br>'+
-      'Orientačný odhad: <span class="price">'+price+'</span><br><span class="muted" style="font-size:13px">Orientačný odhad. Konečná cena závisí od stavu strechy, zvoleného materiálu a rozsahu prác.</span><br><br>'+
-      '<span class="muted">Údaje sme uložili'+
-      (photoPaths.length?' vrátane '+photoPaths.length+' fotografií':'')+
-      '. Remeselník môže dopyt ďalej spracovať.</span>'+
-      '</div>';
+   
+    // Spustenie overovacieho emailu po ulozeni dopytu a fotografii.
+    let emailRequested = false;
+
+    try {
+      const verifyRes = await fetch(
+        '/.netlify/functions/request-verification-email',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            dopyt_id: leadId,
+            upload_token: uploadToken
+          })
+        }
+      );
+
+      const verifyData = await verifyRes.json().catch(() => ({}));
+      emailRequested = verifyRes.ok && verifyData.success === true;
+
+      if (!emailRequested) {
+        console.error(
+          'Spustenie overovacieho emailu zlyhalo:',
+          verifyRes.status,
+          verifyData.error || 'Neznama chyba'
+        );
+      }
+    } catch (verifyError) {
+      console.error('Chyba overovacieho emailu:', verifyError);
+    }
+
+    $('result').innerHTML =
+      '<div class="' + (emailRequested ? 'success' : 'error') + '">' +
+      '<b>' + (emailRequested
+        ? '✅ Dopyt bol uložený. Potvrďte svoj e-mail.'
+        : '⚠️ Dopyt bol uložený, ale potvrdenie e-mailu sa nepodarilo odoslať.'
+      ) + '</b><br><br>' +
+      'Orientačný odhad: <span class="price">' + price + '</span><br><br>' +
+      '<span class="muted">' +
+      (emailRequested
+        ? 'Na váš e-mail sme odoslali potvrdzovací odkaz. Skontrolujte aj Spam. Firmám sprístupníme dopyt až po potvrdení e-mailu.'
+        : 'Dopyt zatiaľ čaká na potvrdenie. Nevytvárajte rovnaký dopyt znova. Ak e-mail nepríde, kontaktujte podporu DopytAI.'
+      ) +
+      '</span></div>';
+
 
     $('form').reset();
     selectedPhotoFiles=[];
