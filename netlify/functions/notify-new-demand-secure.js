@@ -105,8 +105,15 @@ exports.handler = async (event) => {
       return reply(404, { error: "Lead not found" });
     }
 
-    const lead = leads[0];
-    const created = Date.parse(lead.created_at);
+   const lead = leads[0];
+
+if (lead.stav !== "novy") {
+  return reply(200, {
+    skipped: "Dopyt este nie je overeny"
+  });
+}
+
+const created = Date.parse(lead.created_at);
 
     if (
       !Number.isFinite(created) ||
