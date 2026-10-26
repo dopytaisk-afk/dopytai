@@ -117,14 +117,7 @@ if (lead.stav !== "novy") {
   });
 }
 
-const created = Date.parse(lead.created_at);
 
-    if (
-      !Number.isFinite(created) ||
-      Math.abs(Date.now() - created) > 15 * 60 * 1000
-    ) {
-      return reply(200, { skipped: "Old or invalid lead" });
-    }
 
     if (!lead.region) {
       return reply(200, { skipped: "Missing region" });
