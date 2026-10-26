@@ -1,7 +1,8 @@
 
 "use strict";
 
-const { handler: notifyCompanies } = require("./notify-new-demand-secure");
+const { handler: notifyCompanies } =
+  require("./notify-new-demand-secure");
 
 const reply = (statusCode, body) => ({
   statusCode,
@@ -19,10 +20,11 @@ exports.handler = async (event) => {
 
   const url = process.env.SUPABASE_URL?.replace(/\/$/, "");
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const webhookSecret = process.env.DOPYTAI_WEBHOOK_SECRET;
 
-  if (!url || !key || !webhookSecret) {
-    return reply(503, { error: "Serverova konfiguracia chyba" });
+  if (!url || !key) {
+    return reply(503, {
+      error: "Serverova konfiguracia chyba"
+    });
   }
 
   let leadId;
@@ -33,7 +35,9 @@ exports.handler = async (event) => {
     leadId = Number(data.dopyt_id);
     token = data.token;
   } catch {
-    return reply(400, { error: "Neplatna poziadavka" });
+    return reply(400, {
+      error: "Neplatna poziadavka"
+    });
   }
 
   if (
@@ -42,10 +46,14 @@ exports.handler = async (event) => {
     typeof token !== "string" ||
     !/^[0-9a-f]{64}$/.test(token)
   ) {
-    return reply(400, { error: "Neplatne overovacie udaje" });
+    return reply(400, {
+      error: "Neplatne overovacie udaje"
+    });
   }
 
-  // 1. Potvrdime zakaznicky email v databaze.
+  // 1. Najskor potvrdime zakaznicky email.
+  // Databaza overi token a aktivuje dopyt.
+
   try {
     const response = await fetch(
       `${url}/rest/v1/rpc/server_potvrd_email_dopytu`,
@@ -70,6 +78,7 @@ exports.handler = async (event) => {
       );
 
       return reply(502, {
+        success: false,
         error: "Databazove overenie zlyhalo"
       });
     }
@@ -77,7 +86,10 @@ exports.handler = async (event) => {
     const confirmed = await response.json();
 
     if (confirmed !== true) {
-      return reply(400, { success: false });
+      return reply(400, {
+        success: false,
+        error: "Neplatny alebo uz pouzity overovaci odkaz"
+      });
     }
 
   } catch (error) {
@@ -87,67 +99,99 @@ exports.handler = async (event) => {
     );
 
     return reply(500, {
+      success: false,
       error: "Internal server error"
     });
   }
 
-  // 2. Email je potvrdeny.
-  // Pripadna chyba upozorneni nesmie zrusit potvrdenie.
+  // 2. Zakaznicky email je potvrdeny.
+  // Teraz upozornime vhodne firmy v danom kraji.
+  // Chyba notifikacii nesmie zrusit potvrdenie.
+
   let notificationStatus = "failed";
 
-  try {
-    const notificationResponse = await notifyCompanies({
-      httpMethod: "POST",
-      headers: {
-        "x-dopytai-secret": webhookSecret
-      },
-      body: JSON.stringify({
-        type: "UPDATE",
-        table: "dopyty",
-        schema: "public",
-        record: {
-          id: leadId,
-          stav: "novy"
-        },
-        old_record: {
-          id: leadId,
-          stav: "caka_na_overenie"
-        }
-      })
-    });
+  const webhookSecret =
+    process.env.DOPYTAI_WEBHOOK_SECRET;
 
-    const result = JSON.parse(
-      notificationResponse.body || "{}"
-    );
-
-    if (
-      notificationResponse.statusCode === 200 &&
-      !result.error &&
-      !result.skipped
-    ) {
-      notificationStatus = "processed";
-
-      console.info("Upozornenia firmam:", {
-        dopyt_id: leadId,
-        sent: result.sent,
-        failed: result.failed
-      });
-    } else {
-      console.error("Upozornenia firmam zlyhali:", {
-        dopyt_id: leadId,
-        statusCode: notificationResponse.statusCode,
-        error: result.error || result.skipped || "Neznama chyba"
-      });
-    }
-
-  } catch (error) {
+  if (!webhookSecret) {
     console.error(
-      "Chyba spustenia upozorneni firmam:",
-      error.message
+      "DOPYTAI_WEBHOOK_SECRET nie je nastaveny"
     );
+  } else {
+    try {
+      const notificationResponse = await notifyCompanies({
+        httpMethod: "POST",
+        headers: {
+          "x-dopytai-secret": webhookSecret
+        },
+        body: JSON.stringify({
+          type: "UPDATE",
+          table: "dopyty",
+          schema: "public",
+          record: {
+            id: leadId,
+            stav: "novy"
+          },
+          old_record: {
+            id: leadId,
+            stav: "caka_na_overenie"
+          }
+        })
+      });
+
+      let notificationResult = {};
+
+      try {
+        notificationResult = JSON.parse(
+          notificationResponse.body || "{}"
+        );
+      } catch {
+        console.error(
+          "Neplatna odpoved funkcie na upozornenia"
+        );
+      }
+
+      if (
+        notificationResponse.statusCode === 200 &&
+        !notificationResult.error &&
+        !notificationResult.skipped &&
+        Number(notificationResult.failed || 0) === 0
+      ) {
+        notificationStatus = "processed";
+
+        console.info(
+          "Upozornenia firmam spracovane:",
+          {
+            dopyt_id: leadId,
+            sent: notificationResult.sent || 0,
+            failed: 0
+          }
+        );
+      } else {
+        console.error(
+          "Upozornenia firmam sa nepodarilo dokoncit:",
+          {
+            dopyt_id: leadId,
+            statusCode: notificationResponse.statusCode,
+            error:
+              notificationResult.error ||
+              notificationResult.skipped ||
+              "Neznama chyba"
+          }
+        );
+      }
+
+    } catch (error) {
+      console.error(
+        "Chyba spustenia upozorneni firmam:",
+        error.message
+      );
+    }
   }
 
-  // 3. Zakaznikovi potvrdime uspech nezavisle od notifikacii.
+  // 3. Zakaznikovi vratime uspech potvrdenia.
+  // Vysledok upozorneni sledujeme oddelene.
+
   return reply(200, {
     success: true,
     notifications: notificationStatus
