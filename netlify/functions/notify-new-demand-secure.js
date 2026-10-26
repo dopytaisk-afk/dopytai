@@ -216,7 +216,7 @@ if (lead.stav !== "novy") {
         }
 
         sent++;
-      } catch (error) {
+          } catch (error) {
         failed++;
 
         console.error(
@@ -224,8 +224,7 @@ if (lead.stav !== "novy") {
           company.id,
           error.message
         );
-
-       
+      }
     }
 
     if (failed) {
