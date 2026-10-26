@@ -262,8 +262,19 @@ if (!sent.ok) {
   });
 }
 
-const markedResponse = await fetch(
-  `${url.replace(/\/$/, "")}/rest/v1/rpc/server_oznac_overovaci_email_odoslany_v2`,
+const resendResult = await sent.json().catch(() => null);
+
+const resendId = resendResult?.id;
+
+if (typeof resendId !== "string" || !resendId.trim()) {
+  console.error("Resend prijal poziadavku, ale nevratil ID emailu");
+
+  return reply(502, {
+    error: "Email mohol byt odoslany, ale chyba jeho identifikator"
+  });
+}
+    const markedResponse = await fetch(
+  `${url.replace(/\/$/, "")}/rest/v1/rpc/server_oznac_overovaci_email_odoslany_v3`,
   {
     method: "POST",
     headers: {
@@ -271,10 +282,11 @@ const markedResponse = await fetch(
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      p_dopyt_id: leadId,
-      p_attempt_id: attemptId
-    })
+body: JSON.stringify({
+  p_dopyt_id: leadId,
+  p_attempt_id: attemptId,
+  p_resend_id: resendId
+})
   }
 );
 
