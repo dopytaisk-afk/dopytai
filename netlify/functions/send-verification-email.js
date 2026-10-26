@@ -1,160 +1,131 @@
 
+"use strict";
+
 const crypto = require("crypto");
 
 const reply = (statusCode, body) => ({
   statusCode,
-  headers: {
-    "Content-Type": "application/json; charset=utf-8"
-  },
+  headers: { "Content-Type": "application/json; charset=utf-8" },
   body: JSON.stringify(body)
 });
 
 const escapeHtml = (value) =>
   String(value ?? "").replace(/[&<>"']/g, (char) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
+    "&": "&amp;", "<": "&lt;", ">": "&gt;",
+    '"': "&quot;", "'": "&#39;"
   })[char]);
 
-const sameSecret = (a, b) => {
-  if (!a || !b) return false;
-  const x = crypto.createHash("sha256").update(a).digest();
-  const y = crypto.createHash("sha256").update(b).digest();
-  return crypto.timingSafeEqual(x, y);
+const sameSecret = (received, expected) => {
+  if (!received || !expected) return false;
+  const a = crypto.createHash("sha256").update(received).digest();
+  const b = crypto.createHash("sha256").update(expected).digest();
+  return crypto.timingSafeEqual(a, b);
 };
+
+const isUuid = (value) =>
+  typeof value === "string" &&
+  /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(value);
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return reply(405, { error: "Method not allowed" });
   }
 
-  // Samostatné testovacie nastavenia.
- const secret = process.env.DOPYTAI_VERIFICATION_SECRET;
-const url = process.env.SUPABASE_URL;
-const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const resendKey = process.env.RESEND_API_KEY;
+  const secret = process.env.DOPYTAI_VERIFICATION_SECRET;
+  const url = process.env.SUPABASE_URL?.replace(/\/$/, "");
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const resendKey = process.env.RESEND_API_KEY;
+  const verificationBase = process.env.TEST_VERIFICATION_URL;
 
-  if (!secret || !url || !key || !resendKey) {
-    return reply(503, { error: "Testovacia konfiguracia chyba" });
+  if (!secret || !url || !key || !resendKey || !verificationBase) {
+    return reply(503, { error: "Chyba serverova konfiguracia" });
   }
 
-  if (!sameSecret(
-    String(event.headers?.["x-verification-secret"] || ""),
-    secret
-  )) {
+  const receivedSecret = event.headers?.["x-verification-secret"] ||
+    event.headers?.["X-Verification-Secret"] || "";
+  if (!sameSecret(String(receivedSecret), secret)) {
     return reply(401, { error: "Unauthorized" });
   }
 
+  // Overime URL pred rezervaciou, aby zla konfiguracia neblokovala dopyt.
+  let verificationUrl;
   try {
-    const data = JSON.parse(event.body || "{}");
-const leadId = Number(data.dopyt_id);
+    verificationUrl = new URL(verificationBase);
+    if (verificationUrl.protocol !== "https:") throw new Error("HTTPS required");
+  } catch {
+    return reply(503, { error: "Neplatna overovacia adresa" });
+  }
 
-if (!Number.isSafeInteger(leadId) || leadId <= 0) {
-  return reply(400, { error: "Neplatne ID dopytu" });
-}
+  const dbHeaders = {
+    apikey: key,
+    Authorization: `Bearer ${key}`,
+    "Content-Type": "application/json"
+  };
+  const rpc = async (name, body) => {
+    const response = await fetch(`${url}/rest/v1/rpc/${name}`, {
+      method: "POST",
+      headers: dbHeaders,
+      body: JSON.stringify(body)
+    });
+    if (!response.ok) throw new Error(`RPC ${name}: HTTP ${response.status}`);
+    return response.json();
+  };
 
-    // Údaje zákazníka čítame z testovacej databázy.
-    const response = await fetch(
-      `${url.replace(/\/$/, "")}/rest/v1/dopyty` +
-      `?select=id,email,typ_prace,lokalita,popis,odhad_ceny,stav` +
-      `&id=eq.${leadId}`,
-      {
-        headers: {
-          apikey: key,
-          Authorization: `Bearer ${key}`
-        }
-      }
-    );
-
-    if (!response.ok) {
-      return reply(502, { error: "Databaza nie je dostupna" });
+  let leadId;
+  try {
+    const payload = JSON.parse(event.body || "{}");
+    leadId = Number(payload.dopyt_id);
+    if (!Number.isSafeInteger(leadId) || leadId <= 0) {
+      return reply(400, { error: "Neplatne ID dopytu" });
     }
+  } catch {
+    return reply(400, { error: "Neplatne telo poziadavky" });
+  }
 
-    const rows = await response.json();
-    const lead = rows[0];
-
+  try {
+    const response = await fetch(
+      `${url}/rest/v1/dopyty?select=id,email,typ_prace,lokalita,popis,odhad_ceny,stav&id=eq.${leadId}`,
+      { headers: { apikey: key, Authorization: `Bearer ${key}` } }
+    );
+    if (!response.ok) return reply(502, { error: "Databaza nie je dostupna" });
+    const leads = await response.json();
+    const lead = leads[0];
     if (!lead || lead.stav !== "caka_na_overenie") {
       return reply(409, { error: "Dopyt necaka na overenie" });
     }
-
-    if (
-      typeof lead.email !== "string" ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email)
-    ) {
+    if (typeof lead.email !== "string" ||
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email)) {
       return reply(400, { error: "Neplatny email zakaznika" });
     }
-  const startResponse = await fetch(
-  `${url.replace(/\/$/, "")}/rest/v1/rpc/server_zacni_overovaci_email_v3`,
-  {
-    method: "POST",
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
+
+    // Jeden atomicky krok v DB: token + rezervacia odoslania.
+    const preparation = await rpc("server_zacni_overovaci_email_v3", {
       p_dopyt_id: leadId
-    })
-  }
-);
-
-if (!startResponse.ok) {
-  return reply(502, {
-    error: "Nepodarilo sa pripravit overovaci email"
-  });
-}
-
-const preparation = await startResponse.json();
-
-if (!preparation) {
-  return reply(409, {
-    error: "Overovaci email je uz rezervovany alebo odoslany"
-  });
-}
-
-const token = preparation.token;
-const attemptId = preparation.attempt_id;
-
-if (
-  typeof token !== "string" ||
-  !/^[0-9a-f]{64}$/.test(token) ||
-  typeof attemptId !== "string" ||
-  !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(attemptId)
-) {
-  return reply(502, {
-    error: "Neplatna odpoved databazy"
-  });
-}
-    // Overovací odkaz smeruje do testovacieho prostredia.
-    // Jeho presnú adresu nastavíme pri integrácii.
-    const verificationBase =
-      process.env.TEST_VERIFICATION_URL;
-
-    if (!verificationBase) {
-      return reply(503, { error: "Overovacia adresa chyba" });
+    });
+    if (preparation === null) {
+      return reply(409, { error: "Email je uz rezervovany alebo odoslany" });
+    }
+    const token = preparation?.token;
+    const attemptId = preparation?.attempt_id;
+    if (typeof token !== "string" || !/^[0-9a-f]{64}$/.test(token) ||
+        !isUuid(attemptId)) {
+      // Neopakujeme: vysledok rezervacie je neisty.
+      return reply(502, { error: "Neplatna odpoved databazy" });
     }
 
-    const link = new URL(verificationBase);
-    if (link.protocol !== "https:") {
-      return reply(503, { error: "Neplatna overovacia adresa" });
-    }
-
+    const link = new URL(verificationUrl.toString());
     link.searchParams.set("id", String(leadId));
     link.searchParams.set("token", token);
 
     const work = escapeHtml(lead.typ_prace || "Strecha");
     const location = escapeHtml(lead.lokalita || "-");
     const description = String(lead.popis || "");
-
     const area = escapeHtml(
       (description.match(/Plocha:\s*([\d.,]+)\s*m²/i) || [])[1] || "-"
     );
-
-const estimate =
-  (description.match(/Odhad:\s*([^\n]*)/) || [])[1]?.trim()
-  || "Odhad sa pripravuje";
+    const estimate =
+      (description.match(/Odhad:\s*([^\n]*)/) || [])[1]?.trim() ||
+      "Odhad sa pripravuje";
 
     const html = `
       <div style="background:#f3f7fc;padding:30px 12px;
@@ -221,130 +192,81 @@ const estimate =
       </div>
     `;
 
-    const sent = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        from: "DopytAI <info@dopytai24.sk>",
-        to: [lead.email],
-        subject: "DopytAI – potvrďte svoj dopyt a pozrite si cenu",
-        html
-      })
-    });
-
-if (!sent.ok) {
-  const errorResponse = await fetch(
-    `${url.replace(/\/$/, "")}/rest/v1/rpc/server_zaznamenaj_chybu_emailu_v2`,
-    {
-      method: "POST",
-      headers: {
-        apikey: key,
-        Authorization: `Bearer ${key}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        p_dopyt_id: leadId,
-        p_attempt_id: attemptId,
-        p_error: `Resend HTTP ${sent.status}`
-      })
-    }
-  ).catch(() => null);
-
-  const errorSaved =
-    errorResponse?.ok === true &&
-    (await errorResponse.json().catch(() => null)) === true;
-
-  if (!errorSaved) {
-    console.error("Nepodarilo sa zaznamenat chybu Resendu");
-  }
-
-  // Iba vybrane jednoznacne odmietnutia.
-  const definiteRejection = [400, 422].includes(sent.status);
-
-  if (errorSaved && definiteRejection) {
-    const releaseResponse = await fetch(
-      `${url.replace(/\/$/, "")}/rest/v1/rpc/server_uvolni_overovaci_email_v2`,
-      {
+    let sent;
+    try {
+      sent = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
-          apikey: key,
-          Authorization: `Bearer ${key}`,
+          Authorization: `Bearer ${resendKey}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          p_dopyt_id: leadId,
-          p_attempt_id: attemptId
+          from: "DopytAI <info@dopytai24.sk>",
+          to: [lead.email],
+          subject: "DopytAI – potvrďte svoj dopyt a pozrite si cenu",
+          html
         })
-      }
-    ).catch(() => null);
-
-    const released =
-      releaseResponse?.ok === true &&
-      (await releaseResponse.json().catch(() => null)) === true;
-
-    if (!released) {
-      console.error("Nepodarilo sa uvolnit rezervaciu emailu");
+      });
+    } catch (error) {
+      // Pri strate spojenia mohol Resend email prijat.
+      // Rezervaciu neuvolnujeme a token nemenime.
+      console.error("Neisty vysledok odoslania Resend:", error.message);
+      return reply(502, { error: "Vysledok odoslania je neisty" });
     }
-  }
 
-  return reply(502, {
-    error: "Email sa nepodarilo odoslat"
-  });
-}
+    if (!sent.ok) {
+      let errorSaved = false;
+      try {
+        errorSaved = (await rpc("server_zaznamenaj_chybu_emailu_v2", {
+          p_dopyt_id: leadId,
+          p_attempt_id: attemptId,
+          p_error: `Resend HTTP ${sent.status}`
+        })) === true;
+      } catch (error) {
+        console.error("Zapis chyby Resend zlyhal:", error.message);
+      }
 
-  return reply(502, {
-    error: "Email sa nepodarilo odoslat"
-  });
-}
-const resendResult = await sent.json().catch(() => null);
+      // Iba explicitne odmietnute poziadavky (nie vypadok ani HTTP 5xx).
+      if (errorSaved && [400, 422].includes(sent.status)) {
+        try {
+          const released = await rpc("server_uvolni_overovaci_email_v2", {
+            p_dopyt_id: leadId,
+            p_attempt_id: attemptId
+          });
+          if (released !== true) console.error("Rezervacia nebola uvolnena");
+        } catch (error) {
+          console.error("Uvolnenie rezervacie zlyhalo:", error.message);
+        }
+      }
+      return reply(502, { error: "Email sa nepodarilo odoslat" });
+    }
 
-const resendId = resendResult?.id;
+    const resendResult = await sent.json().catch(() => null);
+    const resendId = resendResult?.id;
+    if (typeof resendId !== "string" || !resendId.trim()) {
+      // Resend mohol spravu prijat. Neskusame odoslat znova.
+      console.error("Resend nevratil ID prijatej spravy");
+      return reply(502, { error: "Email prijaty, ale chyba identifikator" });
+    }
 
-if (typeof resendId !== "string" || !resendId.trim()) {
-  console.error("Resend prijal poziadavku, ale nevratil ID emailu");
+    try {
+      const marked = await rpc("server_oznac_overovaci_email_odoslany_v3", {
+        p_dopyt_id: leadId,
+        p_attempt_id: attemptId,
+        p_resend_id: resendId
+      });
+      if (marked !== true) {
+        console.error("Odoslanie sa nepodarilo zaznamenat v databaze");
+        return reply(502, { error: "Email prijaty, evidencia zlyhala" });
+      }
+    } catch (error) {
+      console.error("Zaznamenanie odoslania zlyhalo:", error.message);
+      return reply(502, { error: "Email prijaty, evidencia zlyhala" });
+    }
 
-  return reply(502, {
-    error: "Email mohol byt odoslany, ale chyba jeho identifikator"
-  });
-}
-    const markedResponse = await fetch(
-  `${url.replace(/\/$/, "")}/rest/v1/rpc/server_oznac_overovaci_email_odoslany_v3`,
-  {
-    method: "POST",
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json"
-    },
-body: JSON.stringify({
-  p_dopyt_id: leadId,
-  p_attempt_id: attemptId,
-  p_resend_id: resendId
-})
-  }
-);
-
-if (!markedResponse.ok) {
-  console.error("Nepodarilo sa zaznamenat odoslanie emailu");
-  return reply(502, {
-    error: "Email bol prijaty poskytovatelom, ale evidencia zlyhala"
-  });
-}
-
-const marked = await markedResponse.json();
-
-if (marked !== true) {
-  return reply(502, {
-    error: "Nepodarilo sa potvrdit stav odosielania"
-  });
-}
-
-return reply(200, { success: true });
+    return reply(200, { success: true });
   } catch (error) {
-    console.error("Verification email error:", error.message);
+    console.error("Verification email server error:", error.message);
     return reply(500, { error: "Internal server error" });
   }
 };
