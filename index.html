@@ -211,7 +211,13 @@
         <option>Košický kraj</option>
       </select>
     </div>
-
+<div class="field">
+  <label for="registerCompanyWork">Aké práce vykonávate?</label>
+  <select id="registerCompanyWork" required>
+    <option value="">Vyberte remeslo</option>
+    <option value="Strechy">Strechy – pokrývačské a klampiarske práce</option>
+  </select>
+</div>
     <div class="field">
       <label>Heslo</label>
       <input id="registerCompanyPassword" type="password" placeholder="Vytvorte heslo">
@@ -1205,6 +1211,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   const email=$('registerCompanyEmail').value.trim();
   const phone=$('registerCompanyPhone').value.trim();
   const region=$('registerCompanyRegion').value;
+    const work=$('registerCompanyWork').value;
   const password=$('registerCompanyPassword').value;
   const passwordConfirm=$('registerCompanyPasswordConfirm').value;
   const ico=$('registerCompanyIco').value.replace(/\s/g,'');
@@ -1214,7 +1221,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   const fakturacne_mesto=$('registerCompanyCity').value.trim();
   const msg=$('registerCompanyMsg');
   msg.innerHTML='';
-  if(!name || !email || !phone || !region || !password || !ico || !fakturacna_ulica || !fakturacne_psc || !fakturacne_mesto){
+ if(!name || !email || !phone || !region || !work || !password || !ico || !fakturacna_ulica || !fakturacne_psc || !fakturacne_mesto){
     msg.innerHTML='<div class="error">Vyplňte povinné údaje vrátane fakturačnej adresy a IČO.</div>';return;
   }
   if(!/^\d{8}$/.test(ico)){
