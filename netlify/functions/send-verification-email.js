@@ -49,17 +49,11 @@ const resendKey = process.env.RESEND_API_KEY;
 
   try {
     const data = JSON.parse(event.body || "{}");
-    const leadId = Number(data.dopyt_id);
-    const token = data.token;
+const leadId = Number(data.dopyt_id);
 
-    if (
-      !Number.isSafeInteger(leadId) ||
-      leadId <= 0 ||
-      typeof token !== "string" ||
-      !/^[0-9a-f]{64}$/.test(token)
-    ) {
-      return reply(400, { error: "Neplatne overovacie udaje" });
-    }
+if (!Number.isSafeInteger(leadId) || leadId <= 0) {
+  return reply(400, { error: "Neplatne ID dopytu" });
+}
 
     // Údaje zákazníka čítame z testovacej databázy.
     const response = await fetch(
@@ -91,6 +85,34 @@ const resendKey = process.env.RESEND_API_KEY;
     ) {
       return reply(400, { error: "Neplatny email zakaznika" });
     }
+    const tokenResponse = await fetch(
+  `${url.replace(/\/$/, "")}/rest/v1/rpc/server_priprav_overenie_emailu`,
+  {
+    method: "POST",
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      p_dopyt_id: leadId
+    })
+  }
+);
+
+if (!tokenResponse.ok) {
+  return reply(502, {
+    error: "Nepodarilo sa vytvorit overovaci token"
+  });
+}
+
+const token = await tokenResponse.json();
+
+if (typeof token !== "string" || !/^[0-9a-f]{64}$/.test(token)) {
+  return reply(502, {
+    error: "Neplatna odpoved databazy"
+  });
+}
 
     // Overovací odkaz smeruje do testovacieho prostredia.
     // Jeho presnú adresu nastavíme pri integrácii.
@@ -117,9 +139,9 @@ const resendKey = process.env.RESEND_API_KEY;
       (description.match(/Plocha:\s*([\d.,]+)\s*m²/i) || [])[1] || "-"
     );
 
-    const estimate = lead.odhad_ceny == null
-      ? "Odhad sa pripravuje"
-      : `${Number(lead.odhad_ceny).toLocaleString("sk-SK")} €`;
+const estimate =
+  (description.match(/Odhad:\s*([^\n]*)/) || [])[1]?.trim()
+  || "Odhad sa pripravuje";
 
     const html = `
       <div style="background:#f3f7fc;padding:30px 12px;
