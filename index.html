@@ -1244,7 +1244,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
     const authResponse=await fetch(AUTH_URL+'/signup',{
       method:'POST',headers:{apikey:API_KEY,'Content-Type':'application/json'},
       body:JSON.stringify({email,password,data:{
-        company_name:name,phone,region,ico,dic,
+      company_name:name,phone,region,typ_prace:work,ico,dic,
         fakturacna_ulica,fakturacne_psc,fakturacne_mesto
       }})
     });
