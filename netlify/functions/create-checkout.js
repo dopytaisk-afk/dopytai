@@ -152,7 +152,7 @@ if (![25, 50, 100, 200].includes(amount)) {
 
          
 const baseUrl = stripeKey.startsWith("sk_test_")
-  ? "https://test-fakturacia--sparkly-choux-e2b050.netlify.app"
+  ? "https://overenie-emailu--sparkly-choux-e2b050.netlify.app"
   : "https://dopytai24.sk";
 
     params.append(
