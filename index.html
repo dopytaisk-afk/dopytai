@@ -1697,7 +1697,7 @@ async function loadLeads(){
     const companies=await cr.json();
     if(!cr.ok) throw new Error(companies.message||'Nepodarilo sa načítať firmy');
     window.dopytaiCompanies=companies||[];
-   const r=await fetch(API_URL+'/rpc/bezpecne_dopyty',{
+  const r=await fetch(API_URL+'/rpc/admin_dopyty',{
   method:'POST',
   headers:{
     'apikey':API_KEY,
