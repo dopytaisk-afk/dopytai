@@ -636,6 +636,34 @@ function showPanel(){
 }
 
 function showLogin(){ $('loginBox').style.display='block'; $('adminPanel').style.display='none'; }
+ async function overAktivnuFirmu(userId, token) {
+  const response = await fetch(
+    API_URL + '/firmy?select=id,stav&auth_user_id=eq.' +
+    encodeURIComponent(userId) + '&limit=2',
+    {
+      headers: {
+        apikey: API_KEY,
+        Authorization: 'Bearer ' + token
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Nepodarilo sa overiť stav firemného účtu.');
+  }
+
+  const firmy = await response.json();
+
+  if (!Array.isArray(firmy) || firmy.length !== 1) {
+    throw new Error('Firemný účet sa nenašiel.');
+  }
+
+  if (firmy[0].stav !== 'aktivna') {
+    throw new Error('Váš firemný účet je deaktivovaný. Kontaktujte podporu DopytAI.');
+  }
+
+  return firmy[0];
+} 
 function esc(v){ return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
 
@@ -643,35 +671,63 @@ function esc(v){ return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&
   showAdmin();
 }
 $('openCompany').addEventListener('click',()=>{ $('customer').style.display='none'; $('admin').classList.remove('show'); $('companyPortal').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); });
-  const savedCompanyToken=localStorage.getItem('dopytai_company_token');
-const savedCompanyEmail=localStorage.getItem('dopytai_company_email');
-if(savedCompanyToken && savedCompanyEmail){
+ const savedCompanyToken = localStorage.getItem('dopytai_company_token');
+const savedCompanyEmail = localStorage.getItem('dopytai_company_email');
+
+if (savedCompanyToken && savedCompanyEmail) {
   (async () => {
     try {
-      const r = await fetch(AUTH_URL+'/user', {
-        headers: { apikey: API_KEY, Authorization: 'Bearer '+savedCompanyToken }
+      const r = await fetch(AUTH_URL + '/user', {
+        headers: {
+          apikey: API_KEY,
+          Authorization: 'Bearer ' + savedCompanyToken
+        }
       });
+
       if (!r.ok) throw new Error('Firemné prihlásenie vypršalo.');
+
       const user = await r.json();
       if (!user.id) throw new Error('Neplatné firemné prihlásenie.');
-      $('customer').style.display='none';
+
+      await overAktivnuFirmu(user.id, savedCompanyToken);
+
+      $('customer').style.display = 'none';
       $('admin').classList.remove('show');
-      $('companyPortal').style.display='none';
-      $('companyRegister').style.display='none';
-      $('companyDashboard').style.display='block';
-      $('logoutBtn').style.display='block';
+      $('companyPortal').style.display = 'none';
+      $('companyRegister').style.display = 'none';
+      $('companyDashboard').style.display = 'block';
+      $('logoutBtn').style.display = 'block';
+
       await loadCompanyLeads();
       await loadCompanyCredit();
+
     } catch (err) {
-      // Only clear an invalid token, not an unrelated temporary network failure.
-      if (err.message.includes('vypršalo') || err.message.includes('Neplatné')) {
+      const deaktivovana = err.message.includes('deaktivovaný');
+
+      if (
+        deaktivovana ||
+        err.message.includes('vypršalo') ||
+        err.message.includes('Neplatné') ||
+        err.message.includes('nenašiel')
+      ) {
         localStorage.removeItem('dopytai_company_token');
         localStorage.removeItem('dopytai_company_email');
+
+        $('companyDashboard').style.display = 'none';
+        $('logoutBtn').style.display =
+          localStorage.getItem('dopytai_access_token') ? 'block' : 'none';
+
+        if (deaktivovana) {
+          showCustomer();
+          alert(err.message);
+        }
       }
+
       console.warn('Automatické prihlásenie sa nepodarilo:', err.message);
     }
   })();
 }
+      
   $('closeCompany').addEventListener('click',showCustomer);
   $('companyLoginBtn').addEventListener('click',async()=>{
     $('companyLoginError').style.display = 'none';
@@ -702,7 +758,24 @@ if(savedCompanyToken && savedCompanyEmail){
     if(!r.ok || !data.access_token){
       throw new Error(data.error_description || data.msg || 'Prihlásenie firmy zlyhalo.');
     }
+const userRes = await fetch(AUTH_URL + '/user', {
+  headers: {
+    apikey: API_KEY,
+    Authorization: 'Bearer ' + data.access_token
+  }
+});
 
+if (!userRes.ok) {
+  throw new Error('Nepodarilo sa overiť firemné prihlásenie.');
+}
+
+const user = await userRes.json();
+
+if (!user.id) {
+  throw new Error('Neplatné firemné prihlásenie.');
+}
+
+await overAktivnuFirmu(user.id, data.access_token);
     localStorage.setItem('dopytai_company_token',data.access_token);
     localStorage.setItem('dopytai_company_email',email);
 
@@ -719,7 +792,7 @@ window.scrollTo({top:0,behavior:'smooth'});
   alert('📧 E-mail ešte nie je potvrdený. Skontrolujte svoju e-mailovú schránku a kliknite na potvrdzovací odkaz. Potom sa môžete prihlásiť.');
 }else{
 const errorBox = $('companyLoginError');
-errorBox.textContent = '❌ Nesprávny e-mail alebo heslo. Skúste to znova.';
+errorBox.textContent = err.message.includes('deaktivovaný') ? err.message : '❌ Nesprávny e-mail alebo heslo. Skúste to znova.';
 errorBox.style.display = 'block';
 }
   }finally{
