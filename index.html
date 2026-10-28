@@ -614,7 +614,19 @@ function authHeaders(){
     Authorization:`Bearer ${token}`
   };
 }
-function showCustomer(){ $('admin').classList.remove('show'); ['companyPortal','companyDashboard','companyRegister','companyPasswordReset'].forEach(id => $(id).style.display='none'); $('customer').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }
+function showCustomer(){
+  $('admin').classList.remove('show');
+  ['companyPortal','companyDashboard','companyRegister','companyPasswordReset'].forEach(id => $(id).style.display='none');
+  $('customer').style.display='block';
+
+  const isLoggedIn = !!(
+    localStorage.getItem('dopytai_access_token') ||
+    localStorage.getItem('dopytai_company_token')
+  );
+
+  $('logoutBtn').style.display = isLoggedIn ? 'block' : 'none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 function showAdmin(){ $('customer').style.display='none'; $('admin').classList.add('show'); window.scrollTo({top:0,behavior:'smooth'}); if(accessToken){ showPanel(); loadLeads(); } }
 
 function showPanel(){
