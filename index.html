@@ -307,7 +307,11 @@
   </div>
   <div id="adminPanel" style="display:none">
    
-    <div class="tabs"><button class="adminbtn tab active" id="tabLeads" type="button">Dopyty</button><button class="adminbtn tab" id="tabCompanies" type="button">Firmy</button></div>
+    <div class="tabs">
+  <button class="adminbtn tab active" id="tabLeads" type="button">Dopyty</button>
+  <button class="adminbtn tab" id="tabCompanies" type="button">Firmy</button>
+  <button class="adminbtn tab" id="tabInvoices" type="button">Faktúry</button>
+</div>
     <div id="leadsView"><button class="adminbtn" id="refreshBtn" type="button">Obnoviť dopyty</button>
      <div id="leadFilters" style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0;">
   <button class="adminbtn leadFilter active" type="button" data-filter="all">Všetky</button>
@@ -356,6 +360,20 @@
 <button class="btn" id="addCompanyBtn" type="button">Pridať firmu</button><div id="companyMsg"></div></div>
       <div id="companies" class="adminlist"></div>
     </div>
+  <div id="invoicesView" style="display:none">
+  <div class="card">
+    <h3 style="margin-top:0">Vystavené faktúry</h3>
+    <p class="note">Prehľad faktúr DopytAI a ich PDF dokumentov.</p>
+
+    <button class="adminbtn" id="refreshInvoicesBtn" type="button">
+      Obnoviť faktúry
+    </button>
+
+    <div id="invoicesList" class="adminlist" style="margin-top:16px">
+      Zatiaľ nie sú načítané žiadne faktúry.
+    </div>
+  </div>
+</div>
   </div>
 </section>
   <section id="companyPortal" style="display:none">
@@ -1675,8 +1693,39 @@ $('logoutBtn').addEventListener('click',()=>{
   window.scrollTo({top:0,behavior:'smooth'});
 });
 $('refreshBtn').addEventListener('click',loadLeads);
-$('tabLeads').addEventListener('click',()=>{ $('leadsView').style.display='block'; $('companiesView').style.display='none'; $('tabLeads').classList.add('active'); $('tabCompanies').classList.remove('active'); loadLeads(); });
-$('tabCompanies').addEventListener('click',()=>{ $('leadsView').style.display='none'; $('companiesView').style.display='block'; $('tabCompanies').classList.add('active'); $('tabLeads').classList.remove('active'); loadCompanies(); });
+$('tabLeads').addEventListener('click', () => {
+  $('leadsView').style.display = 'block';
+  $('companiesView').style.display = 'none';
+  $('invoicesView').style.display = 'none';
+
+  $('tabLeads').classList.add('active');
+  $('tabCompanies').classList.remove('active');
+  $('tabInvoices').classList.remove('active');
+
+  loadLeads();
+});
+
+$('tabCompanies').addEventListener('click', () => {
+  $('leadsView').style.display = 'none';
+  $('companiesView').style.display = 'block';
+  $('invoicesView').style.display = 'none';
+
+  $('tabCompanies').classList.add('active');
+  $('tabLeads').classList.remove('active');
+  $('tabInvoices').classList.remove('active');
+
+  loadCompanies();
+});
+
+$('tabInvoices').addEventListener('click', () => {
+  $('leadsView').style.display = 'none';
+  $('companiesView').style.display = 'none';
+  $('invoicesView').style.display = 'block';
+
+  $('tabInvoices').classList.add('active');
+  $('tabLeads').classList.remove('active');
+  $('tabCompanies').classList.remove('active');
+});
 $('addCompanyBtn').addEventListener('click',addCompany);
 
   let activeLeadFilter='all';
