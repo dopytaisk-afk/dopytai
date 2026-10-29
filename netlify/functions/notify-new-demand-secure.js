@@ -43,6 +43,9 @@ exports.handler = async (event) => {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const resendKey = process.env.RESEND_API_KEY;
+ const siteUrl = process.env.BRANCH === "overenie-emailu"
+  ? "https://overenie-emailu--sparkly-choux-e2b050.netlify.app/"
+  : "https://dopytai24.sk/";
 
   if (!url || !key || !resendKey) {
     return reply(500, { error: "Missing server configuration" });
@@ -207,7 +210,7 @@ const safeUnlockPrice = escapeHtml(
                         Prihláste sa do DopytAI a odomknite kontakt zákazníka za ${safeUnlockPrice}.
                       </div>
                       <div style="margin-top:24px;text-align:center;">
-                        <a href="https://overenie-emailu--sparkly-choux-e2b050.netlify.app/"
+                       <a href="${escapeHtml(siteUrl)}"
                            style="display:inline-block;background:#1687f8;color:white;text-decoration:none;padding:14px 24px;border-radius:10px;font-weight:700;">
                           Zobraziť nový dopyt
                         </a>
