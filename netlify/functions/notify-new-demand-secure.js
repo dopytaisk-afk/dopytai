@@ -169,16 +169,21 @@ const safeUnlockPrice = escapeHtml(
     let sent = 0;
     let failed = 0;
 
-    for (const company of matching) {
-      const claimed = await db("rpc/rezervuj_upozornenie", {
-        method: "POST",
-        body: JSON.stringify({
-          p_dopyt_id: leadId,
-          p_firma_id: company.id
-        })
-      });
+   for (const company of matching) {
+  const attemptId = await db("rpc/rezervuj_upozornenie_v2", {
+    method: "POST",
+    body: JSON.stringify({
+      p_dopyt_id: leadId,
+      p_firma_id: company.id
+    })
+  });
 
-      if (claimed !== true) continue;
+  if (
+    typeof attemptId !== "string" ||
+    !/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(attemptId)
+  ) {
+    continue;
+  }
 
       try {
         const response = await fetch(
@@ -226,20 +231,57 @@ const safeUnlockPrice = escapeHtml(
           }
         );
 
-        if (!response.ok) {
-          throw new Error(`Resend HTTP ${response.status}`);
-        }
+      if (!response.ok) {
+  failed++;
 
-        sent++;
-          } catch (error) {
-        failed++;
+  const definitelyRejected =
+    response.status === 400 ||
+    response.status === 401 ||
+    response.status === 403 ||
+    response.status === 422;
 
-        console.error(
-          "Email send failed for company ID:",
-          company.id,
-          error.message
-        );
-      }
+  if (definitelyRejected) {
+    await db("rpc/dokonci_upozornenie_v2", {
+      method: "POST",
+      body: JSON.stringify({
+        p_dopyt_id: leadId,
+        p_firma_id: company.id,
+        p_pokus_id: attemptId,
+        p_uspesne: false,
+        p_chyba: `Resend HTTP ${response.status}`
+      })
+    });
+  }
+
+  console.error("Resend rejected notification:", company.id, response.status);
+  continue;
+}
+
+const completed = await db("rpc/dokonci_upozornenie_v2", {
+  method: "POST",
+  body: JSON.stringify({
+    p_dopyt_id: leadId,
+    p_firma_id: company.id,
+    p_pokus_id: attemptId,
+    p_uspesne: true,
+    p_chyba: null
+  })
+});
+
+if (completed !== true) {
+  throw new Error("Nepodarilo sa potvrdiť odoslanie v databáze");
+}
+
+sent++;
+} catch (error) {
+  failed++;
+
+  console.error(
+    "Email notification failed or result uncertain for company ID:",
+    company.id,
+    error.message
+  );
+}
     }
 
     if (failed) {
