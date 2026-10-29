@@ -98,7 +98,7 @@ if (![25, 50, 100, 200].includes(amount)) {
 
     // ID firmy zisťujeme na serveri.
     const companyResponse = await fetch(
-      `${supabaseUrl}/rest/v1/firmy?auth_user_id=eq.${encodeURIComponent(user.id)}&select=id&limit=2`,
+     `${supabaseUrl}/rest/v1/firmy?auth_user_id=eq.${encodeURIComponent(user.id)}&select=id,stav&limit=2`,
       {
         headers: {
           apikey: serviceKey,
@@ -130,7 +130,11 @@ if (![25, 50, 100, 200].includes(amount)) {
         error: "Neplatný firemný účet."
       });
     }
-
+    if (companies[0].stav !== "aktivna") {
+      return json(403, {
+        error: "Váš firemný účet je deaktivovaný. Kontaktujte podporu DopytAI."
+      });
+    }
     const params = new URLSearchParams();
 
     params.append("metadata[firma_id]", String(firmaId));
@@ -152,7 +156,7 @@ if (![25, 50, 100, 200].includes(amount)) {
 
          
 const baseUrl = stripeKey.startsWith("sk_test_")
-  ? "https://test-fakturacia--sparkly-choux-e2b050.netlify.app"
+  ? "https://overenie-emailu--sparkly-choux-e2b050.netlify.app"
   : "https://dopytai24.sk";
 
     params.append(

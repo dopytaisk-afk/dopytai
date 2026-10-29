@@ -9,10 +9,272 @@
 .btn{display:block;width:100%;background:var(--b);color:#fff;border:0;border-radius:13px;padding:15px;font-size:16px;font-weight:900;text-align:center;cursor:pointer}.btn:hover{background:var(--bd)}.btn:disabled{opacity:.65;cursor:not-allowed}.note{font-size:13px;color:#7b8ba0}.price{font-size:28px;color:var(--b);font-weight:950}.success{background:#f0f8ff;border:1px solid #bcdcf9;border-radius:16px;padding:18px;line-height:1.55;margin-top:18px}.error{background:#fff1f0;border:1px solid #ffc9c5;color:var(--err);border-radius:16px;padding:18px;line-height:1.55;margin-top:18px}.photo{border:1px dashed #9bb7d2;background:#f8fbfe;border-radius:14px;padding:15px}
 .adminbar{margin-top:18px;display:flex;gap:10px}.adminbtn{background:#fff;color:var(--b);border:1px solid #bcdcf9;border-radius:12px;padding:11px 14px;font-weight:900;cursor:pointer}.adminbtn:hover{background:var(--pale)}.admin{display:none;padding:28px 0 60px}.admin.show{display:block}.loginbox{max-width:440px;margin:0 auto}.adminhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.adminlist{display:grid;gap:14px}.lead{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 8px 25px #0924480a}.leadtop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.lead h3{margin:0 0 5px;font-size:18px}.meta{font-size:13px;color:var(--mut);line-height:1.5}.pill{font-size:12px;font-weight:900;color:var(--b);background:var(--pale);padding:6px 9px;border-radius:999px;white-space:nowrap}.lead pre{white-space:pre-wrap;font-family:inherit;background:#f8fbfe;border:1px solid var(--line);border-radius:10px;padding:12px;line-height:1.45;color:var(--n)}.empty{background:#fff;border:1px dashed #b8c9da;border-radius:14px;padding:20px;text-align:center;color:var(--mut)}.stateRow{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.stateRow label{font-size:13px;font-weight:900}.stateSelect{width:auto;min-width:160px;padding:9px 11px;border-radius:10px;font-size:14px}.tabs{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}.tab.active{background:var(--b);color:#fff}.company{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}.company h3{margin:0 0 6px}.companyForm{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}.companyForm .field{margin:0}.companyForm .btn{width:auto;padding:14px 20px}@media(max-width:560px){.companyForm{grid-template-columns:1fr}.companyForm .btn{width:100%}}
 @media(max-width:560px){.nav{min-height:65px}.brand{font-size:22px}.mark{transform:scale(.85);margin-left:-3px}.status{font-size:11px;padding:6px 8px}.hero{padding:32px 0 50px}.card{padding:18px;border-radius:18px}h1{letter-spacing:-1.1px}}
+
+
+/* DopytAI - nova uvodna stranka */
+#customer.wrap {
+  width: 100%;
+  max-width: none;
+  padding: 0 0 70px;
+}
+
+.roof-hero {
+  min-height: 430px;
+  background:
+    linear-gradient(to bottom, rgba(245,249,253,.96) 0%,
+      rgba(245,249,253,.55) 44%,
+      rgba(245,249,253,0) 100%),
+    url('/strecha-hero.webp') center 57% / cover no-repeat;
+  background-color: #eaf4ff;
+  text-align: center;
+  padding: 44px 20px 100px;
+}
+
+.roof-hero-content {
+  max-width: 950px;
+  margin: 0 auto;
+}
+
+.roof-hero h1 {
+  font-size: clamp(38px, 5.5vw, 64px);
+  line-height: 1.06;
+  letter-spacing: -2px;
+  margin: 0 0 18px;
+  color: #092448;
+  font-weight: 900;
+}
+
+.roof-hero h1 span {
+  color: #087cf0;
+}
+
+.roof-hero p {
+  font-size: clamp(16px, 2.2vw, 23px);
+  color: #102b50;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(255,255,255,.8);
+  margin: 0 0 12px;
+}
+
+.roof-hero .roof-hero-sub {
+  font-size: 17px;
+  color: #243c5a;
+  font-weight: 600;
+}
+
+.how-it-works {
+  width: min(1100px, 92%);
+  margin: 0 auto;
+  padding: 40px 0 25px;
+  text-align: center;
+}
+
+.how-it-works h2 {
+  font-size: clamp(29px, 4vw, 40px);
+  margin: 0 0 26px;
+  letter-spacing: -1px;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.step-card {
+  position: relative;
+  background: white;
+  border: 1px solid #d6e7fa;
+  border-radius: 19px;
+  padding: 20px;
+  text-align: left;
+  box-shadow: 0 10px 25px #09244808;
+}
+
+.step-number {
+  position: absolute;
+  top: 15px;
+  left: 17px;
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+  background: #deeeff;
+  color: #087cf0;
+  display: grid;
+  place-items: center;
+  font-size: 23px;
+  font-weight: 900;
+}
+
+.step-illustration {
+  height: 160px;
+  display: grid;
+  place-items: center;
+}
+
+.step-illustration svg {
+  width: 140px;
+  max-width: 85%;
+  height: 130px;
+}
+
+.step-card h3 {
+  font-size: 20px;
+  margin: 0 0 12px;
+}
+
+.step-card p {
+  color: #66778d;
+  line-height: 1.6;
+  margin: 0;
+  font-size: 16px;
+}
+
+.estimate-cta {
+  display: block;
+  background: #087cf0;
+  color: white;
+  font-weight: 900;
+  font-size: 18px;
+  text-decoration: none;
+  max-width: 445px;
+  margin: 26px auto 10px;
+  padding: 19px 22px;
+  border-radius: 12px;
+}
+
+.estimate-cta:hover {
+  background: #0666ca;
+}
+
+.estimate-note {
+  color: #66778d;
+  font-size: 14px;
+}
+
+.form-heading {
+  width: min(900px, 92%);
+  margin: 32px auto 0;
+  font-size: clamp(25px, 4vw, 34px);
+}
+
+#customer #form,
+#customer #result {
+  width: min(900px, 92%);
+  margin-left: auto;
+  margin-right: auto;
+  scroll-margin-top: 95px;
+}
+
+@media (max-width: 700px) {
+  .roof-hero {
+    min-height: 360px;
+    padding: 38px 14px 90px;
+  }
+
+  .roof-hero h1 {
+    letter-spacing: -1px;
+  }
+
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .step-card {
+    text-align: center;
+  }
+
+  .step-illustration {
+    height: 115px;
+  }
+
+  .step-illustration svg {
+    height: 105px;
+  }
+
+  .step-card p {
+    font-size: 15px;
+  }
+
+  .how-it-works {
+    padding-top: 28px;
+  }
+}
+  
 </style></head><body>
 <div class="top"><div class="wrap nav"><div class="brand" onclick="showCustomer(); $('companyPortal').style.display='none'; $('companyDashboard').style.display='none'; $('companyRegister').style.display='none'; window.scrollTo({top:0,behavior:'smooth'});" style="cursor:pointer"><div class="mark"><div class="dots"><i></i><i></i><i></i></div></div><div>Dopyt<span class="ai">AI</span></div></div><div style="display:flex;align-items:center;gap:8px"><button class="adminbtn" id="openCompany" type="button">Pre firmy</button><button class="adminbtn" id="logoutBtn" type="button" style="display:none">Odhlásiť</button></div></div></div>
+
 <main class="wrap hero" id="customer">
-<div class="tag">INTELIGENTNÝ DOPYT PRE REMESLÁ</div><h1>Vytvorte dopyt na strechu</h1><p class="muted">DopytAI zozbiera dôležité údaje, pripraví orientačný cenový odhad a odošle dopyt na spracovanie.</p>
+
+<section class="roof-hero">
+  <div class="roof-hero-content">
+    <h1>Nová <span>strecha</span> začína<br>dobrým plánom</h1>
+    <p>Zistite orientačnú cenu a nájdite firmu na realizáciu.</p>
+    <p class="roof-hero-sub">Zadanie dopytu je zdarma a nezáväzné.</p>
+   <a class="estimate-cta" href="#form">
+  Zistiť orientačnú cenu zdarma →
+</a>
+  </div>
+</section>
+
+<section class="how-it-works">
+  <h2>Ako funguje DopytAI</h2>
+
+  <div class="steps-grid">
+    <article class="step-card">
+      <div class="step-number">1</div>
+      <div class="step-illustration">
+        <svg viewBox="0 0 120 100" aria-hidden="true">
+          <rect x="28" y="13" width="64" height="78" rx="7" fill="#e5f1ff" stroke="#087cf0" stroke-width="4"/>
+          <rect x="45" y="7" width="30" height="14" rx="6" fill="#087cf0"/>
+          <path d="M42 41l7 7 13-15M42 67l7 7 13-15" fill="none" stroke="#087cf0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M69 44h13M69 70h13" stroke="#8abfff" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h3>Opíšte svoju strechu</h3>
+      <p>Vyplňte pár údajov o plánovaných prácach.</p>
+    </article>
+
+    <article class="step-card">
+      <div class="step-number">2</div>
+      <div class="step-illustration">
+        <svg viewBox="0 0 120 100" aria-hidden="true">
+          <rect x="38" y="9" width="68" height="82" rx="7" transform="rotate(9 38 9)" fill="#fff" stroke="#9ccaff" stroke-width="3"/>
+          <rect x="15" y="38" width="58" height="54" rx="7" fill="#164e94"/>
+          <rect x="23" y="46" width="42" height="12" rx="3" fill="#d3eaff"/>
+          <path d="M27 68h8M44 68h8M27 79h8M44 79h8" stroke="#9ecbff" stroke-width="5" stroke-linecap="round"/>
+          <text x="68" y="49" font-size="34" font-weight="bold" fill="#087cf0">€</text>
+        </svg>
+      </div>
+      <h3>Získajte odhad ceny</h3>
+      <p>Po odoslaní uvidíte orientačné cenové rozpätie.</p>
+    </article>
+
+    <article class="step-card">
+      <div class="step-number">3</div>
+      <div class="step-illustration">
+        <svg viewBox="0 0 120 100" aria-hidden="true">
+          <path d="M12 49L60 10l48 39" fill="none" stroke="#087cf0" stroke-width="6" stroke-linejoin="round"/>
+          <path d="M23 47v43h74V47" fill="#e5f1ff" stroke="#087cf0" stroke-width="4"/>
+          <rect x="51" y="60" width="21" height="30" fill="#9dcfff"/>
+          <circle cx="29" cy="49" r="10" fill="#fac99f"/>
+          <path d="M15 90V73a14 14 0 0 1 28 0v17" fill="#65a6ff"/>
+          <circle cx="94" cy="49" r="10" fill="#fac99f"/>
+          <path d="M80 90V73a14 14 0 0 1 28 0v17" fill="#087cf0"/>
+        </svg>
+      </div>
+      <h3>Spojte sa s firmou</h3>
+      <p>Po potvrdení e-mailu môže váš dopyt prevziať firma.</p>
+    </article>
+  </div>
+
+ 
+
+  <p class="estimate-note">Konečnú cenu určí realizačná firma.</p>
+</section>
+
+<h2 class="form-heading">Povedzte nám viac o vašej streche</h2>
+
 <form id="form" class="card">
 <div class="field"><label>Čo potrebujete?</label><select id="type"><option>Nová strecha</option><option>Rekonštrukcia strechy</option><option>Oprava / zatekanie</option></select></div>
 <div class="field"><label>Približná plocha strechy (m²)</label><input id="area" type="number" min="1" placeholder="napr. 145" required></div>
@@ -25,7 +287,7 @@
 <div class="field"><label>Požadovaný termín</label><select id="term"><option>Čo najskôr</option><option>Do 1–3 mesiacov</option><option>Do 3–6 mesiacov</option><option>Len zisťujem cenu</option></select></div>
 <div class="field"><label>Meno</label><input id="name" placeholder="Vaše meno" required></div>
 <div class="field"><label>Telefón</label><input id="phone" type="tel" placeholder="+421..." required></div>
-<div class="field"><label>E-mail</label><input id="email" type="email" placeholder="meno@email.sk"></div>
+<div class="field"><label>E-mail</label><input id="email" type="email" placeholder="meno@email.sk" autocomplete="email" required></div>
 <div style="margin:12px 0 4px;display:flex;align-items:flex-start;gap:9px;font-size:14px;line-height:1.4;color:#475569"><input id="gdprConsent" type="checkbox" required style="width:auto;margin-top:3px"><label for="gdprConsent">Potvrdzujem, že som sa oboznámil/a s <a href="/ochrana-osobnych-udajov.html" target="_blank" rel="noopener noreferrer" style="color:#087cf0;font-weight:700">informáciami o ochrane osobných údajov</a> a beriem na vedomie, že údaje z môjho dopytu vrátane kontaktných údajov môžu byť sprístupnené realizačnej firme za účelom kontaktovania a vybavenia môjho dopytu.</label></div> 
 <button class="btn" id="submitBtn" type="submit">Vytvoriť dopyt a vypočítať odhad</button>
 </form>
@@ -211,7 +473,13 @@
         <option>Košický kraj</option>
       </select>
     </div>
-
+<div class="field">
+  <label for="registerCompanyWork">Aké práce vykonávate?</label>
+  <select id="registerCompanyWork" required>
+    <option value="">Vyberte remeslo</option>
+    <option value="Strechy">Strechy – pokrývačské a klampiarske práce</option>
+  </select>
+</div>
     <div class="field">
       <label>Heslo</label>
       <input id="registerCompanyPassword" type="password" placeholder="Vytvorte heslo">
@@ -346,7 +614,19 @@ function authHeaders(){
     Authorization:`Bearer ${token}`
   };
 }
-function showCustomer(){ $('admin').classList.remove('show'); ['companyPortal','companyDashboard','companyRegister','companyPasswordReset'].forEach(id => $(id).style.display='none'); $('customer').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }
+function showCustomer(){
+  $('admin').classList.remove('show');
+  ['companyPortal','companyDashboard','companyRegister','companyPasswordReset'].forEach(id => $(id).style.display='none');
+  $('customer').style.display='block';
+
+  const isLoggedIn = !!(
+    localStorage.getItem('dopytai_access_token') ||
+    localStorage.getItem('dopytai_company_token')
+  );
+
+  $('logoutBtn').style.display = isLoggedIn ? 'block' : 'none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 function showAdmin(){ $('customer').style.display='none'; $('admin').classList.add('show'); window.scrollTo({top:0,behavior:'smooth'}); if(accessToken){ showPanel(); loadLeads(); } }
 
 function showPanel(){
@@ -356,6 +636,34 @@ function showPanel(){
 }
 
 function showLogin(){ $('loginBox').style.display='block'; $('adminPanel').style.display='none'; }
+ async function overAktivnuFirmu(userId, token) {
+  const response = await fetch(
+    API_URL + '/firmy?select=id,stav&auth_user_id=eq.' +
+    encodeURIComponent(userId) + '&limit=2',
+    {
+      headers: {
+        apikey: API_KEY,
+        Authorization: 'Bearer ' + token
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Nepodarilo sa overiť stav firemného účtu.');
+  }
+
+  const firmy = await response.json();
+
+  if (!Array.isArray(firmy) || firmy.length !== 1) {
+    throw new Error('Firemný účet sa nenašiel.');
+  }
+
+  if (firmy[0].stav !== 'aktivna') {
+    throw new Error('Váš firemný účet je deaktivovaný. Kontaktujte podporu DopytAI.');
+  }
+
+  return firmy[0];
+} 
 function esc(v){ return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
 
@@ -363,35 +671,63 @@ function esc(v){ return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&
   showAdmin();
 }
 $('openCompany').addEventListener('click',()=>{ $('customer').style.display='none'; $('admin').classList.remove('show'); $('companyPortal').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); });
-  const savedCompanyToken=localStorage.getItem('dopytai_company_token');
-const savedCompanyEmail=localStorage.getItem('dopytai_company_email');
-if(savedCompanyToken && savedCompanyEmail){
+ const savedCompanyToken = localStorage.getItem('dopytai_company_token');
+const savedCompanyEmail = localStorage.getItem('dopytai_company_email');
+
+if (savedCompanyToken && savedCompanyEmail) {
   (async () => {
     try {
-      const r = await fetch(AUTH_URL+'/user', {
-        headers: { apikey: API_KEY, Authorization: 'Bearer '+savedCompanyToken }
+      const r = await fetch(AUTH_URL + '/user', {
+        headers: {
+          apikey: API_KEY,
+          Authorization: 'Bearer ' + savedCompanyToken
+        }
       });
+
       if (!r.ok) throw new Error('Firemné prihlásenie vypršalo.');
+
       const user = await r.json();
       if (!user.id) throw new Error('Neplatné firemné prihlásenie.');
-      $('customer').style.display='none';
+
+      await overAktivnuFirmu(user.id, savedCompanyToken);
+
+      $('customer').style.display = 'none';
       $('admin').classList.remove('show');
-      $('companyPortal').style.display='none';
-      $('companyRegister').style.display='none';
-      $('companyDashboard').style.display='block';
-      $('logoutBtn').style.display='block';
+      $('companyPortal').style.display = 'none';
+      $('companyRegister').style.display = 'none';
+      $('companyDashboard').style.display = 'block';
+      $('logoutBtn').style.display = 'block';
+
       await loadCompanyLeads();
       await loadCompanyCredit();
+
     } catch (err) {
-      // Only clear an invalid token, not an unrelated temporary network failure.
-      if (err.message.includes('vypršalo') || err.message.includes('Neplatné')) {
+      const deaktivovana = err.message.includes('deaktivovaný');
+
+      if (
+        deaktivovana ||
+        err.message.includes('vypršalo') ||
+        err.message.includes('Neplatné') ||
+        err.message.includes('nenašiel')
+      ) {
         localStorage.removeItem('dopytai_company_token');
         localStorage.removeItem('dopytai_company_email');
+
+        $('companyDashboard').style.display = 'none';
+        $('logoutBtn').style.display =
+          localStorage.getItem('dopytai_access_token') ? 'block' : 'none';
+
+        if (deaktivovana) {
+          showCustomer();
+          alert(err.message);
+        }
       }
+
       console.warn('Automatické prihlásenie sa nepodarilo:', err.message);
     }
   })();
 }
+      
   $('closeCompany').addEventListener('click',showCustomer);
   $('companyLoginBtn').addEventListener('click',async()=>{
     $('companyLoginError').style.display = 'none';
@@ -422,7 +758,24 @@ if(savedCompanyToken && savedCompanyEmail){
     if(!r.ok || !data.access_token){
       throw new Error(data.error_description || data.msg || 'Prihlásenie firmy zlyhalo.');
     }
+const userRes = await fetch(AUTH_URL + '/user', {
+  headers: {
+    apikey: API_KEY,
+    Authorization: 'Bearer ' + data.access_token
+  }
+});
 
+if (!userRes.ok) {
+  throw new Error('Nepodarilo sa overiť firemné prihlásenie.');
+}
+
+const user = await userRes.json();
+
+if (!user.id) {
+  throw new Error('Neplatné firemné prihlásenie.');
+}
+
+await overAktivnuFirmu(user.id, data.access_token);
     localStorage.setItem('dopytai_company_token',data.access_token);
     localStorage.setItem('dopytai_company_email',email);
 
@@ -439,7 +792,7 @@ window.scrollTo({top:0,behavior:'smooth'});
   alert('📧 E-mail ešte nie je potvrdený. Skontrolujte svoju e-mailovú schránku a kliknite na potvrdzovací odkaz. Potom sa môžete prihlásiť.');
 }else{
 const errorBox = $('companyLoginError');
-errorBox.textContent = '❌ Nesprávny e-mail alebo heslo. Skúste to znova.';
+errorBox.textContent = err.message.includes('deaktivovaný') ? err.message : '❌ Nesprávny e-mail alebo heslo. Skúste to znova.';
 errorBox.style.display = 'block';
 }
   }finally{
@@ -1205,6 +1558,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   const email=$('registerCompanyEmail').value.trim();
   const phone=$('registerCompanyPhone').value.trim();
   const region=$('registerCompanyRegion').value;
+    const work=$('registerCompanyWork').value;
   const password=$('registerCompanyPassword').value;
   const passwordConfirm=$('registerCompanyPasswordConfirm').value;
   const ico=$('registerCompanyIco').value.replace(/\s/g,'');
@@ -1214,7 +1568,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   const fakturacne_mesto=$('registerCompanyCity').value.trim();
   const msg=$('registerCompanyMsg');
   msg.innerHTML='';
-  if(!name || !email || !phone || !region || !password || !ico || !fakturacna_ulica || !fakturacne_psc || !fakturacne_mesto){
+ if(!name || !email || !phone || !region || !work || !password || !ico || !fakturacna_ulica || !fakturacne_psc || !fakturacne_mesto){
     msg.innerHTML='<div class="error">Vyplňte povinné údaje vrátane fakturačnej adresy a IČO.</div>';return;
   }
   if(!/^\d{8}$/.test(ico)){
@@ -1237,7 +1591,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
     const authResponse=await fetch(AUTH_URL+'/signup',{
       method:'POST',headers:{apikey:API_KEY,'Content-Type':'application/json'},
       body:JSON.stringify({email,password,data:{
-        company_name:name,phone,region,ico,dic,
+      company_name:name,phone,region,typ_prace:work,ico,dic,
         fakturacna_ulica,fakturacne_psc,fakturacne_mesto
       }})
     });
@@ -1343,7 +1697,7 @@ async function loadLeads(){
     const companies=await cr.json();
     if(!cr.ok) throw new Error(companies.message||'Nepodarilo sa načítať firmy');
     window.dopytaiCompanies=companies||[];
-   const r=await fetch(API_URL+'/rpc/bezpecne_dopyty',{
+  const r=await fetch(API_URL+'/rpc/admin_dopyty',{
   method:'POST',
   headers:{
     'apikey':API_KEY,
@@ -1536,7 +1890,25 @@ async function loadCompanies(){
     $('companies').innerHTML=rows.map(x=>{
       const d=x.created_at?new Date(x.created_at).toLocaleString('sk-SK',{dateStyle:'short',timeStyle:'short'}):'';
      
-      return '<article class="company"><h3>'+esc(x['názov']||'Firma')+'</h3><div class="meta"><b>Kontaktná osoba:</b> '+esc(x.kontaktna_osoba||'—')+'<br><b>Telefón:</b> '+esc(x.telefon||'—')+'<br><b>E-mail:</b> '+esc(x.email||'—')+'<br><b>Región:</b> '+esc(x.region||'—')+'<br><b>Lokalita:</b> '+esc(x.lokalita||'—')+'<br><b>Typ práce:</b> '+esc(x.typ_prace||'—')+'<br><b>Stav:</b> '+esc(x.stav||'—')+'<br>Pridaná: '+esc(d)+'</div><div class="stateRow"><button class="adminbtn" type="button" onclick="editCompany(\''+esc(x.id)+'\')">Upraviť firmu</button><button class="adminbtn" type="button" style="color:#b42318" onclick="removeCompany(\''+esc(x.id)+'\')">Odstrániť firmu</button></div></article>';
+   return '<article class="company">'
+  +'<h3>'+esc(x['názov']||'Firma')+'</h3>'
+  +'<div class="meta">'
+  +'<b>Kontaktná osoba:</b> '+esc(x.kontaktna_osoba||'—')
+  +'<br><b>Telefón:</b> '+esc(x.telefon||'—')
+  +'<br><b>E-mail:</b> '+esc(x.email||'—')
+  +'<br><b>Región:</b> '+esc(x.region||'—')
+  +'<br><b>Lokalita:</b> '+esc(x.lokalita||'—')
+  +'<br><b>Typ práce:</b> '+esc(x.typ_prace||'—')
+  +'<br><b>Stav:</b> '+esc(x.stav||'—')
+  +'<br>Pridaná: '+esc(d)
+  +'</div>'
+  +'<div class="stateRow">'
+  +'<button class="adminbtn" type="button" onclick="editCompany(\''+esc(x.id)+'\')">Upraviť firmu</button>'
+  +'<button class="adminbtn" type="button" onclick="toggleCompanyStatus(\''+esc(x.id)+'\')">'
+  +(x.stav === 'neaktivna' ? 'Aktivovať firmu' : 'Deaktivovať firmu')
+  +'</button>'
+  +'<button class="adminbtn" type="button" style="color:#b42318" onclick="removeCompany(\''+esc(x.id)+'\')">Odstrániť firmu</button>'
+  +'</div></article>';
 
     }).join('');
   }catch(err){ $('companies').innerHTML='<div class="error"><b>Chyba pri načítaní firiem.</b><br>'+esc(err.message)+'</div>'; }
@@ -1590,7 +1962,72 @@ async function editCompany(id){
     if(!u.ok) throw new Error((await u.text())||('HTTP '+u.status)); await loadCompanies();
   }catch(err){ alert('Firmu sa nepodarilo upraviť: '+err.message); }
 }
+async function toggleCompanyStatus(id) {
+  if (!accessToken) {
+    alert('Najprv sa prihlás ako administrátor.');
+    return;
+  }
 
+  try {
+    const r = await fetch(
+      API_URL + '/firmy?id=eq.' + encodeURIComponent(id) + '&select=id,stav',
+      {
+        headers: {
+          apikey: API_KEY,
+          Authorization: 'Bearer ' + accessToken
+        }
+      }
+    );
+
+    if (!r.ok) throw new Error('Nepodarilo sa načítať firmu.');
+
+    const rows = await r.json();
+    if (!Array.isArray(rows) || rows.length !== 1) {
+      throw new Error('Firma sa nenašla.');
+    }
+
+    const novyStav = rows[0].stav === 'neaktivna'
+      ? 'aktivna'
+      : 'neaktivna';
+
+    const otazka = novyStav === 'aktivna'
+      ? 'Naozaj chceš aktivovať túto firmu?'
+      : 'Naozaj chceš deaktivovať túto firmu?';
+
+    if (!confirm(otazka)) return;
+
+    const u = await fetch(
+      API_URL + '/firmy?id=eq.' + encodeURIComponent(id),
+      {
+        method: 'PATCH',
+        headers: {
+          apikey: API_KEY,
+          Authorization: 'Bearer ' + accessToken,
+          'Content-Type': 'application/json',
+          Prefer: 'return=representation'
+        },
+        body: JSON.stringify({ stav: novyStav })
+      }
+    );
+
+    if (!u.ok) {
+      throw new Error('Zmena stavu zlyhala (HTTP ' + u.status + ').');
+    }
+
+    const updated = await u.json();
+    if (!Array.isArray(updated) || updated.length !== 1) {
+      throw new Error('Zmena stavu nebola potvrdená databázou.');
+    }
+
+    await loadCompanies();
+    alert(novyStav === 'aktivna'
+      ? 'Firma bola aktivovaná.'
+      : 'Firma bola deaktivovaná.');
+
+  } catch (err) {
+    alert('Nepodarilo sa zmeniť stav firmy: ' + err.message);
+  }
+}
 async function removeCompany(id){
   if(!accessToken){
     alert('Najprv sa prihlás ako administrátor.');
@@ -1900,14 +2337,53 @@ if(!updateRes.ok){
 
     
 
-    $('result').innerHTML=
-      '<div class="success">'+
-      '<b>✅ Dopyt bol úspešne odoslaný</b><br><br>'+
-      'Orientačný odhad: <span class="price">'+price+'</span><br><span class="muted" style="font-size:13px">Orientačný odhad. Konečná cena závisí od stavu strechy, zvoleného materiálu a rozsahu prác.</span><br><br>'+
-      '<span class="muted">Údaje sme uložili'+
-      (photoPaths.length?' vrátane '+photoPaths.length+' fotografií':'')+
-      '. Remeselník môže dopyt ďalej spracovať.</span>'+
-      '</div>';
+   
+    // Spustenie overovacieho emailu po ulozeni dopytu a fotografii.
+    let emailRequested = false;
+
+    try {
+      const verifyRes = await fetch(
+        '/.netlify/functions/request-verification-email',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            dopyt_id: leadId,
+            upload_token: uploadToken
+          })
+        }
+      );
+
+      const verifyData = await verifyRes.json().catch(() => ({}));
+      emailRequested = verifyRes.ok && verifyData.success === true;
+
+      if (!emailRequested) {
+        console.error(
+          'Spustenie overovacieho emailu zlyhalo:',
+          verifyRes.status,
+          verifyData.error || 'Neznama chyba'
+        );
+      }
+    } catch (verifyError) {
+      console.error('Chyba overovacieho emailu:', verifyError);
+    }
+
+    $('result').innerHTML =
+      '<div class="' + (emailRequested ? 'success' : 'error') + '">' +
+      '<b>' + (emailRequested
+        ? '✅ Dopyt bol uložený. Potvrďte svoj e-mail.'
+        : '⚠️ Dopyt bol uložený, ale potvrdenie e-mailu sa nepodarilo odoslať.'
+      ) + '</b><br><br>' +
+      'Orientačný odhad: <span class="price">' + price + '</span><br><br>' +
+      '<span class="muted">' +
+      (emailRequested
+        ? 'Na váš e-mail sme odoslali potvrdzovací odkaz. Skontrolujte aj Spam. Firmám sprístupníme dopyt až po potvrdení e-mailu.'
+        : 'Dopyt zatiaľ čaká na potvrdenie. Nevytvárajte rovnaký dopyt znova. Ak e-mail nepríde, kontaktujte podporu DopytAI.'
+      ) +
+      '</span></div>';
+
 
     $('form').reset();
     selectedPhotoFiles=[];

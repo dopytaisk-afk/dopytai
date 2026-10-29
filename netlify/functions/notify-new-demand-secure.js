@@ -43,6 +43,9 @@ exports.handler = async (event) => {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const resendKey = process.env.RESEND_API_KEY;
+ const siteUrl = process.env.BRANCH === "overenie-emailu"
+  ? "https://overenie-emailu--sparkly-choux-e2b050.netlify.app/"
+  : "https://dopytai24.sk/";
 
   if (!url || !key || !resendKey) {
     return reply(500, { error: "Missing server configuration" });
@@ -83,13 +86,17 @@ exports.handler = async (event) => {
   try {
     const payload = JSON.parse(event.body || "{}");
 
-    if (
-      payload.type !== "INSERT" ||
-      payload.table !== "dopyty" ||
-      payload.schema !== "public"
-    ) {
-      return reply(400, { error: "Invalid webhook event" });
-    }
+   if (
+  payload.type !== "UPDATE" ||
+  payload.table !== "dopyty" ||
+  payload.schema !== "public" ||
+  payload.record?.stav !== "novy" ||
+  payload.old_record?.stav !== "caka_na_overenie"
+) {
+  return reply(200, {
+    skipped: "Nie je to potvrdenie emailu"
+  });
+}
 
     const leadId = Number(payload.record?.id);
 
@@ -98,22 +105,22 @@ exports.handler = async (event) => {
     }
 
     const leads = await db(
-`dopyty?select=id,created_at,region,lokalita,typ_prace,odhad_ceny,stav,popis&id=eq.${leadId}`
+`dopyty?select=id,created_at,region,lokalita,typ_prace,odhad_ceny,cena_dopytu,stav,popis&id=eq.${leadId}`
     );
 
     if (!Array.isArray(leads) || leads.length !== 1) {
       return reply(404, { error: "Lead not found" });
     }
 
-    const lead = leads[0];
-    const created = Date.parse(lead.created_at);
+   const lead = leads[0];
 
-    if (
-      !Number.isFinite(created) ||
-      Math.abs(Date.now() - created) > 15 * 60 * 1000
-    ) {
-      return reply(200, { skipped: "Old or invalid lead" });
-    }
+if (lead.stav !== "novy") {
+  return reply(200, {
+    skipped: "Dopyt este nie je overeny"
+  });
+}
+
+
 
     if (!lead.region) {
       return reply(200, { skipped: "Missing region" });
@@ -143,23 +150,40 @@ exports.handler = async (event) => {
     const safeWork = escapeHtml(lead.typ_prace || "Nový dopyt");
     const safeLocation = escapeHtml(lead.lokalita || "-");
  const safeArea = escapeHtml((String(lead.popis || "").match(/Plocha:\s*(\d+(?:[.,]\d+)?)\s*m²/i) || [])[1] || "-");
-    const safeBudget = escapeHtml(
-      lead.odhad_ceny == null ? "-" : `${lead.odhad_ceny} €`
-    );
+   const priceMatch = String(lead.popis || "")
+  .match(/(?:^|\n)Odhad:\s*([^\r\n]+)/i);
 
+const priceRange = priceMatch?.[1]?.trim();
+
+const safeBudget = escapeHtml(
+  priceRange ||
+  (lead.odhad_ceny == null
+    ? "-"
+    : `${Number(lead.odhad_ceny).toLocaleString("sk-SK")} €`)
+);
+const safeUnlockPrice = escapeHtml(
+  lead.cena_dopytu == null
+    ? "cenu uvedenú na stránke"
+    : `${Number(lead.cena_dopytu).toLocaleString("sk-SK")} €`
+);
     let sent = 0;
     let failed = 0;
 
-    for (const company of matching) {
-      const claimed = await db("rpc/rezervuj_upozornenie", {
-        method: "POST",
-        body: JSON.stringify({
-          p_dopyt_id: leadId,
-          p_firma_id: company.id
-        })
-      });
+   for (const company of matching) {
+  const attemptId = await db("rpc/rezervuj_upozornenie_v2", {
+    method: "POST",
+    body: JSON.stringify({
+      p_dopyt_id: leadId,
+      p_firma_id: company.id
+    })
+  });
 
-      if (claimed !== true) continue;
+  if (
+    typeof attemptId !== "string" ||
+    !/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(attemptId)
+  ) {
+    continue;
+  }
 
       try {
         const response = await fetch(
@@ -188,10 +212,10 @@ exports.handler = async (event) => {
                       <p><strong>💰 Orientačný odhad:</strong> ${safeBudget}</p>
                       <div style="margin-top:24px;padding:18px;background:#eef6ff;border-radius:12px;line-height:1.6;">
                         <strong>🔒 Kontakt zákazníka je skrytý.</strong><br>
-                        Prihláste sa do DopytAI a odomknite kontakt zákazníka za 25 €.
+                        Prihláste sa do DopytAI a odomknite kontakt zákazníka za ${safeUnlockPrice}.
                       </div>
                       <div style="margin-top:24px;text-align:center;">
-                        <a href="https://dopytai24.sk/"
+                       <a href="${escapeHtml(siteUrl)}"
                            style="display:inline-block;background:#1687f8;color:white;text-decoration:none;padding:14px 24px;border-radius:10px;font-weight:700;">
                           Zobraziť nový dopyt
                         </a>
@@ -207,32 +231,57 @@ exports.handler = async (event) => {
           }
         );
 
-        if (!response.ok) {
-          throw new Error(`Resend HTTP ${response.status}`);
-        }
+      if (!response.ok) {
+  failed++;
 
-        sent++;
-      } catch (error) {
-        failed++;
+  const definitelyRejected =
+    response.status === 400 ||
+    response.status === 401 ||
+    response.status === 403 ||
+    response.status === 422;
 
-        console.error(
-          "Email send failed for company ID:",
-          company.id,
-          error.message
-        );
+  if (definitelyRejected) {
+    await db("rpc/dokonci_upozornenie_v2", {
+      method: "POST",
+      body: JSON.stringify({
+        p_dopyt_id: leadId,
+        p_firma_id: company.id,
+        p_pokus_id: attemptId,
+        p_uspesne: false,
+        p_chyba: `Resend HTTP ${response.status}`
+      })
+    });
+  }
 
-        try {
-          await db(
-            `upozornenia_dopytov?dopyt_id=eq.${leadId}&firma_id=eq.${company.id}`,
-            { method: "DELETE" }
-          );
-        } catch (releaseError) {
-          console.error(
-            "Reservation release failed:",
-            releaseError.message
-          );
-        }
-      }
+  console.error("Resend rejected notification:", company.id, response.status);
+  continue;
+}
+
+const completed = await db("rpc/dokonci_upozornenie_v2", {
+  method: "POST",
+  body: JSON.stringify({
+    p_dopyt_id: leadId,
+    p_firma_id: company.id,
+    p_pokus_id: attemptId,
+    p_uspesne: true,
+    p_chyba: null
+  })
+});
+
+if (completed !== true) {
+  throw new Error("Nepodarilo sa potvrdiť odoslanie v databáze");
+}
+
+sent++;
+} catch (error) {
+  failed++;
+
+  console.error(
+    "Email notification failed or result uncertain for company ID:",
+    company.id,
+    error.message
+  );
+}
     }
 
     if (failed) {
