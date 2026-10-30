@@ -307,7 +307,11 @@
   </div>
   <div id="adminPanel" style="display:none">
    
-    <div class="tabs"><button class="adminbtn tab active" id="tabLeads" type="button">Dopyty</button><button class="adminbtn tab" id="tabCompanies" type="button">Firmy</button></div>
+    <div class="tabs">
+  <button class="adminbtn tab active" id="tabLeads" type="button">Dopyty</button>
+  <button class="adminbtn tab" id="tabCompanies" type="button">Firmy</button>
+  <button class="adminbtn tab" id="tabInvoices" type="button">Faktúry</button>
+</div>
     <div id="leadsView"><button class="adminbtn" id="refreshBtn" type="button">Obnoviť dopyty</button>
      <div id="leadFilters" style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0;">
   <button class="adminbtn leadFilter active" type="button" data-filter="all">Všetky</button>
@@ -356,6 +360,20 @@
 <button class="btn" id="addCompanyBtn" type="button">Pridať firmu</button><div id="companyMsg"></div></div>
       <div id="companies" class="adminlist"></div>
     </div>
+  <div id="invoicesView" style="display:none">
+  <div class="card">
+    <h3 style="margin-top:0">Vystavené faktúry</h3>
+    <p class="note">Prehľad faktúr DopytAI a ich PDF dokumentov.</p>
+
+    <button class="adminbtn" id="refreshInvoicesBtn" type="button">
+      Obnoviť faktúry
+    </button>
+
+    <div id="invoicesList" class="adminlist" style="margin-top:16px">
+      Zatiaľ nie sú načítané žiadne faktúry.
+    </div>
+  </div>
+</div>
   </div>
 </section>
   <section id="companyPortal" style="display:none">
@@ -1675,9 +1693,139 @@ $('logoutBtn').addEventListener('click',()=>{
   window.scrollTo({top:0,behavior:'smooth'});
 });
 $('refreshBtn').addEventListener('click',loadLeads);
-$('tabLeads').addEventListener('click',()=>{ $('leadsView').style.display='block'; $('companiesView').style.display='none'; $('tabLeads').classList.add('active'); $('tabCompanies').classList.remove('active'); loadLeads(); });
-$('tabCompanies').addEventListener('click',()=>{ $('leadsView').style.display='none'; $('companiesView').style.display='block'; $('tabCompanies').classList.add('active'); $('tabLeads').classList.remove('active'); loadCompanies(); });
+$('tabLeads').addEventListener('click', () => {
+  $('leadsView').style.display = 'block';
+  $('companiesView').style.display = 'none';
+  $('invoicesView').style.display = 'none';
+
+  $('tabLeads').classList.add('active');
+  $('tabCompanies').classList.remove('active');
+  $('tabInvoices').classList.remove('active');
+
+  loadLeads();
+});
+
+$('tabCompanies').addEventListener('click', () => {
+  $('leadsView').style.display = 'none';
+  $('companiesView').style.display = 'block';
+  $('invoicesView').style.display = 'none';
+
+  $('tabCompanies').classList.add('active');
+  $('tabLeads').classList.remove('active');
+  $('tabInvoices').classList.remove('active');
+
+  loadCompanies();
+});
+
+$('tabInvoices').addEventListener('click', () => {
+  $('leadsView').style.display = 'none';
+  $('companiesView').style.display = 'none';
+  $('invoicesView').style.display = 'block';
+
+  $('tabInvoices').classList.add('active');
+  $('tabLeads').classList.remove('active');
+    $('tabCompanies').classList.remove('active');
+
+  loadInvoices();
+});
 $('addCompanyBtn').addEventListener('click',addCompany);
+  async function loadInvoices() {
+  const box = $('invoicesList');
+  box.textContent = 'Načítavam faktúry...';
+
+  try {
+    const response = await fetch('/.netlify/functions/admin-invoices', {
+      headers: {
+        Authorization: 'Bearer ' + accessToken
+      },
+      cache: 'no-store'
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Faktúry sa nepodarilo načítať.');
+    }
+
+    const invoices = data.invoices || [];
+
+    if (!invoices.length) {
+      box.textContent = 'Zatiaľ nemáme žiadne vystavené faktúry.';
+      return;
+    }
+
+    box.innerHTML = invoices.map(invoice => `
+      <div class="lead">
+        <h3>${esc(invoice.cislo_faktury || 'Faktúra')}</h3>
+        <p><strong>Firma:</strong> ${esc(invoice.odberatel_nazov || '—')}</p>
+        <p><strong>Dátum:</strong> ${esc(invoice.datum_vystavenia || '—')}</p>
+        <p><strong>Suma:</strong> ${esc(invoice.suma)} ${esc(invoice.mena || 'EUR')}</p>
+        <p><strong>Stav:</strong> ${esc(invoice.stav || '—')}</p>
+        ${invoice.has_pdf ? `
+          <button class="adminbtn invoiceDownloadBtn"
+                  type="button"
+                  data-id="${Number(invoice.id)}">
+            Stiahnuť PDF
+          </button>
+        ` : '<p class="note">PDF zatiaľ nie je dostupné.</p>'}
+      </div>
+    `).join('');
+
+  } catch (error) {
+    box.textContent = '❌ ' + error.message;
+  }
+}
+
+async function downloadInvoice(id, button) {
+  button.disabled = true;
+  const originalText = button.textContent;
+  button.textContent = 'Sťahujem PDF...';
+
+  try {
+    const response = await fetch(
+      '/.netlify/functions/admin-invoices?id=' + encodeURIComponent(id),
+      {
+        headers: {
+          Authorization: 'Bearer ' + accessToken
+        },
+        cache: 'no-store'
+      }
+    );
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || 'PDF sa nepodarilo stiahnuť.');
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = 'DopytAI-faktura-' + id + '.pdf';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  } catch (error) {
+    alert('❌ ' + error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
+}
+
+$('refreshInvoicesBtn').addEventListener('click', loadInvoices);
+
+$('invoicesList').addEventListener('click', event => {
+  const button = event.target.closest('.invoiceDownloadBtn');
+
+  if (button) {
+    downloadInvoice(button.dataset.id, button);
+  }
+});
 
   let activeLeadFilter='all';
 
