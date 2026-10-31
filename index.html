@@ -676,7 +676,7 @@ function showLogin(){ $('loginBox').style.display='block'; $('adminPanel').style
     throw new Error('Firemný účet sa nenašiel.');
   }
 
-  if (firmy[0].stav !== 'aktivna') {
+ if (!['aktivna', 'aktívna'].includes(firmy[0].stav)) {
     throw new Error('Váš firemný účet je deaktivovaný. Kontaktujte podporu DopytAI.');
   }
 
