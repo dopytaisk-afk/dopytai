@@ -25,7 +25,8 @@ exports.handler = async () => {
 
     url.searchParams.set("select", "id,created_at,stav");
     url.searchParams.set("created_at", "lt." + cutoff.toISOString());
-    url.searchParams.set("order", "created_at.asc");
+    url.searchParams.set("anonymizovane_at", "is.null");
+ url.searchParams.set("order", "created_at.asc");
     url.searchParams.set("limit", "100");
 
     const response = await fetch(url.toString(), {
