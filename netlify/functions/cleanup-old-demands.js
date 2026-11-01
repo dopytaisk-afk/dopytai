@@ -23,7 +23,8 @@ exports.handler = async () => {
       supabaseUrl + "/rest/v1/dopyty"
     );
 
-    url.searchParams.set("select", "id,created_at,stav");
+   
+url.searchParams.set("select", "id,created_at,stav,fotky");
     url.searchParams.set("created_at", "lt." + cutoff.toISOString());
     url.searchParams.set("anonymizovane_at", "is.null");
  url.searchParams.set("order", "created_at.asc");
@@ -45,16 +46,23 @@ exports.handler = async () => {
     console.log("GDPR kontrola DopytAI:", {
       hranica: cutoff.toISOString(),
       pocet: demands.length,
+     
       dopyty: demands.map(d => d.id)
     });
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        rezim: "LEN_KONTROLA",
-        hranica: cutoff.toISOString(),
-        pocet: demands.length,
-        dopyty: demands.map(d => d.id)
+        
+rezim: "LEN_KONTROLA",
+hranica: cutoff.toISOString(),
+pocet: demands.length,
+pocet_fotografii: demands.reduce(
+  (sum, d) => sum + (Array.isArray(d.fotky) ? d.fotky.length : 0),
+  0
+),
+dopyty: demands.map(d => d.id)
+
       })
     };
 
