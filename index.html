@@ -2047,8 +2047,13 @@ async function loadCompanies(){
   +'<br><b>Región:</b> '+esc(x.region||'—')
   +'<br><b>Lokalita:</b> '+esc(x.lokalita||'—')
   +'<br><b>Typ práce:</b> '+esc(x.typ_prace||'—')
+ 
   +'<br><b>Stav:</b> '+esc(x.stav||'—')
+  +'<br><b>IČO:</b> '+esc(x.ico||'—')
+  +'<br><b>DIČ:</b> '+esc(x.dic||'—')
+  +'<br><b>Fakturačná adresa:</b> '+esc([x.fakturacna_ulica,x.fakturacne_psc,x.fakturacne_mesto].filter(Boolean).join(', ')||'—')
   +'<br>Pridaná: '+esc(d)
+
   +'</div>'
   +'<div class="stateRow">'
   +'<button class="adminbtn" type="button" onclick="editCompany(\''+esc(x.id)+'\')">Upraviť firmu</button>'
