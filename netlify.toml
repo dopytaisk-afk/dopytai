@@ -19,3 +19,6 @@
 
 [functions."check-invoice-alerts"]
   schedule = "*/30 * * * *"
+
+[functions."cleanup-old-demands"]
+  schedule = "0 3 * * *"
