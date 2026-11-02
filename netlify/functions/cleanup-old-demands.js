@@ -3,8 +3,11 @@ exports.handler = async () => {
   // DopytAI - GDPR kontrola
   // Tento režim nič nemaže ani neupravuje.
 
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+ 
+const supabaseUrl = process.env.SUPABASE_URL;
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const resendKey = process.env.RESEND_API_KEY;
+
 
   if (!supabaseUrl || !serviceKey) {
     return {
@@ -15,8 +18,12 @@ exports.handler = async () => {
     };
   }
 
-  const cutoff = new Date();
-  cutoff.setUTCFullYear(cutoff.getUTCFullYear() - 1);
+  
+const cutoff = new Date();
+cutoff.setUTCFullYear(cutoff.getUTCFullYear() - 1);
+cutoff.setUTCDate(cutoff.getUTCDate() + 30);
+const dnesJePondelok = new Date().getUTCDay() === 1;
+
 
   try {
     const url = new URL(
@@ -42,6 +49,43 @@ url.searchParams.set("select", "id,created_at,stav,fotky");
     }
 
     const demands = await response.json();
+
+    // GDPR upozornenie - iba pondelok, bez mazania
+    if (dnesJePondelok && demands.length > 0) {
+      if (!resendKey) {
+        throw new Error("Chýba RESEND_API_KEY");
+      }
+
+      const zoznam = demands.map(d =>
+        `Dopyt ID ${d.id} | Vytvorený: ${d.created_at}`
+      ).join("\n");
+
+      const emailResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          from: "DopytAI <info@dopytai24.sk>",
+          to: ["info@dopytai24.sk"],
+          subject: "DopytAI - GDPR upozornenie na kontrolu údajov",
+          text:
+            "Nasledujúce dopyty sa blížia ku koncu 12-mesačnej lehoty " +
+            "alebo ju už prekročili:\n\n" +
+            zoznam +
+            "\n\nSkontrolujte ich osobné údaje a fotografie. " +
+            "Po ručnom vyčistení vyplňte anonymizovane_at. " +
+            "Tento e-mail nič automaticky nemaže."
+        })
+      });
+
+      if (!emailResponse.ok) {
+        throw new Error(`Odoslanie GDPR e-mailu zlyhalo: ${emailResponse.status}`);
+      }
+
+      console.log("GDPR upozornenie úspešne odoslané.");
+    }
 
     console.log("GDPR kontrola DopytAI:", {
       hranica: cutoff.toISOString(),
