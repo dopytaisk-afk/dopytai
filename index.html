@@ -277,7 +277,12 @@
 
 <form id="form" class="card">
 <div class="field"><label>Čo potrebujete?</label><select id="type"><option>Nová strecha</option><option>Rekonštrukcia strechy</option><option>Oprava / zatekanie</option></select></div>
-<div class="field"><label>Približná plocha strechy (m²)</label><input id="area" type="number" min="1" placeholder="napr. 145" required></div>
+
+<div class="field">
+  <label id="areaLabel">Približná plocha strechy (m²)</label>
+  <input id="area" type="number" min="1" placeholder="napr. 145" required>
+</div>
+
 
 <div class="field"><label>Krytina</label><select id="cover"><option>Betónová škridla</option><option>Pálená škridla</option><option>Plechová krytina</option><option>Plastový šindeľ</option><option>Neviem – chcem odporúčanie</option></select></div>
 
@@ -554,45 +559,67 @@ $('photos').addEventListener('change',()=>{
   $('photoCount').textContent='Vybrané fotografie: '+selectedPhotoFiles.length+'/5';
 });
 
-function calcEstimate(area,type,cover,truss){
+
+function calcEstimate(area, type, cover, truss) {
   area = Number(area) || 0;
 
-  let pricePerM2;
+  // Orientacne sadzby za standardnu strechu
+  // Material + bezne vrstvy + montaz + detaily
+  const ceny = {
+    'Betónová škridla': 78,
+    'Pálená škridla': 90,
+    'Plechová krytina': 72,
+    'Plastový šindeľ': 85,
+    'Neviem – chcem odporúčanie': 82
+  };
 
-  // Oprava strechy – menší rozsah prác
-  if(type.includes('Oprava')){
-    let base = 650;
-    const lo = Math.round(base * 0.75 / 100) * 100;
-    const hi = Math.round(base * 1.35 / 100) * 100;
-    return {lo, hi, mid: Math.round((lo + hi) / 2)};
+  const opravy = {
+    'Betónová škridla': 35,
+    'Pálená škridla': 42,
+    'Plechová krytina': 37,
+    'Plastový šindeľ': 45,
+    'Neviem – chcem odporúčanie': 40
+  };
+
+  const zaokruhli = suma =>
+    Math.round(suma / 50) * 50;
+
+  // Oprava - area znamena opravovanu plochu
+  if (type.includes('Oprava')) {
+    const sadzba = opravy[cover] ?? 40;
+    const zaklad = 180 + area * sadzba;
+
+    const lo = Math.max(150, zaokruhli(zaklad * 0.80));
+    const hi = zaokruhli(zaklad * 1.30);
+
+    return {
+      lo,
+      hi,
+      mid: Math.round((lo + hi) / 2)
+    };
   }
 
-  // Nová strecha / rekonštrukcia – základ bez nového krovu
-  if(type.includes('Rekonštrukcia')){
-    pricePerM2 = 75;
-  }else{
-    pricePerM2 = 85;
+  let pricePerM2 = ceny[cover] ?? 82;
+
+  // Rekonstrukcia vratane rezervy na demontaz
+  if (type.includes('Rekonštrukcia')) {
+    pricePerM2 += 12;
   }
 
-  // Typ krytiny
-  if(cover.includes('Pálená')) pricePerM2 *= 1.10;
-  if(cover.includes('Plechová')) pricePerM2 *= 0.90;
-
-  // Ak treba kompletne nový krov
-  if(truss === 'Nie'){
+  // Novy krov
+  if (truss === 'Nie') {
     pricePerM2 += 55;
   }
 
-  // Čiastočne hotový / potrebná časť krovu
-  if(truss === 'Čiastočne'){
+  // Ciastocne potrebne prace na krove
+  if (truss === 'Čiastočne') {
     pricePerM2 += 25;
   }
 
-  const base = area * pricePerM2;
+  const zaklad = area * pricePerM2;
 
-  // Orientačné rozpätie približne -15 % až +20 %
-  const lo = Math.round(base * 0.85 / 100) * 100;
-  const hi = Math.round(base * 1.20 / 100) * 100;
+  const lo = zaokruhli(zaklad * 0.85);
+  const hi = zaokruhli(zaklad * 1.20);
 
   return {
     lo,
@@ -600,6 +627,20 @@ function calcEstimate(area,type,cover,truss){
     mid: Math.round((lo + hi) / 2)
   };
 }
+
+function aktualizujPopisPlochy() {
+  const oprava = $('type').value.includes('Oprava');
+
+  $('areaLabel').textContent = oprava
+    ? 'Približná plocha opravovanej časti (m²)'
+    : 'Približná plocha strechy (m²)';
+
+  $('area').placeholder = oprava ? 'napr. 5' : 'napr. 145';
+}
+
+$('type').addEventListener('change', aktualizujPopisPlochy);
+aktualizujPopisPlochy();
+
 
 
 const AUTH_URL=API_URL.replace('/rest/v1','/auth/v1');
