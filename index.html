@@ -1204,7 +1204,12 @@ const ownUnlockedIds = new Set(
     <div class="card" style="margin-top:12px">
       <b>${esc(lead.typ_prace||'Dopyt')}</b><br>
       📍 ${esc(lead.lokalita||'')}<br>
-     💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
+     
+💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
+<small style="color:#66778d;display:block;margin-top:5px">
+Nezáväzný odhad. Konečnú cenu určí realizačná firma podľa skutočného rozsahu prác.
+</small>
+
 <div style="margin-top:10px;line-height:1.7">
 <b>📋 Detaily zákazky</b><br>
 📐 Plocha: ${esc((lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
