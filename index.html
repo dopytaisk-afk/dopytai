@@ -2413,7 +2413,12 @@ $('form').addEventListener('submit',async e=>{
   const cover=$('cover').value;
   const truss=$('truss').value;
 
-  const est=calcEstimate(area,type,cover,truss);
+   const est = $('remeslo').value === 'sadrokarton'
+    ? calcSdkEstimate(
+        Number($('sdkArea').value),
+        $('sdkType').value
+      )
+    : calcEstimate(area, type, cover, truss);
   const price=est.lo.toLocaleString('sk-SK')+' – '+est.hi.toLocaleString('sk-SK')+' €';
 
  const selectedPhotos=[...selectedPhotoFiles];
