@@ -285,7 +285,21 @@
 </div>
 <form id="form" class="card">
 <div class="field"><label>Čo potrebujete?</label><select id="type"><option>Nová strecha</option><option>Rekonštrukcia strechy</option><option>Oprava / zatekanie</option></select></div>
-
+<div id="sadrokartonFields" style="display:none">
+  <div class="field">
+    <label for="sdkType">Aké sadrokartónové práce potrebujete?</label>
+    <select id="sdkType">
+      <option value="Priečky">Sadrokartónové priečky</option>
+      <option value="Podhľady">Sadrokartónové podhľady</option>
+      <option value="Predsadené steny">Predsadené steny</option>
+      <option value="Iné">Iné sadrokartónové práce</option>
+    </select>
+  </div>
+  <div class="field">
+    <label for="sdkArea">Približná plocha sadrokartónu (m²)</label>
+    <input id="sdkArea" type="number" min="1" placeholder="napr. 80">
+  </div>
+</div>
 <div class="field">
   <label id="areaLabel">Približná plocha strechy (m²)</label>
   <input id="area" type="number" min="1" placeholder="napr. 145" required>
