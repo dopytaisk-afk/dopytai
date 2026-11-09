@@ -2429,16 +2429,24 @@ $('form').addEventListener('submit',async e=>{
   return;
 }
 
-  const details=[
-    $('desc').value.trim()||'Bez doplňujúceho popisu',
-    'Plocha: '+area+' m²',
-    'Krytina: '+cover,
-    'Krov: '+truss,
-    'Kraj: '+$('leadRegion').value,
-    'Termín: '+$('term').value,
-    'Odhad: '+price,
-   
-    'Fotografie vybrané: '+selectedPhotos.length
+    const jeSdk = $('remeslo').value === 'sadrokarton';
+
+  const details = [
+    $('desc').value.trim() || 'Bez doplňujúceho popisu',
+
+    ...(jeSdk ? [
+      'Plocha: ' + Number($('sdkArea').value) + ' m²',
+      'Typ sadrokartónu: ' + $('sdkType').value
+    ] : [
+      'Plocha: ' + area + ' m²',
+      'Krytina: ' + cover,
+      'Krov: ' + truss
+    ]),
+
+    'Kraj: ' + $('leadRegion').value,
+    'Termín: ' + $('term').value,
+    'Odhad: ' + price,
+    'Fotografie vybrané: ' + selectedPhotos.length
   ].filter(Boolean).join('\n');
 
   const payload={
