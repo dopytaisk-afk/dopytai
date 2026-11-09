@@ -2445,7 +2445,7 @@ $('form').addEventListener('submit',async e=>{
     meno:$('name').value.trim(),
     telefon:$('phone').value.trim(),
     email:$('email').value.trim(),
-    typ_prace:type,
+        typ_prace: $('remeslo').value === 'sadrokarton' ? 'Sadrokartón' : type,
     lokalita:$('city').value.trim(),
     region:$('leadRegion').value,
     popis:details,
