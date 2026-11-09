@@ -662,7 +662,23 @@ function aktualizujPopisPlochy() {
 
 $('type').addEventListener('change', aktualizujPopisPlochy);
 aktualizujPopisPlochy();
+function prepniRemeslo() {
+  const jeSadrokarton = $('remeslo').value === 'sadrokarton';
 
+  $('sadrokartonFields').style.display =
+    jeSadrokarton ? 'block' : 'none';
+
+  ['type', 'area', 'cover', 'truss'].forEach(id => {
+    $(id).closest('.field').style.display =
+      jeSadrokarton ? 'none' : 'block';
+  });
+
+  $('area').required = !jeSadrokarton;
+  $('sdkArea').required = jeSadrokarton;
+}
+
+$('remeslo').addEventListener('change', prepniRemeslo);
+prepniRemeslo();
 
 
 const AUTH_URL=API_URL.replace('/rest/v1','/auth/v1');
