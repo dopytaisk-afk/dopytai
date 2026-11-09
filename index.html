@@ -525,6 +525,7 @@
   <select id="registerCompanyWork" required>
     <option value="">Vyberte remeslo</option>
     <option value="Strechy">Strechy – pokrývačské a klampiarske práce</option>
+    <option value="Sadrokartón" disabled>Sadrokartón – pripravujeme</option>
   </select>
 </div>
     <div class="field">
@@ -692,6 +693,14 @@ $('type').addEventListener('change', aktualizujPopisPlochy);
 aktualizujPopisPlochy();
 function prepniRemeslo() {
   const jeSadrokarton = $('remeslo').value === 'sadrokarton';
+    document.querySelector('.form-heading').textContent =
+    jeSadrokarton
+      ? 'Povedzte nám viac o vašich sadrokartónových prácach'
+      : 'Povedzte nám viac o vašej streche';
+
+  $('desc').placeholder = jeSadrokarton
+    ? 'Napr. podhľady v rodinnom dome, dvojité opláštenie, izolácia...'
+    : 'Napr. novostavba bungalovu, väzníkový krov...';
 
   $('sadrokartonFields').style.display =
     jeSadrokarton ? 'block' : 'none';
@@ -1271,9 +1280,17 @@ Nezáväzný odhad. Konečnú cenu určí realizačná firma podľa skutočného
 
 <div style="margin-top:10px;line-height:1.7">
 <b>📋 Detaily zákazky</b><br>
-📐 Plocha: ${esc((lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
-🏠 Krytina: ${esc((lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
-🔨 Krov: ${esc((lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+${String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
+  ? `
+    📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedená')}<br>
+    🔨 Typ práce: ${esc((lead.popis || '').match(/Typ sadrokartónu:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedený')}<br>
+  `
+  : `
+    📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+    🏠 Krytina: ${esc((lead.popis || '').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+    🔨 Krov: ${esc((lead.popis || '').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+  `
+}
 📍 Kraj: ${esc((lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
 📅 Termín: ${esc(((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený')}<br>
 📝 Popis: ${esc((lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
@@ -2673,6 +2690,7 @@ if(!updateRes.ok){
 
 
     $('form').reset();
+        prepniRemeslo();
     selectedPhotoFiles=[];
 $('photoCount').textContent='Vybrané fotografie: 0/5';
     $('result').scrollIntoView({behavior:'smooth',block:'center'});
