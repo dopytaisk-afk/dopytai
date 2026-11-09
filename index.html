@@ -649,7 +649,35 @@ function calcEstimate(area, type, cover, truss) {
     mid: Math.round((lo + hi) / 2)
   };
 }
+// Orientacny vypocet ceny sadrokartonovych prac.
+function calcSdkEstimate(area, type) {
+  area = Number(area);
 
+  if (!Number.isFinite(area) || area <= 0) {
+    throw new Error('Neplatna plocha sadrokartonu.');
+  }
+
+  const sadzby = {
+    'Priečky': [45, 85],
+    'Podhľady': [35, 70],
+    'Predsadené steny': [35, 65]
+  };
+
+  const sadzba = sadzby[type];
+
+  if (!sadzba) {
+    return null;
+  }
+
+  const lo = Math.round(area * sadzba[0] / 10) * 10;
+  const hi = Math.round(area * sadzba[1] / 10) * 10;
+
+  return {
+    lo,
+    hi,
+    mid: Math.round((lo + hi) / 2)
+  };
+}
 function aktualizujPopisPlochy() {
   const oprava = $('type').value.includes('Oprava');
 
