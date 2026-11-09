@@ -22,7 +22,14 @@ exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return reply(405, { error: "Method not allowed" });
   }
-
+  // V testovacom prostredi neposielame upozornenia firmam.
+  if (process.env.CONTEXT !== "production") {
+    return reply(200, {
+      sent: 0,
+      failed: 0,
+      disabled: true
+    });
+  }
   const secret = process.env.DOPYTAI_WEBHOOK_SECRET;
   const supplied =
     event.headers?.["x-dopytai-secret"] ||
