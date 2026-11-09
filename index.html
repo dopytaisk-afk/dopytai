@@ -2419,6 +2419,13 @@ $('form').addEventListener('submit',async e=>{
         $('sdkType').value
       )
     : calcEstimate(area, type, cover, truss);
+    if (!est) {
+    $('result').innerHTML =
+      '<div class="error">Pre tento typ prác zatiaľ nevieme vypočítať orientačnú cenu. Vyberte konkrétny typ sadrokartónových prác.</div>';
+    btn.disabled = false;
+    btn.textContent = 'Vytvoriť dopyt a vypočítať odhad';
+    return;
+  }
   const price=est.lo.toLocaleString('sk-SK')+' – '+est.hi.toLocaleString('sk-SK')+' €';
 
  const selectedPhotos=[...selectedPhotoFiles];
