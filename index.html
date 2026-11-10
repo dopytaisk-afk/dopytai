@@ -313,6 +313,12 @@
 <div class="field"><label>Fotografie / projekt</label><div class="photo"><input id="photos" type="file" accept="image/*" multiple><p class="note">Môžete pridať maximálne 5 fotografií, ktoré pomôžu firme lepšie posúdiť váš dopyt.</p><div id="photoCount" class="note" style="margin-top:8px">Vybrané fotografie: 0/5</div></div></div>
 <div class="field"><label>Obec / mesto</label><input id="city" placeholder="napr. Žilina" required></div>
 <div class="field"><label>Kraj</label><select id="leadRegion" required><option value="">— Vyberte kraj —</option><option>Bratislavský kraj</option><option>Trnavský kraj</option><option>Trenčiansky kraj</option><option>Nitriansky kraj</option><option>Žilinský kraj</option><option>Banskobystrický kraj</option><option>Prešovský kraj</option><option>Košický kraj</option></select></div>
+  <div class="field">
+  <label for="leadOkres">Okres realizácie</label>
+  <select id="leadOkres" required disabled>
+    <option value="">— Najprv vyberte kraj —</option>
+  </select>
+</div>
 <div class="field"><label>Požadovaný termín</label><select id="term"><option>Čo najskôr</option><option>Do 1–3 mesiacov</option><option>Do 3–6 mesiacov</option><option>Len zisťujem cenu</option></select></div>
 <div class="field"><label>Meno</label><input id="name" placeholder="Vaše meno" required></div>
 <div class="field"><label>Telefón</label><input id="phone" type="tel" placeholder="+421..." required></div>
@@ -520,6 +526,12 @@
         <option>Košický kraj</option>
       </select>
     </div>
+    <div class="field">
+  <label for="registerCompanyOkres">Okres pôsobenia firmy</label>
+  <select id="registerCompanyOkres" required disabled>
+    <option value="">— Najprv vyberte kraj —</option>
+  </select>
+</div>
 <div class="field">
   <label for="registerCompanyWork">Aké práce vykonávate?</label>
   <select id="registerCompanyWork" required>
@@ -562,6 +574,83 @@ const API_KEY = ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.ho
   : 'sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-';
 
 const $=id=>document.getElementById(id);
+  
+const okresyPodlaKraja = {
+  'Bratislavský kraj': [
+    'Bratislava I', 'Bratislava II', 'Bratislava III',
+    'Bratislava IV', 'Bratislava V', 'Malacky',
+    'Pezinok', 'Senec'
+  ],
+  'Trnavský kraj': [
+    'Dunajská Streda', 'Galanta', 'Hlohovec',
+    'Piešťany', 'Senica', 'Skalica', 'Trnava'
+  ],
+  'Trenčiansky kraj': [
+    'Bánovce nad Bebravou', 'Ilava', 'Myjava',
+    'Nové Mesto nad Váhom', 'Partizánske',
+    'Považská Bystrica', 'Prievidza', 'Púchov',
+    'Trenčín'
+  ],
+  'Nitriansky kraj': [
+    'Komárno', 'Levice', 'Nitra', 'Nové Zámky',
+    'Šaľa', 'Topoľčany', 'Zlaté Moravce'
+  ],
+  'Žilinský kraj': [
+    'Bytča', 'Čadca', 'Dolný Kubín',
+    'Kysucké Nové Mesto', 'Liptovský Mikuláš',
+    'Martin', 'Námestovo', 'Ružomberok',
+    'Turčianske Teplice', 'Tvrdošín', 'Žilina'
+  ],
+  'Banskobystrický kraj': [
+    'Banská Bystrica', 'Banská Štiavnica',
+    'Brezno', 'Detva', 'Krupina', 'Lučenec',
+    'Poltár', 'Revúca', 'Rimavská Sobota',
+    'Veľký Krtíš', 'Žarnovica',
+    'Žiar nad Hronom', 'Zvolen'
+  ],
+  'Prešovský kraj': [
+    'Bardejov', 'Humenné', 'Kežmarok',
+    'Levoča', 'Medzilaborce', 'Poprad',
+    'Prešov', 'Sabinov', 'Snina',
+    'Stará Ľubovňa', 'Stropkov',
+    'Svidník', 'Vranov nad Topľou'
+  ],
+  'Košický kraj': [
+    'Gelnica', 'Košice I', 'Košice II',
+    'Košice III', 'Košice IV', 'Košice-okolie',
+    'Michalovce', 'Rožňava', 'Sobrance',
+    'Spišská Nová Ves', 'Trebišov'
+  ]
+};
+
+function aktualizujOkresy(regionId, okresId) {
+  const kraj = $(regionId).value;
+  const select = $(okresId);
+  const okresy = okresyPodlaKraja[kraj] || [];
+
+  select.replaceChildren(new Option(
+    okresy.length ? '— Vyberte okres —' : '— Najprv vyberte kraj —',
+    ''
+  ));
+
+  okresy.forEach(okres => {
+    select.add(new Option(okres, okres));
+  });
+
+  select.disabled = okresy.length === 0;
+}
+
+$('leadRegion').addEventListener('change', () => {
+  aktualizujOkresy('leadRegion', 'leadOkres');
+});
+
+$('registerCompanyRegion').addEventListener('change', () => {
+  aktualizujOkresy('registerCompanyRegion', 'registerCompanyOkres');
+});
+
+aktualizujOkresy('leadRegion', 'leadOkres');
+aktualizujOkresy('registerCompanyRegion', 'registerCompanyOkres');
+
  let selectedPhotoFiles=[];
 
 $('photos').addEventListener('change',()=>{
@@ -1707,6 +1796,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   const email=$('registerCompanyEmail').value.trim();
   const phone=$('registerCompanyPhone').value.trim();
   const region=$('registerCompanyRegion').value;
+    const okres=$('registerCompanyOkres').value;
     const work=$('registerCompanyWork').value;
   const password=$('registerCompanyPassword').value;
   const passwordConfirm=$('registerCompanyPasswordConfirm').value;
@@ -1717,7 +1807,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   const fakturacne_mesto=$('registerCompanyCity').value.trim();
   const msg=$('registerCompanyMsg');
   msg.innerHTML='';
- if(!name || !email || !phone || !region || !work || !password || !ico || !fakturacna_ulica || !fakturacne_psc || !fakturacne_mesto){
+ if(!name || !email || !phone || !region || !okres || !work || !password || !ico || !fakturacna_ulica || !fakturacne_psc || !fakturacne_mesto){
     msg.innerHTML='<div class="error">Vyplňte povinné údaje vrátane fakturačnej adresy a IČO.</div>';return;
   }
   if(!/^\d{8}$/.test(ico)){
@@ -1740,7 +1830,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
     const authResponse=await fetch(AUTH_URL+'/signup',{
       method:'POST',headers:{apikey:API_KEY,'Content-Type':'application/json'},
       body:JSON.stringify({email,password,data:{
-      company_name:name,phone,region,typ_prace:work,ico,dic,
+      company_name:name,phone,region,okres,typ_prace:work,ico,dic,
         fakturacna_ulica,fakturacne_psc,fakturacne_mesto
       }})
     });
@@ -2468,6 +2558,7 @@ $('form').addEventListener('submit',async e=>{
     ]),
 
     'Kraj: ' + $('leadRegion').value,
+    'Okres: ' + $('leadOkres').value,
     'Termín: ' + $('term').value,
     'Odhad: ' + price,
     'Fotografie vybrané: ' + selectedPhotos.length
@@ -2480,6 +2571,7 @@ $('form').addEventListener('submit',async e=>{
         typ_prace: $('remeslo').value === 'sadrokarton' ? 'Sadrokartón' : type,
     lokalita:$('city').value.trim(),
     region:$('leadRegion').value,
+    okres:$('leadOkres').value,
     popis:details,
     odhad_ceny:est.mid
   };
@@ -2489,7 +2581,7 @@ $('form').addEventListener('submit',async e=>{
     // 1. Uložíme dopyt a necháme si vrátiť jeho ID
  
 const r=await fetch(
-  API_URL + '/rpc/vytvor_dopyt_s_token',
+API_URL + '/rpc/vytvor_dopyt_s_token_v2',
   {
 
   method:'POST',
@@ -2505,6 +2597,7 @@ const r=await fetch(
     p_typ_prace:payload.typ_prace,
     p_lokalita:payload.lokalita,
     p_region:payload.region,
+    p_okres:payload.okres,
     p_popis:payload.popis,
     p_odhad_ceny:payload.odhad_ceny
   })
@@ -2689,9 +2782,10 @@ if(!updateRes.ok){
       '</span></div>';
 
 
-    $('form').reset();
-        prepniRemeslo();
-    selectedPhotoFiles=[];
+$('form').reset();
+prepniRemeslo();
+aktualizujOkresy('leadRegion', 'leadOkres');
+selectedPhotoFiles=[];
 $('photoCount').textContent='Vybrané fotografie: 0/5';
     $('result').scrollIntoView({behavior:'smooth',block:'center'});
 
