@@ -117,7 +117,17 @@ exports.handler = async (event) => {
     link.searchParams.set("id", String(leadId));
     link.searchParams.set("token", token);
 
-    const work = escapeHtml(lead.typ_prace || "Strecha");
+const isSdk = lead.typ_prace === "Sadrokartón";
+
+const work = escapeHtml(lead.typ_prace || "Strecha");
+
+const workTitle = isSdk
+  ? "Váš dopyt na sadrokartónové práce"
+  : "Váš dopyt na strechu";
+
+const priceNote = isSdk
+  ? "Konečná cena závisí od rozsahu prác, konštrukcie a použitých materiálov."
+  : "Konečná cena závisí od stavu strechy, materiálu a rozsahu prác.";
     const location = escapeHtml(lead.lokalita || "-");
     const description = String(lead.popis || "");
     const area = escapeHtml(
@@ -135,27 +145,29 @@ exports.handler = async (event) => {
                     overflow:hidden;">
           <div style="padding:26px;background:#087cf0;color:white;">
             <div style="font-size:30px;font-weight:bold;">⌂ DopytAI</div>
-            <div style="margin-top:8px;">Váš dopyt na strechu</div>
+           <div style="margin-top:8px;">${workTitle}</div>
           </div>
 
           <div style="padding:28px 24px;">
             <h2>Potvrďte svoj dopyt</h2>
             <p>Dobrý deň,</p>
             <p>ďakujeme, že ste využili DopytAI.
-               Pripravili sme pre vás orientačný odhad ceny.</p>
-
+              ${isSdk && estimate === "Individuálne podľa rozsahu prác"
+  ? "Cenu vašej zákazky určí realizačná firma podľa rozsahu prác."
+  : "Pripravili sme pre vás orientačný odhad ceny."}</p>
             <div style="background:#edf6ff;padding:22px;
                         border-radius:12px;text-align:center;">
               <div style="font-size:13px;color:#527092;">
-                ORIENTAČNÁ CENA REALIZÁCIE
+              ${isSdk && estimate === "Individuálne podľa rozsahu prác"
+  ? "CENA PODĽA ROZSAHU PRÁC"
+  : "ORIENTAČNÁ CENA REALIZÁCIE"}
               </div>
               <div style="font-size:30px;font-weight:bold;
                           color:#087cf0;margin-top:10px;">
                 ${escapeHtml(estimate)}
               </div>
               <p style="font-size:12px;color:#667788;">
-                Konečná cena závisí od stavu strechy,
-                materiálu a rozsahu prác.
+               ${priceNote}
               </p>
             </div>
 
@@ -203,7 +215,7 @@ exports.handler = async (event) => {
         body: JSON.stringify({
           from: "DopytAI <info@dopytai24.sk>",
           to: [lead.email],
-          subject: "DopytAI – potvrďte svoj dopyt a pozrite si cenu",
+          subject: `DopytAI – potvrďte svoj dopyt na ${isSdk ? "sadrokartón" : "strechu"}`,
           html
         })
       });
