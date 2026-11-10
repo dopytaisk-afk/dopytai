@@ -279,7 +279,7 @@
     <label for="remeslo">Aké remeslo potrebujete?</label>
     <select id="remeslo">
       <option value="strechy">Strechy</option>
-      <option value="sadrokarton" disabled>Sadrokartón – pripravujeme</option>
+      <option value="sadrokarton">Sadrokartón</option>
     </select>
   </div>
 </div>
@@ -537,7 +537,7 @@
   <select id="registerCompanyWork" required>
     <option value="">Vyberte remeslo</option>
     <option value="Strechy">Strechy – pokrývačské a klampiarske práce</option>
-    <option value="Sadrokartón" disabled>Sadrokartón – pripravujeme</option>
+   <option value="Sadrokartón">Sadrokartón – sadrokartónové práce</option>
   </select>
 </div>
     <div class="field">
@@ -1380,7 +1380,8 @@ ${String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
     🔨 Krov: ${esc((lead.popis || '').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
   `
 }
-📍 Kraj: ${esc((lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+📍 Kraj: ${esc(lead.region || 'neuvedený')}<br>
+📍 Okres: ${esc(lead.okres || 'neuvedený')}<br>
 📅 Termín: ${esc(((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený')}<br>
 📝 Popis: ${esc((lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
 </div>
