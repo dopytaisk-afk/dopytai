@@ -299,7 +299,19 @@
     <label for="sdkArea">Približná plocha sadrokartónu (m²)</label>
     <input id="sdkArea" type="number" min="1" placeholder="napr. 80">
   </div>
+
+  <div class="field" id="sdkOtherField" style="display:none">
+  <label for="sdkOtherType">Aké konkrétne práce potrebujete?</label>
+  <select id="sdkOtherType">
+    <option value="">— Vyberte druh práce —</option>
+    <option value="Oprava sadrokartónu">Oprava sadrokartónu</option>
+    <option value="Obklad podkrovia">Obklad podkrovia</option>
+    <option value="Zakrytie rozvodov">Zakrytie rozvodov</option>
+    <option value="Dekoratívne konštrukcie">Dekoratívne konštrukcie</option>
+    <option value="Ostatné sadrokartónové práce">Ostatné sadrokartónové práce</option>
+  </select>
 </div>
+  </div>
 <div class="field">
   <label id="areaLabel">Približná plocha strechy (m²)</label>
   <input id="area" type="number" min="1" placeholder="napr. 145" required>
@@ -807,7 +819,25 @@ function prepniRemeslo() {
 
 $('remeslo').addEventListener('change', prepniRemeslo);
 prepniRemeslo();
+function aktualizujSdkOtherField() {
+  const zobrazit =
+    $('remeslo').value === 'sadrokarton' &&
+    $('sdkType').value === 'Iné';
 
+  $('sdkOtherField').style.display =
+    zobrazit ? 'block' : 'none';
+
+  $('sdkOtherType').required = zobrazit;
+
+  if (!zobrazit) {
+    $('sdkOtherType').value = '';
+  }
+}
+
+$('sdkType').addEventListener('change', aktualizujSdkOtherField);
+$('remeslo').addEventListener('change', aktualizujSdkOtherField);
+
+aktualizujSdkOtherField();
 
 const AUTH_URL=API_URL.replace('/rest/v1','/auth/v1');
 let accessToken=localStorage.getItem('dopytai_access_token')||'';
@@ -1375,6 +1405,11 @@ ${String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
   ? `
     📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedená')}<br>
     🔨 Typ práce: ${esc((lead.popis || '').match(/Typ sadrokartónu:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedený')}<br>
+    ${(lead.popis || '').includes('Typ sadrokartónu: Iné')
+  ? `🔧 Konkrétna práca: ${esc(
+      (lead.popis || '').match(/Konkrétna práca:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedená'
+    )}<br>`
+  : ''}
   `
   : `
     📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
@@ -2569,8 +2604,11 @@ const details = [
 
     ...(jeSdk ? [
       'Plocha: ' + Number($('sdkArea').value) + ' m²',
-      'Typ sadrokartónu: ' + $('sdkType').value
-    ] : [
+      'Typ sadrokartónu: ' + $('sdkType').value,
+...($('sdkType').value === 'Iné' ? [
+  'Konkrétna práca: ' + $('sdkOtherType').value
+] : [])
+] : [
       'Plocha: ' + area + ' m²',
       'Krytina: ' + cover,
       'Krov: ' + truss
