@@ -30,20 +30,27 @@
   padding: 44px 20px 100px;
 }
  .roof-hero.sdk-hero {
+     position: relative;
   min-height: 0;
   width: 100%;
   max-width: 980px;
   margin: 0 auto;
   aspect-ratio: 16 / 9;
   padding: 0;
-  background: #eaf4ff url('/sadrokarton-hero.webp')
-    center center / contain no-repeat;
+ background: #eaf4ff url('/sadrokarton-banner-text.webp')
+  center center / contain no-repeat;
 }
 
 #sdkHeroButton {
-  position: relative;
-  z-index: 1;
-  margin: -25px auto 10px;
+  position: absolute;
+  left: 6%;
+  bottom: 35px;
+  z-index: 2;
+  width: 42%;
+  max-width: 445px;
+  margin: 0;
+  font-size: 16px;
+  padding: 16px 12px;
 }
 .roof-hero.sdk-hero .roof-hero-content {
   display: none;
@@ -219,7 +226,22 @@
     padding-top: 28px;
   }
 }
-  
+@media (max-width: 700px) {
+  .roof-hero.sdk-hero {
+    min-height: 0;
+    padding: 0;
+  }
+
+  #sdkHeroButton {
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 445px;
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+}  
 </style></head><body>
 <div class="top"><div class="wrap nav"><div class="brand" onclick="showCustomer(); $('companyPortal').style.display='none'; $('companyDashboard').style.display='none'; $('companyRegister').style.display='none'; window.scrollTo({top:0,behavior:'smooth'});" style="cursor:pointer"><div class="mark"><div class="dots"><i></i><i></i><i></i></div></div><div>Dopyt<span class="ai">AI</span></div></div><div style="display:flex;align-items:center;gap:8px"><button class="adminbtn" id="openCompany" type="button">Pre firmy</button><button class="adminbtn" id="logoutBtn" type="button" style="display:none">Odhlásiť</button></div></div></div>
 
@@ -234,13 +256,14 @@
   Zistiť orientačnú cenu zdarma →
 </a>
   </div>
+  <a id="sdkHeroButton"
+     class="estimate-cta"
+     href="#form"
+     style="display:none">
+    Zistiť orientačnú cenu zdarma →
+  </a>
 </section>
-<a id="sdkHeroButton"
-   class="estimate-cta"
-   href="#form"
-   style="display:none">
-  Zistiť orientačnú cenu zdarma →
-</a>
+
 <section class="how-it-works">
   <h2>Ako funguje DopytAI</h2>
 
