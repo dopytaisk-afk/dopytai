@@ -29,6 +29,17 @@
   text-align: center;
   padding: 44px 20px 100px;
 }
+  .roof-hero.sdk-hero {
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  background: #eaf4ff url('/sadrokarton-hero.webp')
+    center center / contain no-repeat;
+}
+
+.roof-hero.sdk-hero .roof-hero-content {
+  display: none;
+}
 
 .roof-hero-content {
   max-width: 950px;
@@ -796,6 +807,8 @@ $('type').addEventListener('change', aktualizujPopisPlochy);
 aktualizujPopisPlochy();
 function prepniRemeslo() {
   const jeSadrokarton = $('remeslo').value === 'sadrokarton';
+  document.querySelector('.roof-hero')
+  ?.classList.toggle('sdk-hero', jeSadrokarton);
     document.querySelector('.form-heading').textContent =
     jeSadrokarton
       ? 'Povedzte nám viac o vašich sadrokartónových prácach'
