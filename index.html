@@ -756,8 +756,10 @@ function calcSdkEstimate(area, type) {
   const sadzba = sadzby[type];
 
   if (!sadzba) {
-    return null;
-  }
+  return type === 'Iné'
+    ? { lo: 0, hi: 0, mid: 0 }
+    : null;
+}
 
   const lo = Math.round(area * sadzba[0] / 10) * 10;
   const hi = Math.round(area * sadzba[1] / 10) * 10;
@@ -2534,7 +2536,14 @@ $('form').addEventListener('submit',async e=>{
     btn.textContent = 'Vytvoriť dopyt a vypočítať odhad';
     return;
   }
-  const price=est.lo.toLocaleString('sk-SK')+' – '+est.hi.toLocaleString('sk-SK')+' €';
+ const cenaIndividualna =
+  $('remeslo').value === 'sadrokarton' &&
+  $('sdkType').value === 'Iné';
+
+const price = cenaIndividualna
+  ? 'Individuálne podľa rozsahu prác'
+  : est.lo.toLocaleString('sk-SK') + ' – ' +
+    est.hi.toLocaleString('sk-SK') + ' €';
 
  const selectedPhotos=[...selectedPhotoFiles];
   if(selectedPhotos.length > 5){
@@ -2544,9 +2553,18 @@ $('form').addEventListener('submit',async e=>{
   return;
 }
 
-    const jeSdk = $('remeslo').value === 'sadrokarton';
+const jeSdk = $('remeslo').value === 'sadrokarton';
 
-  const details = [
+if (cenaIndividualna && !$('desc').value.trim()) {
+  $('result').innerHTML =
+    '<div class="error">Pri iných sadrokartónových prácach opíšte, čo potrebujete.</div>';
+
+  btn.disabled = false;
+  btn.textContent = 'Vytvoriť dopyt a vypočítať odhad';
+  return;
+}
+
+const details = [
     $('desc').value.trim() || 'Bez doplňujúceho popisu',
 
     ...(jeSdk ? [
@@ -2774,7 +2792,9 @@ if(!updateRes.ok){
         ? '✅ Dopyt bol uložený. Potvrďte svoj e-mail.'
         : '⚠️ Dopyt bol uložený, ale potvrdenie e-mailu sa nepodarilo odoslať.'
       ) + '</b><br><br>' +
-      'Orientačný odhad: <span class="price">' + price + '</span><br><br>' +
+     (cenaIndividualna
+  ? 'Cena: <span class="price">' + price + '</span><br><br>'
+  : 'Orientačný odhad: <span class="price">' + price + '</span><br><br>') +
       '<span class="muted">' +
       (emailRequested
         ? 'Na váš e-mail sme odoslali potvrdzovací odkaz. Skontrolujte aj Spam. Firmám sprístupníme dopyt až po potvrdení e-mailu.'
