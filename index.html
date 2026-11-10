@@ -227,7 +227,12 @@
 </a>
   </div>
 </section>
-
+<a id="sdkHeroButton"
+   class="estimate-cta"
+   href="#form"
+   style="display:none">
+  Zistiť orientačnú cenu zdarma →
+</a>
 <section class="how-it-works">
   <h2>Ako funguje DopytAI</h2>
 
@@ -809,6 +814,8 @@ function prepniRemeslo() {
   const jeSadrokarton = $('remeslo').value === 'sadrokarton';
   document.querySelector('.roof-hero')
   ?.classList.toggle('sdk-hero', jeSadrokarton);
+  $('sdkHeroButton').style.display =
+  jeSadrokarton ? 'block' : 'none';
     document.querySelector('.form-heading').textContent =
     jeSadrokarton
       ? 'Povedzte nám viac o vašich sadrokartónových prácach'
