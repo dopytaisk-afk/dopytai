@@ -164,11 +164,21 @@ if (lead.stav !== "novy") {
 
 const priceRange = priceMatch?.[1]?.trim();
 
+const cenaIndividualna =
+  lead.typ_prace === "Sadrokartón" &&
+  /(?:^|\n)Typ sadrokartónu:\s*Iné(?:\r?\n|$)/.test(
+    String(lead.popis || "")
+  );
+
 const safeBudget = escapeHtml(
-  priceRange ||
-  (lead.odhad_ceny == null
-    ? "-"
-    : `${Number(lead.odhad_ceny).toLocaleString("sk-SK")} €`)
+  cenaIndividualna
+    ? "Individuálne podľa rozsahu prác"
+    : (
+        priceRange ||
+        (lead.odhad_ceny == null
+          ? "-"
+          : `${Number(lead.odhad_ceny).toLocaleString("sk-SK")} €`)
+      )
 );
 const safeUnlockPrice = escapeHtml(
   lead.cena_dopytu == null
