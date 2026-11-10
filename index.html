@@ -30,30 +30,45 @@
   padding: 44px 20px 100px;
 }
  .roof-hero.sdk-hero {
-     position: relative;
-  min-height: 0;
+  position: relative;
+  min-height: 430px;
   width: 100%;
   max-width: none;
-  margin: 0 auto;
-  aspect-ratio: 16 / 9;
-  padding: 0;
- background: #eaf4ff url('/sadrokarton-banner-text.webp')
-  center center / contain no-repeat;
+  margin: 0;
+  aspect-ratio: auto;
+  padding: 44px 20px 60px;
+  background:
+    linear-gradient(90deg,
+      rgba(245,249,253,.98) 0%,
+      rgba(245,249,253,.90) 38%,
+      rgba(245,249,253,.10) 85%),
+    url('/sadrokarton-pozadie.webp')
+      center 45% / cover no-repeat;
+  background-color: #eaf4ff;
 }
 
 #sdkHeroButton {
   position: absolute;
-  left: 6%;
-  bottom: 35px;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
   z-index: 2;
-  width: 42%;
-  max-width: 445px;
+  width: min(90%, 445px);
   margin: 0;
   font-size: 16px;
   padding: 16px 12px;
+  text-align: center;
 }
 .roof-hero.sdk-hero .roof-hero-content {
-  display: none;
+  display: block;
+  max-width: 950px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.roof-hero.sdk-hero h1 {
+  font-size: clamp(30px, 4.5vw, 56px);
+  line-height: 1.1;
 }
 
 .roof-hero-content {
@@ -843,10 +858,24 @@ $('type').addEventListener('change', aktualizujPopisPlochy);
 aktualizujPopisPlochy();
 function prepniRemeslo() {
   const jeSadrokarton = $('remeslo').value === 'sadrokarton';
+  const hero = document.querySelector('.roof-hero');
+
+hero.querySelector('h1').innerHTML = jeSadrokarton
+  ? 'Sadrokartónové <span>práce</span><br>rýchlo a jednoducho'
+  : 'Nová <span>strecha</span> začína<br>dobrým plánom';
+
+hero.querySelector('.roof-hero-content > p').textContent = jeSadrokarton
+  ? 'Zadajte dopyt na priečky, podhľady, predsadené steny alebo iné sadrokartónové práce a získajte cenový odhad.'
+  : 'Zistite orientačnú cenu a nájdite firmu na realizáciu.';
+
+hero.querySelector('.roof-hero-sub').textContent =
+  'Zadanie dopytu je zdarma a nezáväzné.';
   document.querySelector('.roof-hero')
   ?.classList.toggle('sdk-hero', jeSadrokarton);
   $('sdkHeroButton').style.display =
   jeSadrokarton ? 'block' : 'none';
+  hero.querySelector('.roof-hero-content .estimate-cta').style.display =
+  jeSadrokarton ? 'none' : 'block';
     document.querySelector('.form-heading').textContent =
     jeSadrokarton
       ? 'Povedzte nám viac o vašich sadrokartónových prácach'
