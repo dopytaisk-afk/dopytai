@@ -308,6 +308,79 @@
 </style></head><body>
 <div class="top"><div class="wrap nav"><div class="brand" onclick="showCustomer(); $('companyPortal').style.display='none'; $('companyDashboard').style.display='none'; $('companyRegister').style.display='none'; window.scrollTo({top:0,behavior:'smooth'});" style="cursor:pointer"><div class="mark"><div class="dots"><i></i><i></i><i></i></div></div><div>Dopyt<span class="ai">AI</span></div></div><div style="display:flex;align-items:center;gap:8px"><button class="adminbtn" id="openCompany" type="button">Pre firmy</button><button class="adminbtn" id="logoutBtn" type="button" style="display:none">Odhlásiť</button></div></div></div>
 
+<!-- NOVA HLAVNA STRANKA DOPYTAI -->
+<section id="homeLanding" style="display:none">
+
+  <section class="home-hero">
+    <div class="home-hero-content">
+      <h1>Nájdite spoľahlivú firmu<br>pre stavebné práce</h1>
+      <p>
+        Strechy, sadrokartón a ďalšie remeslá na jednom mieste.
+        Získajte orientačnú cenu rýchlo a jednoducho.
+      </p>
+      <a href="#homeTrades" class="home-primary-btn">
+        Vybrať remeslo
+      </a>
+      <div class="home-benefits">
+        <span>✓ Rýchle zadanie dopytu</span>
+        <span>✓ Orientačná cena zdarma</span>
+        <span>✓ Firmy vo vašom regióne</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="homeTrades" class="home-trades">
+    <h2>Vyberte si remeslo</h2>
+    <p>Zvoľte typ prác, zadajte dopyt a získajte orientačnú cenu.</p>
+
+    <div class="home-trades-grid">
+      <article class="home-trade-card">
+        <div class="home-trade-image home-roof-image"></div>
+        <div class="home-trade-content">
+          <h3>Strechy</h3>
+          <p>Montáž, oprava a rekonštrukcia striech.</p>
+          <button type="button" id="homeRoofBtn">
+            Zadať dopyt na strechu →
+          </button>
+        </div>
+      </article>
+
+      <article class="home-trade-card">
+        <div class="home-trade-image home-sdk-image"></div>
+        <div class="home-trade-content">
+          <h3>Sadrokartón</h3>
+          <p>Priečky, podhľady a úpravy interiérov.</p>
+          <button type="button" id="homeSdkBtn">
+            Zadať dopyt na sadrokartón →
+          </button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="home-how">
+    <h2>Ako funguje DopytAI?</h2>
+    <div class="home-how-grid">
+      <div><strong>1. Vyberiete remeslo</strong><p>Zvolíte požadované práce.</p></div>
+      <div><strong>2. Opíšete prácu</strong><p>Vyplníte jednoduchý formulár.</p></div>
+      <div><strong>3. Získate cenu</strong><p>Uvidíte orientačný odhad.</p></div>
+      <div><strong>4. Firma vás kontaktuje</strong><p>Firma môže prevziať váš dopyt.</p></div>
+    </div>
+  </section>
+
+  <section class="home-companies">
+    <div>
+      <h2>Ste realizačná firma?</h2>
+      <p>Získavajte nové zákazky vo vašom regióne cez DopytAI.</p>
+    </div>
+    <button type="button" id="homeRegisterBtn">
+      Registrovať firmu →
+    </button>
+  </section>
+
+</section>
+<!-- KONIEC NOVEJ HLAVNEJ STRANKY -->
+
 <main class="wrap hero" id="customer">
 
 <section class="roof-hero">
