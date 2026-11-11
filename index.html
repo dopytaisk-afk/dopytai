@@ -257,6 +257,54 @@
     font-size: 12px;
   }
 }  
+  @media (max-width: 700px) {
+  .roof-hero.sdk-hero {
+    min-height: 0;
+    height: auto;
+    padding: 32px 16px 24px;
+    background-position: 65% center;
+  }
+
+  .roof-hero.sdk-hero .roof-hero-content {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .roof-hero.sdk-hero h1 {
+    font-size: clamp(26px, 7vw, 34px);
+    line-height: 1.15;
+    overflow-wrap: break-word;
+    margin-bottom: 16px;
+  }
+
+  .roof-hero.sdk-hero .roof-hero-content > p {
+    width: 100%;
+    max-width: 100%;
+    font-size: 16px;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
+
+  .roof-hero.sdk-hero .roof-hero-sub {
+    font-size: 14px;
+  }
+
+  .roof-hero.sdk-hero #sdkHeroButton {
+    position: static;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    width: 100%;
+    max-width: 445px;
+    margin: 22px auto 0;
+    padding: 14px 10px;
+    font-size: 15px;
+    text-align: center;
+  }
+}
 </style></head><body>
 <div class="top"><div class="wrap nav"><div class="brand" onclick="showCustomer(); $('companyPortal').style.display='none'; $('companyDashboard').style.display='none'; $('companyRegister').style.display='none'; window.scrollTo({top:0,behavior:'smooth'});" style="cursor:pointer"><div class="mark"><div class="dots"><i></i><i></i><i></i></div></div><div>Dopyt<span class="ai">AI</span></div></div><div style="display:flex;align-items:center;gap:8px"><button class="adminbtn" id="openCompany" type="button">Pre firmy</button><button class="adminbtn" id="logoutBtn" type="button" style="display:none">Odhlásiť</button></div></div></div>
 
@@ -858,6 +906,10 @@ $('type').addEventListener('change', aktualizujPopisPlochy);
 aktualizujPopisPlochy();
 function prepniRemeslo() {
   const jeSadrokarton = $('remeslo').value === 'sadrokarton';
+  document.querySelector('.how-it-works .step-card h3').textContent =
+  jeSadrokarton
+    ? 'Opíšte svoje sadrokartónové práce'
+    : 'Opíšte svoju strechu';
   const hero = document.querySelector('.roof-hero');
 
 hero.querySelector('h1').innerHTML = jeSadrokarton
