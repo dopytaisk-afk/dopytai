@@ -3378,4 +3378,82 @@ $('photoCount').textContent='Vybrané fotografie: 0/5';
 if(new URLSearchParams(window.location.search).get('payment')==='success'){
   setTimeout(()=>loadCompanyCredit(),1000);
 }
+  
+/* DopytAI – navigacia novej hlavnej stranky */
+
+function zobrazHlavnuStranku() {
+  $('homeLanding').style.display = 'block';
+  $('customer').style.display = 'none';
+  $('admin').classList.remove('show');
+
+  [
+    'companyPortal',
+    'companyDashboard',
+    'companyRegister',
+    'companyPasswordReset'
+  ].forEach(id => {
+    $(id).style.display = 'none';
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function otvorRemeslo(remeslo) {
+  $('homeLanding').style.display = 'none';
+  $('customer').style.display = 'block';
+  $('admin').classList.remove('show');
+
+  $('remeslo').value = remeslo;
+  prepniRemeslo();
+  aktualizujSdkOtherField();
+
+  $('form').scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+}
+
+$('homeRoofBtn').addEventListener('click', () => {
+  otvorRemeslo('strechy');
+});
+
+$('homeSdkBtn').addEventListener('click', () => {
+  otvorRemeslo('sadrokarton');
+});
+
+$('homeRegisterBtn').addEventListener('click', () => {
+  $('homeLanding').style.display = 'none';
+  $('customer').style.display = 'none';
+  $('admin').classList.remove('show');
+  $('companyPortal').style.display = 'none';
+  $('companyDashboard').style.display = 'none';
+  $('companyRegister').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* Pri otvoreni firemneho prihlasenia skryjeme uvod. */
+$('openCompany').addEventListener('click', () => {
+  $('homeLanding').style.display = 'none';
+});
+
+/* Kliknutie na logo vrati navstevnika na hlavnu stranku. */
+document.querySelector('.top .brand')
+  .addEventListener('click', zobrazHlavnuStranku);
+
+/* Uvodna stranka pre bezneho neprihlaseneho navstevnika. */
+const homeParams = new URLSearchParams(window.location.search);
+const hasLoginSession = Boolean(
+  localStorage.getItem('dopytai_access_token') ||
+  localStorage.getItem('dopytai_company_token')
+);
+
+if (
+  !hasLoginSession &&
+  homeParams.get('admin') !== '1' &&
+  homeParams.get('payment') !== 'success' &&
+  !recoveryAccessToken
+) {
+  zobrazHlavnuStranku();
+}
+
 </script><footer style="border-top:1px solid #dce7f1;background:#fff;padding:24px 16px;text-align:center;color:#66778d;font-size:14px;line-height:1.8"><div>© 2026 DopytAI</div><div><a href="/ochrana-osobnych-udajov.html" style="color:#087cf0;text-decoration:none;font-weight:700">Ochrana osobných údajov</a> · <a href="/obchodne-podmienky.html" style="color:#087cf0;text-decoration:none;font-weight:700">Obchodné podmienky</a> · <a href="mailto:info@dopytai24.sk" style="color:#087cf0;text-decoration:none;font-weight:700">info@dopytai24.sk</a></div></footer></body></html>
