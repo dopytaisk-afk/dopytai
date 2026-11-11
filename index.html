@@ -793,6 +793,94 @@
   }
 }
 
+/* DopytAI – mobilne rozbalovacie menu */
+
+.mobile-menu-btn {
+  display: none;
+}
+
+@media (max-width: 700px) {
+
+  .dopytai-nav {
+    width: 94%;
+    min-height: 68px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0;
+    padding: 10px 0;
+  }
+
+  .dopytai-nav .brand {
+    order: 1;
+    font-size: 23px;
+  }
+
+  .mobile-menu-btn {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 45px;
+    height: 43px;
+    background: white;
+    border: 1px solid #dce7f1;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  .mobile-menu-btn span {
+    display: block;
+    width: 23px;
+    height: 3px;
+    background: #087cf0;
+    border-radius: 3px;
+  }
+
+  .dopytai-nav .main-nav,
+  .dopytai-nav .nav-actions {
+    display: none;
+    width: 100%;
+  }
+
+  .dopytai-nav.menu-open .main-nav {
+    order: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    padding: 16px 0 10px;
+  }
+
+  .dopytai-nav.menu-open .main-nav button,
+  .dopytai-nav.menu-open .main-nav a {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    text-align: left;
+    font-size: 16px;
+  }
+
+  .dopytai-nav.menu-open .nav-actions {
+    order: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 0 16px;
+  }
+
+  .dopytai-nav.menu-open .nav-login,
+  .dopytai-nav.menu-open .nav-register {
+    width: 100%;
+    padding: 13px;
+    font-size: 15px;
+  }
+}
+
 </style></head><body>
 
 <!-- HORNE MENU DOPYTAI -->
@@ -808,7 +896,19 @@
       <div>Dopyt<span class="ai">AI</span></div>
     </div>
 
-    <nav class="main-nav" aria-label="Hlavná navigácia">
+<button
+  type="button"
+  id="mobileMenuBtn"
+  class="mobile-menu-btn"
+  aria-label="Otvoriť navigáciu"
+  aria-controls="mobileNavPanel"
+  aria-expanded="false">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
+
+<nav id="mobileNavPanel" class="main-nav" aria-label="Hlavná navigácia">
       <button type="button"
               onclick="zobrazHlavnuStranku()">
         Domov
@@ -3762,5 +3862,47 @@ if (
 ) {
   zobrazHlavnuStranku();
 }
+
+/* DopytAI – ovladanie mobilneho menu */
+
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileNav = document.querySelector('.dopytai-nav');
+
+function zatvorMobilneMenu() {
+  mobileNav.classList.remove('menu-open');
+  mobileMenuBtn.setAttribute('aria-expanded', 'false');
+  mobileMenuBtn.setAttribute('aria-label', 'Otvoriť navigáciu');
+}
+
+mobileMenuBtn.addEventListener('click', () => {
+  const otvorene = mobileNav.classList.toggle('menu-open');
+
+  mobileMenuBtn.setAttribute(
+    'aria-expanded',
+    String(otvorene)
+  );
+
+  mobileMenuBtn.setAttribute(
+    'aria-label',
+    otvorene ? 'Zatvoriť navigáciu' : 'Otvoriť navigáciu'
+  );
+});
+
+/* Po vybere polozky menu zatvorime. */
+mobileNav.querySelectorAll('.main-nav button, .main-nav a, .nav-actions button')
+  .forEach(prvok => {
+    prvok.addEventListener('click', zatvorMobilneMenu);
+  });
+
+/* Kliknutie na logo zatvori menu. */
+mobileNav.querySelector('.brand')
+  .addEventListener('click', zatvorMobilneMenu);
+
+/* Pri prechode na pocitac zatvorime mobilne menu. */
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 700) {
+    zatvorMobilneMenu();
+  }
+});
 
 </script><footer style="border-top:1px solid #dce7f1;background:#fff;padding:24px 16px;text-align:center;color:#66778d;font-size:14px;line-height:1.8"><div>© 2026 DopytAI</div><div><a href="/ochrana-osobnych-udajov.html" style="color:#087cf0;text-decoration:none;font-weight:700">Ochrana osobných údajov</a> · <a href="/obchodne-podmienky.html" style="color:#087cf0;text-decoration:none;font-weight:700">Obchodné podmienky</a> · <a href="mailto:info@dopytai24.sk" style="color:#087cf0;text-decoration:none;font-weight:700">info@dopytai24.sk</a></div></footer></body></html>
