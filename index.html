@@ -609,6 +609,23 @@
   }
 }
 
+/* DopytAI – doladenie hlavneho banneru */
+@media (min-width: 1100px) {
+  .home-hero-content {
+    max-width: 760px;
+  }
+
+  .home-hero h1 {
+    font-size: clamp(38px, 3.2vw, 46px);
+    line-height: 1.12;
+    letter-spacing: -1.2px;
+  }
+
+  .home-hero p {
+    max-width: 600px;
+  }
+}
+
 </style></head><body>
 <div class="top"><div class="wrap nav"><div class="brand" onclick="showCustomer(); $('companyPortal').style.display='none'; $('companyDashboard').style.display='none'; $('companyRegister').style.display='none'; window.scrollTo({top:0,behavior:'smooth'});" style="cursor:pointer"><div class="mark"><div class="dots"><i></i><i></i><i></i></div></div><div>Dopyt<span class="ai">AI</span></div></div><div style="display:flex;align-items:center;gap:8px"><button class="adminbtn" id="openCompany" type="button">Pre firmy</button><button class="adminbtn" id="logoutBtn" type="button" style="display:none">Odhlásiť</button></div></div></div>
 
