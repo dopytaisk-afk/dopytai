@@ -626,8 +626,179 @@
   }
 }
 
+/* DopytAI – nove horne menu */
+.dopytai-nav {
+  width: min(1450px, 96%);
+  min-height: 72px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.main-nav button,
+.main-nav a {
+  background: none;
+  border: 0;
+  color: #092448;
+  font-size: 15px;
+  font-weight: 750;
+  text-decoration: none;
+  padding: 9px 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.main-nav button:hover,
+.main-nav a:hover {
+  color: #087cf0;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-login,
+.nav-register {
+  border-radius: 10px;
+  padding: 12px 15px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.nav-login {
+  background: white;
+  color: #087cf0;
+  border: 1.5px solid #087cf0;
+}
+
+.nav-register {
+  background: linear-gradient(180deg,#168cff,#0758dc);
+  color: white;
+  border: 1.5px solid #0758dc;
+}
+
+/* Mensie obrazovky */
+@media (max-width: 1100px) {
+  .dopytai-nav {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 12px 0;
+  }
+
+  .main-nav {
+    order: 3;
+    width: 100%;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+}
+
+/* Mobil */
+@media (max-width: 600px) {
+  .dopytai-nav {
+    gap: 12px;
+  }
+
+  .dopytai-nav .brand {
+    font-size: 22px;
+  }
+
+  .nav-actions {
+    gap: 6px;
+  }
+
+  .nav-login,
+  .nav-register {
+    font-size: 12px;
+    padding: 9px 10px;
+  }
+
+  .main-nav {
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .main-nav button,
+  .main-nav a {
+    font-size: 13px;
+  }
+}
+
 </style></head><body>
-<div class="top"><div class="wrap nav"><div class="brand" onclick="showCustomer(); $('companyPortal').style.display='none'; $('companyDashboard').style.display='none'; $('companyRegister').style.display='none'; window.scrollTo({top:0,behavior:'smooth'});" style="cursor:pointer"><div class="mark"><div class="dots"><i></i><i></i><i></i></div></div><div>Dopyt<span class="ai">AI</span></div></div><div style="display:flex;align-items:center;gap:8px"><button class="adminbtn" id="openCompany" type="button">Pre firmy</button><button class="adminbtn" id="logoutBtn" type="button" style="display:none">Odhlásiť</button></div></div></div>
+
+<!-- HORNE MENU DOPYTAI -->
+<header class="top">
+  <div class="wrap nav dopytai-nav">
+
+    <div class="brand"
+         onclick="zobrazHlavnuStranku()"
+         style="cursor:pointer">
+      <div class="mark">
+        <div class="dots"><i></i><i></i><i></i></div>
+      </div>
+      <div>Dopyt<span class="ai">AI</span></div>
+    </div>
+
+    <nav class="main-nav" aria-label="Hlavná navigácia">
+      <button type="button"
+              onclick="zobrazHlavnuStranku()">
+        Domov
+      </button>
+
+      <button type="button"
+              onclick="zobrazHlavnuStranku();
+              document.querySelector('.home-how')
+                .scrollIntoView({behavior:'smooth'})">
+        Ako to funguje
+      </button>
+
+      <button type="button"
+              onclick="zobrazHlavnuStranku();
+              document.querySelector('.home-companies')
+                .scrollIntoView({behavior:'smooth'})">
+        Pre firmy
+      </button>
+
+      <a href="mailto:info@dopytai24.sk">Kontakt</a>
+    </nav>
+
+    <div class="nav-actions">
+      <button class="nav-login"
+              id="openCompany"
+              type="button">
+        Prihlásenie firmy
+      </button>
+
+      <button class="nav-register"
+              type="button"
+              onclick="document.getElementById('homeRegisterBtn').click()">
+        Registrácia firmy
+      </button>
+
+      <button class="adminbtn"
+              id="logoutBtn"
+              type="button"
+              style="display:none">
+        Odhlásiť
+      </button>
+    </div>
+
+  </div>
+</header>
+<!-- KONIEC HORNEHO MENU -->
+
 
 <!-- NOVA HLAVNA STRANKA DOPYTAI -->
 <section id="homeLanding" style="display:none">
