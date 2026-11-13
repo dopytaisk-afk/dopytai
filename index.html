@@ -2405,7 +2405,8 @@ ${String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
     📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([^\n]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
     🏠 Krytina: ${esc((lead.popis || '').match(/Krytina:\s*([^\n]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
     🔨 Krov: ${esc((lead.popis || '').match(/Krov:\s*([^\n]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
-    📍 Kraj: ${esc((lead.popis || '').match(/Kraj:\s*([^\n]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+    📍 Kraj: ${esc(lead.region || 'neuvedený')}<br>
+    📍 Okres: ${esc(lead.okres || 'neuvedený')}<br>
     📅 Termín: ${esc((lead.popis || '').match(/Termín:\s*([^\n]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
     📝 Popis: ${esc((lead.popis || '').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
   `}
