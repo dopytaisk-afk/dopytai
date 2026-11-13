@@ -2781,7 +2781,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   }
   const btn=$('registerCompanySubmit');btn.disabled=true;btn.textContent='Vytváram účet...';
   try{
-    const authResponse=await fetch(AUTH_URL+'/signup',{
+    const authResponse=await fetch(AUTH_URL+'/signup?redirect_to='+encodeURIComponent(window.location.origin+'/'),{
       method:'POST',headers:{apikey:API_KEY,'Content-Type':'application/json'},
       body:JSON.stringify({email,password,data:{
       company_name:name,phone,region,okres,typ_prace:work,ico,dic,
