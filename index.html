@@ -29,6 +29,47 @@
   text-align: center;
   padding: 44px 20px 100px;
 }
+ .roof-hero.sdk-hero {
+  position: relative;
+  min-height: 430px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  aspect-ratio: auto;
+  padding: 44px 20px 60px;
+  background:
+    linear-gradient(90deg,
+  rgba(245,249,253,.90) 0%,
+  rgba(245,249,253,.65) 38%,
+  rgba(245,249,253,0) 85%),
+    url('/sadrokarton-pozadie.webp')
+      center 45% / cover no-repeat;
+  background-color: #eaf4ff;
+}
+
+#sdkHeroButton {
+  position: absolute;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  z-index: 2;
+  width: min(90%, 445px);
+  margin: 0;
+  font-size: 16px;
+  padding: 16px 12px;
+  text-align: center;
+}
+.roof-hero.sdk-hero .roof-hero-content {
+  display: block;
+  max-width: 950px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.roof-hero.sdk-hero h1 {
+  font-size: clamp(30px, 4.5vw, 56px);
+  line-height: 1.1;
+}
 
 .roof-hero-content {
   max-width: 950px;
@@ -200,9 +241,856 @@
     padding-top: 28px;
   }
 }
+@media (max-width: 700px) {
+  .roof-hero.sdk-hero {
+    min-height: 0;
+    padding: 0;
+  }
+
+  #sdkHeroButton {
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 445px;
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+}  
+  @media (max-width: 700px) {
+  .roof-hero.sdk-hero {
+    min-height: 0;
+    height: auto;
+    padding: 32px 16px 24px;
+    background-position: 65% center;
+  }
+
+  .roof-hero.sdk-hero .roof-hero-content {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .roof-hero.sdk-hero h1 {
+    font-size: clamp(26px, 7vw, 34px);
+    line-height: 1.15;
+    overflow-wrap: break-word;
+    margin-bottom: 16px;
+  }
+
+  .roof-hero.sdk-hero .roof-hero-content > p {
+    width: 100%;
+    max-width: 100%;
+    font-size: 16px;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
+
+  .roof-hero.sdk-hero .roof-hero-sub {
+    font-size: 14px;
+  }
+
+  .roof-hero.sdk-hero #sdkHeroButton {
+    position: static;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    width: 100%;
+    max-width: 445px;
+    margin: 22px auto 0;
+    padding: 14px 10px;
+    font-size: 15px;
+    text-align: center;
+  }
+}
   
+/* DopytAI – NOVA HLAVNA STRANKA */
+
+#homeLanding {
+  width: 100%;
+  background: #f7fbff;
+  color: #092448;
+}
+
+#homeLanding h1,
+#homeLanding h2,
+#homeLanding h3 {
+  letter-spacing: -0.7px;
+}
+
+/* Hlavny banner */
+.home-hero {
+  position: relative;
+  min-height: 390px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  padding: 48px max(5%, calc((100% - 1300px)/2));
+  background:
+    linear-gradient(90deg,
+      #eaf5ff 0%,
+      rgba(234,245,255,.98) 28%,
+      rgba(234,245,255,.65) 43%,
+      transparent 65%),
+    url('/strecha-hero.webp') center 55% / cover no-repeat;
+}
+
+.home-hero::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 26%;
+  height: 100%;
+  background:
+    url('/sadrokarton-pozadie.webp') center / cover no-repeat;
+  clip-path: polygon(30% 0,100% 0,100% 100%,0 100%);
+  border-left: 0;
+}
+
+.home-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 610px;
+}
+
+.home-hero h1 {
+  font-size: clamp(32px,4vw,54px);
+  line-height: 1.1;
+  font-weight: 900;
+  margin: 0 0 18px;
+}
+
+.home-hero p {
+  font-size: clamp(16px,1.7vw,21px);
+  line-height: 1.45;
+  font-weight: 600;
+  margin: 0 0 22px;
+}
+
+.home-primary-btn,
+.home-trade-content button {
+  display: inline-block;
+  background: linear-gradient(180deg,#168cff,#0758dc);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 15px 28px;
+  font-size: 17px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 5px 12px #0758dc22;
+}
+
+.home-benefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-top: 22px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.home-benefits span::first-letter {
+  color: #14a34a;
+}
+
+/* Vyber remesiel */
+.home-trades {
+  max-width: 1380px;
+  margin: auto;
+  padding: 28px 4% 32px;
+  text-align: center;
+}
+
+.home-trades h2,
+.home-how h2 {
+  font-size: clamp(28px,3vw,38px);
+  margin: 0 0 8px;
+}
+
+.home-trades > p {
+  margin: 0 0 24px;
+  color: #405a77;
+}
+
+.home-trades-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 24px;
+}
+
+.home-trade-card {
+  display: grid;
+  grid-template-columns: 42% 58%;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  text-align: left;
+  box-shadow: 0 6px 20px #0924481a;
+}
+
+.home-trade-image {
+  min-height: 170px;
+  background-size: cover;
+  background-position: center;
+}
+
+.home-roof-image {
+  background-image: url('/strecha-hero.webp');
+}
+
+.home-sdk-image {
+  background-image: url('/sadrokarton-pozadie.webp');
+}
+
+.home-trade-content {
+  padding: 22px;
+}
+
+.home-trade-content h3 {
+  font-size: 25px;
+  margin: 0 0 12px;
+}
+
+.home-trade-content p {
+  font-size: 15px;
+  line-height: 1.45;
+  margin: 0 0 15px;
+}
+
+.home-trade-content button {
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+/* Ako to funguje */
+.home-how {
+  padding: 28px 5% 34px;
+  background: #eaf5ff;
+  text-align: center;
+}
+
+.home-how-grid {
+  max-width: 1350px;
+  margin: 24px auto 0;
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 22px;
+  text-align: left;
+}
+
+.home-how-grid > div {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.home-how-grid strong {
+  font-size: 16px;
+}
+
+.home-how-grid p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+
+/* Sekcia pre firmy */
+.home-companies {
+  max-width: 1400px;
+  margin: 22px auto;
+  padding: 24px 35px;
+  border-radius: 16px;
+  background: linear-gradient(110deg,#23558a,#092448);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.home-companies h2 {
+  margin: 0 0 6px;
+  font-size: 29px;
+}
+
+.home-companies p {
+  margin: 0;
+}
+
+.home-companies button {
+  padding: 14px 28px;
+  border: 0;
+  border-radius: 9px;
+  background: white;
+  color: #092448;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* Mobil */
+@media (max-width: 800px) {
+  .home-hero {
+    min-height: 420px;
+    align-items: flex-start;
+    padding: 35px 5%;
+    background-position: 60% center;
+  }
+
+  .home-hero::after {
+    opacity: .25;
+    width: 40%;
+  }
+
+  .home-hero-content {
+    max-width: 100%;
+  }
+
+  .home-hero h1 {
+    font-size: clamp(30px,7vw,42px);
+  }
+
+  .home-hero p {
+    max-width: 550px;
+  }
+
+  .home-trades-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-how-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+
+  .home-companies {
+    margin: 18px 4%;
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-hero {
+    min-height: 450px;
+    background:
+      linear-gradient(180deg,
+        #eaf5ff 0%,
+        rgba(234,245,255,.95) 50%,
+        rgba(234,245,255,.45) 100%),
+      url('/strecha-hero.webp') center / cover no-repeat;
+  }
+
+  .home-hero::after {
+    display: none;
+  }
+
+  .home-benefits {
+    gap: 10px;
+  }
+
+  .home-trade-card {
+    grid-template-columns: 1fr;
+  }
+
+  .home-trade-image {
+    min-height: 150px;
+  }
+
+  .home-how-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-companies {
+    padding: 24px 16px;
+  }
+}
+
+/* DopytAI – doladenie hlavneho banneru */
+@media (min-width: 1100px) {
+  .home-hero-content {
+    max-width: 760px;
+  }
+
+  .home-hero h1 {
+    font-size: clamp(38px, 3.2vw, 46px);
+    line-height: 1.12;
+    letter-spacing: -1.2px;
+  }
+
+  .home-hero p {
+    max-width: 600px;
+  }
+}
+
+/* DopytAI – nove horne menu */
+.dopytai-nav {
+  width: min(1450px, 96%);
+  min-height: 72px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.main-nav button,
+.main-nav a {
+  background: none;
+  border: 0;
+  color: #092448;
+  font-size: 15px;
+  font-weight: 750;
+  text-decoration: none;
+  padding: 9px 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.main-nav button:hover,
+.main-nav a:hover {
+  color: #087cf0;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-login,
+.nav-register {
+  border-radius: 10px;
+  padding: 12px 15px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.nav-login {
+  background: white;
+  color: #087cf0;
+  border: 1.5px solid #087cf0;
+}
+
+.nav-register {
+  background: linear-gradient(180deg,#168cff,#0758dc);
+  color: white;
+  border: 1.5px solid #0758dc;
+}
+
+/* Mensie obrazovky */
+@media (max-width: 1100px) {
+  .dopytai-nav {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 12px 0;
+  }
+
+  .main-nav {
+    order: 3;
+    width: 100%;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+}
+
+/* Mobil */
+@media (max-width: 600px) {
+  .dopytai-nav {
+    gap: 12px;
+  }
+
+  .dopytai-nav .brand {
+    font-size: 22px;
+  }
+
+  .nav-actions {
+    gap: 6px;
+  }
+
+  .nav-login,
+  .nav-register {
+    font-size: 12px;
+    padding: 9px 10px;
+  }
+
+  .main-nav {
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .main-nav button,
+  .main-nav a {
+    font-size: 13px;
+  }
+}
+
+/* DopytAI - styri kroky s ikonami */
+.home-how-grid > .home-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: transparent;
+  border-radius: 0;
+  padding: 8px 0;
+  min-width: 0;
+}
+
+.home-step-icon {
+  width: 68px;
+  height: 68px;
+  min-width: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #087cf0;
+  box-shadow: 0 5px 16px #09244812;
+}
+
+.home-step-icon svg {
+  width: 35px;
+  height: 35px;
+}
+
+.home-step strong {
+  display: block;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.home-step p {
+  margin-top: 7px;
+  font-size: 14px;
+}
+
+@media (max-width: 480px) {
+  .home-how-grid > .home-step {
+    padding: 10px 4px;
+  }
+
+  .home-step-icon {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+  }
+
+  .home-step-icon svg {
+    width: 29px;
+    height: 29px;
+  }
+}
+
+/* DopytAI – mobilne rozbalovacie menu */
+
+.mobile-menu-btn {
+  display: none;
+}
+
+@media (max-width: 700px) {
+
+  .dopytai-nav {
+    width: 94%;
+    min-height: 68px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0;
+    padding: 10px 0;
+  }
+
+  .dopytai-nav .brand {
+    order: 1;
+    font-size: 23px;
+  }
+
+  .mobile-menu-btn {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 45px;
+    height: 43px;
+    background: white;
+    border: 1px solid #dce7f1;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  .mobile-menu-btn span {
+    display: block;
+    width: 23px;
+    height: 3px;
+    background: #087cf0;
+    border-radius: 3px;
+  }
+
+  .dopytai-nav .main-nav,
+  .dopytai-nav .nav-actions {
+    display: none;
+    width: 100%;
+  }
+
+  .dopytai-nav.menu-open .main-nav {
+    order: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    padding: 16px 0 10px;
+  }
+
+  .dopytai-nav.menu-open .main-nav button,
+  .dopytai-nav.menu-open .main-nav a {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    text-align: left;
+    font-size: 16px;
+  }
+
+  .dopytai-nav.menu-open .nav-actions {
+    order: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 0 16px;
+  }
+
+  .dopytai-nav.menu-open .nav-login,
+  .dopytai-nav.menu-open .nav-register {
+    width: 100%;
+    padding: 13px;
+    font-size: 15px;
+  }
+}
+
 </style></head><body>
-<div class="top"><div class="wrap nav"><div class="brand" onclick="showCustomer(); $('companyPortal').style.display='none'; $('companyDashboard').style.display='none'; $('companyRegister').style.display='none'; window.scrollTo({top:0,behavior:'smooth'});" style="cursor:pointer"><div class="mark"><div class="dots"><i></i><i></i><i></i></div></div><div>Dopyt<span class="ai">AI</span></div></div><div style="display:flex;align-items:center;gap:8px"><button class="adminbtn" id="openCompany" type="button">Pre firmy</button><button class="adminbtn" id="logoutBtn" type="button" style="display:none">Odhlásiť</button></div></div></div>
+
+<!-- HORNE MENU DOPYTAI -->
+<header class="top">
+  <div class="wrap nav dopytai-nav">
+
+    <div class="brand"
+         onclick="zobrazHlavnuStranku()"
+         style="cursor:pointer">
+      <div class="mark">
+        <div class="dots"><i></i><i></i><i></i></div>
+      </div>
+      <div>Dopyt<span class="ai">AI</span></div>
+    </div>
+
+<button
+  type="button"
+  id="mobileMenuBtn"
+  class="mobile-menu-btn"
+  aria-label="Otvoriť navigáciu"
+  aria-controls="mobileNavPanel"
+  aria-expanded="false">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
+
+<nav id="mobileNavPanel" class="main-nav" aria-label="Hlavná navigácia">
+      <button type="button"
+              onclick="zobrazHlavnuStranku()">
+        Domov
+      </button>
+
+      <button type="button"
+              onclick="zobrazHlavnuStranku();
+              document.querySelector('.home-how')
+                .scrollIntoView({behavior:'smooth'})">
+        Ako to funguje
+      </button>
+
+      <button type="button"
+              onclick="zobrazHlavnuStranku();
+              document.querySelector('.home-companies')
+                .scrollIntoView({behavior:'smooth'})">
+        Pre firmy
+      </button>
+
+      <a href="mailto:info@dopytai24.sk">Kontakt</a>
+    </nav>
+
+    <div class="nav-actions">
+      <button class="nav-login"
+              id="openCompany"
+              type="button">
+        Prihlásenie firmy
+      </button>
+
+      <button class="nav-register"
+              type="button"
+              onclick="document.getElementById('homeRegisterBtn').click()">
+        Registrácia firmy
+      </button>
+
+      <button class="adminbtn"
+              id="logoutBtn"
+              type="button"
+              style="display:none">
+        Odhlásiť
+      </button>
+    </div>
+
+  </div>
+</header>
+<!-- KONIEC HORNEHO MENU -->
+
+
+<!-- NOVA HLAVNA STRANKA DOPYTAI -->
+<section id="homeLanding" style="display:none">
+
+  <section class="home-hero">
+    <div class="home-hero-content">
+      <h1>Nájdite spoľahlivú firmu<br>pre stavebné práce</h1>
+      <p>
+        Strechy, sadrokartón a ďalšie remeslá na jednom mieste.
+        Získajte orientačnú cenu rýchlo a jednoducho.
+      </p>
+      <a href="#homeTrades" class="home-primary-btn">
+        Vybrať remeslo
+      </a>
+      <div class="home-benefits">
+        <span>✓ Rýchle zadanie dopytu</span>
+        <span>✓ Orientačná cena zdarma</span>
+        <span>✓ Firmy vo vašom regióne</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="homeTrades" class="home-trades">
+    <h2>Vyberte si remeslo</h2>
+    <p>Zvoľte typ prác, zadajte dopyt a získajte orientačnú cenu.</p>
+
+    <div class="home-trades-grid">
+      <article class="home-trade-card">
+        <div class="home-trade-image home-roof-image"></div>
+        <div class="home-trade-content">
+          <h3>Strechy</h3>
+          <p>Montáž, oprava a rekonštrukcia striech.</p>
+          <button type="button" id="homeRoofBtn">
+            Zadať dopyt na strechu →
+          </button>
+        </div>
+      </article>
+
+      <article class="home-trade-card">
+        <div class="home-trade-image home-sdk-image"></div>
+        <div class="home-trade-content">
+          <h3>Sadrokartón</h3>
+          <p>Priečky, podhľady a úpravy interiérov.</p>
+          <button type="button" id="homeSdkBtn">
+            Zadať dopyt na sadrokartón →
+          </button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+
+<section class="home-how">
+  <h2>Ako funguje DopytAI?</h2>
+
+  <div class="home-how-grid">
+    <div class="home-step">
+      <span class="home-step-icon">
+        <svg viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="4" width="14" height="18" rx="2"/>
+          <rect x="9" y="2" width="6" height="4" rx="1"/>
+          <path d="m8 11 1.5 1.5L12 10M14 12h2M8 17h8"/>
+        </svg>
+      </span>
+      <div>
+        <strong>1. Vyberiete remeslo</strong>
+        <p>Zvolíte typ prác, ktoré potrebujete.</p>
+      </div>
+    </div>
+
+    <div class="home-step">
+      <span class="home-step-icon">
+        <svg viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="m4 20 4.5-1 11-11a2.1 2.1 0 0 0-3-3l-11 11L4 20Z"/>
+          <path d="m14 7 3 3M5.5 16.5l3 3"/>
+        </svg>
+      </span>
+      <div>
+        <strong>2. Opíšete prácu</strong>
+        <p>Stručne nám napíšete, čo má firma realizovať.</p>
+      </div>
+    </div>
+
+    <div class="home-step">
+      <span class="home-step-icon">
+        <svg viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="2"/>
+          <rect x="8" y="5" width="8" height="4" rx="1"/>
+          <path d="M8 13h2M14 13h2M8 17h2M14 17h2"/>
+        </svg>
+      </span>
+      <div>
+        <strong>3. Získate orientačnú cenu</strong>
+        <p>Okamžite uvidíte odhad ceny vašej realizácie.</p>
+      </div>
+    </div>
+
+    <div class="home-step">
+      <span class="home-step-icon">
+        <svg viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="8" r="3"/>
+          <path d="M3 20v-2a6 6 0 0 1 12 0v2"/>
+          <circle cx="18" cy="9" r="2"/>
+          <path d="M17 15a5 5 0 0 1 4 5"/>
+        </svg>
+      </span>
+      <div>
+        <strong>4. Firma vás kontaktuje</strong>
+        <p>Firma môže prevziať váš dopyt a ozvať sa vám.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+  <section class="home-companies">
+    <div>
+      <h2>Ste realizačná firma?</h2>
+      <p>Získavajte nové zákazky vo vašom regióne cez DopytAI.</p>
+    </div>
+    <button type="button" id="homeRegisterBtn">
+      Registrovať firmu →
+    </button>
+  </section>
+
+</section>
+<!-- KONIEC NOVEJ HLAVNEJ STRANKY -->
 
 <main class="wrap hero" id="customer">
 
@@ -215,6 +1103,12 @@
   Zistiť orientačnú cenu zdarma →
 </a>
   </div>
+  <a id="sdkHeroButton"
+     class="estimate-cta"
+     href="#form"
+     style="display:none">
+    Zistiť orientačnú cenu zdarma →
+  </a>
 </section>
 
 <section class="how-it-works">
@@ -274,10 +1168,44 @@
 </section>
 
 <h2 class="form-heading">Povedzte nám viac o vašej streche</h2>
-
+<div class="card" style="width:min(900px,92%);margin:20px auto 0">
+  <div class="field">
+    <label for="remeslo">Aké remeslo potrebujete?</label>
+    <select id="remeslo">
+      <option value="strechy">Strechy</option>
+      <option value="sadrokarton">Sadrokartón</option>
+    </select>
+  </div>
+</div>
 <form id="form" class="card">
 <div class="field"><label>Čo potrebujete?</label><select id="type"><option>Nová strecha</option><option>Rekonštrukcia strechy</option><option>Oprava / zatekanie</option></select></div>
+<div id="sadrokartonFields" style="display:none">
+  <div class="field">
+    <label for="sdkType">Aké sadrokartónové práce potrebujete?</label>
+    <select id="sdkType">
+      <option value="Priečky">Sadrokartónové priečky</option>
+      <option value="Podhľady">Sadrokartónové podhľady</option>
+      <option value="Predsadené steny">Predsadené steny</option>
+      <option value="Iné">Iné sadrokartónové práce</option>
+    </select>
+  </div>
+  <div class="field">
+    <label for="sdkArea">Približná plocha sadrokartónu (m²)</label>
+    <input id="sdkArea" type="number" min="1" placeholder="napr. 80">
+  </div>
 
+  <div class="field" id="sdkOtherField" style="display:none">
+  <label for="sdkOtherType">Aké konkrétne práce potrebujete?</label>
+  <select id="sdkOtherType">
+    <option value="">— Vyberte druh práce —</option>
+    <option value="Oprava sadrokartónu">Oprava sadrokartónu</option>
+    <option value="Obklad podkrovia">Obklad podkrovia</option>
+    <option value="Zakrytie rozvodov">Zakrytie rozvodov</option>
+    <option value="Dekoratívne konštrukcie">Dekoratívne konštrukcie</option>
+    <option value="Ostatné sadrokartónové práce">Ostatné sadrokartónové práce</option>
+  </select>
+</div>
+  </div>
 <div class="field">
   <label id="areaLabel">Približná plocha strechy (m²)</label>
   <input id="area" type="number" min="1" placeholder="napr. 145" required>
@@ -291,6 +1219,12 @@
 <div class="field"><label>Fotografie / projekt</label><div class="photo"><input id="photos" type="file" accept="image/*" multiple><p class="note">Môžete pridať maximálne 5 fotografií, ktoré pomôžu firme lepšie posúdiť váš dopyt.</p><div id="photoCount" class="note" style="margin-top:8px">Vybrané fotografie: 0/5</div></div></div>
 <div class="field"><label>Obec / mesto</label><input id="city" placeholder="napr. Žilina" required></div>
 <div class="field"><label>Kraj</label><select id="leadRegion" required><option value="">— Vyberte kraj —</option><option>Bratislavský kraj</option><option>Trnavský kraj</option><option>Trenčiansky kraj</option><option>Nitriansky kraj</option><option>Žilinský kraj</option><option>Banskobystrický kraj</option><option>Prešovský kraj</option><option>Košický kraj</option></select></div>
+  <div class="field">
+  <label for="leadOkres">Okres realizácie</label>
+  <select id="leadOkres" required disabled>
+    <option value="">— Najprv vyberte kraj —</option>
+  </select>
+</div>
 <div class="field"><label>Požadovaný termín</label><select id="term"><option>Čo najskôr</option><option>Do 1–3 mesiacov</option><option>Do 3–6 mesiacov</option><option>Len zisťujem cenu</option></select></div>
 <div class="field"><label>Meno</label><input id="name" placeholder="Vaše meno" required></div>
 <div class="field"><label>Telefón</label><input id="phone" type="tel" placeholder="+421..." required></div>
@@ -498,11 +1432,18 @@
         <option>Košický kraj</option>
       </select>
     </div>
+    <div class="field">
+  <label for="registerCompanyOkres">Okres pôsobenia firmy</label>
+  <select id="registerCompanyOkres" required disabled>
+    <option value="">— Najprv vyberte kraj —</option>
+  </select>
+</div>
 <div class="field">
   <label for="registerCompanyWork">Aké práce vykonávate?</label>
   <select id="registerCompanyWork" required>
     <option value="">Vyberte remeslo</option>
     <option value="Strechy">Strechy – pokrývačské a klampiarske práce</option>
+   <option value="Sadrokartón">Sadrokartón – sadrokartónové práce</option>
   </select>
 </div>
     <div class="field">
@@ -539,6 +1480,83 @@ const API_KEY = ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.ho
   : 'sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-';
 
 const $=id=>document.getElementById(id);
+  
+const okresyPodlaKraja = {
+  'Bratislavský kraj': [
+    'Bratislava I', 'Bratislava II', 'Bratislava III',
+    'Bratislava IV', 'Bratislava V', 'Malacky',
+    'Pezinok', 'Senec'
+  ],
+  'Trnavský kraj': [
+    'Dunajská Streda', 'Galanta', 'Hlohovec',
+    'Piešťany', 'Senica', 'Skalica', 'Trnava'
+  ],
+  'Trenčiansky kraj': [
+    'Bánovce nad Bebravou', 'Ilava', 'Myjava',
+    'Nové Mesto nad Váhom', 'Partizánske',
+    'Považská Bystrica', 'Prievidza', 'Púchov',
+    'Trenčín'
+  ],
+  'Nitriansky kraj': [
+    'Komárno', 'Levice', 'Nitra', 'Nové Zámky',
+    'Šaľa', 'Topoľčany', 'Zlaté Moravce'
+  ],
+  'Žilinský kraj': [
+    'Bytča', 'Čadca', 'Dolný Kubín',
+    'Kysucké Nové Mesto', 'Liptovský Mikuláš',
+    'Martin', 'Námestovo', 'Ružomberok',
+    'Turčianske Teplice', 'Tvrdošín', 'Žilina'
+  ],
+  'Banskobystrický kraj': [
+    'Banská Bystrica', 'Banská Štiavnica',
+    'Brezno', 'Detva', 'Krupina', 'Lučenec',
+    'Poltár', 'Revúca', 'Rimavská Sobota',
+    'Veľký Krtíš', 'Žarnovica',
+    'Žiar nad Hronom', 'Zvolen'
+  ],
+  'Prešovský kraj': [
+    'Bardejov', 'Humenné', 'Kežmarok',
+    'Levoča', 'Medzilaborce', 'Poprad',
+    'Prešov', 'Sabinov', 'Snina',
+    'Stará Ľubovňa', 'Stropkov',
+    'Svidník', 'Vranov nad Topľou'
+  ],
+  'Košický kraj': [
+    'Gelnica', 'Košice I', 'Košice II',
+    'Košice III', 'Košice IV', 'Košice-okolie',
+    'Michalovce', 'Rožňava', 'Sobrance',
+    'Spišská Nová Ves', 'Trebišov'
+  ]
+};
+
+function aktualizujOkresy(regionId, okresId) {
+  const kraj = $(regionId).value;
+  const select = $(okresId);
+  const okresy = okresyPodlaKraja[kraj] || [];
+
+  select.replaceChildren(new Option(
+    okresy.length ? '— Vyberte okres —' : '— Najprv vyberte kraj —',
+    ''
+  ));
+
+  okresy.forEach(okres => {
+    select.add(new Option(okres, okres));
+  });
+
+  select.disabled = okresy.length === 0;
+}
+
+$('leadRegion').addEventListener('change', () => {
+  aktualizujOkresy('leadRegion', 'leadOkres');
+});
+
+$('registerCompanyRegion').addEventListener('change', () => {
+  aktualizujOkresy('registerCompanyRegion', 'registerCompanyOkres');
+});
+
+aktualizujOkresy('leadRegion', 'leadOkres');
+aktualizujOkresy('registerCompanyRegion', 'registerCompanyOkres');
+
  let selectedPhotoFiles=[];
 
 $('photos').addEventListener('change',()=>{
@@ -627,7 +1645,37 @@ function calcEstimate(area, type, cover, truss) {
     mid: Math.round((lo + hi) / 2)
   };
 }
+// Orientacny vypocet ceny sadrokartonovych prac.
+function calcSdkEstimate(area, type) {
+  area = Number(area);
 
+  if (!Number.isFinite(area) || area <= 0) {
+    throw new Error('Neplatna plocha sadrokartonu.');
+  }
+
+  const sadzby = {
+    'Priečky': [45, 85],
+    'Podhľady': [35, 70],
+    'Predsadené steny': [35, 65]
+  };
+
+  const sadzba = sadzby[type];
+
+  if (!sadzba) {
+  return type === 'Iné'
+    ? { lo: 0, hi: 0, mid: 0 }
+    : null;
+}
+
+  const lo = Math.round(area * sadzba[0] / 10) * 10;
+  const hi = Math.round(area * sadzba[1] / 10) * 10;
+
+  return {
+    lo,
+    hi,
+    mid: Math.round((lo + hi) / 2)
+  };
+}
 function aktualizujPopisPlochy() {
   const oprava = $('type').value.includes('Oprava');
 
@@ -640,8 +1688,72 @@ function aktualizujPopisPlochy() {
 
 $('type').addEventListener('change', aktualizujPopisPlochy);
 aktualizujPopisPlochy();
+function prepniRemeslo() {
+  const jeSadrokarton = $('remeslo').value === 'sadrokarton';
+  document.querySelector('.how-it-works .step-card h3').textContent =
+  jeSadrokarton
+    ? 'Opíšte svoje sadrokartónové práce'
+    : 'Opíšte svoju strechu';
+  const hero = document.querySelector('.roof-hero');
 
+hero.querySelector('h1').innerHTML = jeSadrokarton
+  ? 'Sadrokartónové <span>práce</span><br>rýchlo a jednoducho'
+  : 'Nová <span>strecha</span> začína<br>dobrým plánom';
 
+hero.querySelector('.roof-hero-content > p').textContent = jeSadrokarton
+  ? 'Zadajte dopyt na priečky, podhľady, predsadené steny alebo iné sadrokartónové práce a získajte cenový odhad.'
+  : 'Zistite orientačnú cenu a nájdite firmu na realizáciu.';
+
+hero.querySelector('.roof-hero-sub').textContent =
+  'Zadanie dopytu je zdarma a nezáväzné.';
+  document.querySelector('.roof-hero')
+  ?.classList.toggle('sdk-hero', jeSadrokarton);
+  $('sdkHeroButton').style.display =
+  jeSadrokarton ? 'block' : 'none';
+  hero.querySelector('.roof-hero-content .estimate-cta').style.display =
+  jeSadrokarton ? 'none' : 'block';
+    document.querySelector('.form-heading').textContent =
+    jeSadrokarton
+      ? 'Povedzte nám viac o vašich sadrokartónových prácach'
+      : 'Povedzte nám viac o vašej streche';
+
+  $('desc').placeholder = jeSadrokarton
+    ? 'Napr. podhľady v rodinnom dome, dvojité opláštenie, izolácia...'
+    : 'Napr. novostavba bungalovu, väzníkový krov...';
+
+  $('sadrokartonFields').style.display =
+    jeSadrokarton ? 'block' : 'none';
+
+  ['type', 'area', 'cover', 'truss'].forEach(id => {
+    $(id).closest('.field').style.display =
+      jeSadrokarton ? 'none' : 'block';
+  });
+
+  $('area').required = !jeSadrokarton;
+  $('sdkArea').required = jeSadrokarton;
+}
+
+$('remeslo').addEventListener('change', prepniRemeslo);
+prepniRemeslo();
+function aktualizujSdkOtherField() {
+  const zobrazit =
+    $('remeslo').value === 'sadrokarton' &&
+    $('sdkType').value === 'Iné';
+
+  $('sdkOtherField').style.display =
+    zobrazit ? 'block' : 'none';
+
+  $('sdkOtherType').required = zobrazit;
+
+  if (!zobrazit) {
+    $('sdkOtherType').value = '';
+  }
+}
+
+$('sdkType').addEventListener('change', aktualizujSdkOtherField);
+$('remeslo').addEventListener('change', aktualizujSdkOtherField);
+
+aktualizujSdkOtherField();
 
 const AUTH_URL=API_URL.replace('/rest/v1','/auth/v1');
 let accessToken=localStorage.getItem('dopytai_access_token')||'';
@@ -1205,10 +2317,24 @@ Nezáväzný odhad. Konečnú cenu určí realizačná firma podľa skutočného
 
 <div style="margin-top:10px;line-height:1.7">
 <b>📋 Detaily zákazky</b><br>
-📐 Plocha: ${esc((lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
-🏠 Krytina: ${esc((lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
-🔨 Krov: ${esc((lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
-📍 Kraj: ${esc((lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+${String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
+  ? `
+    📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedená')}<br>
+    🔨 Typ práce: ${esc((lead.popis || '').match(/Typ sadrokartónu:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedený')}<br>
+    ${(lead.popis || '').includes('Typ sadrokartónu: Iné')
+  ? `🔧 Konkrétna práca: ${esc(
+      (lead.popis || '').match(/Konkrétna práca:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedená'
+    )}<br>`
+  : ''}
+  `
+  : `
+    📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+    🏠 Krytina: ${esc((lead.popis || '').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+    🔨 Krov: ${esc((lead.popis || '').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+  `
+}
+📍 Kraj: ${esc(lead.region || 'neuvedený')}<br>
+📍 Okres: ${esc(lead.okres || 'neuvedený')}<br>
 📅 Termín: ${esc(((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený')}<br>
 📝 Popis: ${esc((lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
 </div>
@@ -1265,12 +2391,26 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
     💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
     <div style="margin-top:10px;line-height:1.7">
   <b>📋 Detaily zákazky</b><br>
- 📐 Plocha: ${esc((lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
-🏠 Krytina: ${esc((lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
-🔨 Krov: ${esc((lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
-📍 Kraj: ${esc((lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
-📅 Termín: ${esc(((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený')}<br> 
-📝 Popis: ${esc((lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
+ 
+${String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
+  ? `
+    📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([\d,.]+\s*m(?:²|2))/i)?.[1] || 'neuvedená')}<br>
+    🔨 Typ sadrokartónu: ${esc((lead.popis || '').match(/Typ sadrokartónu:\s*([\s\S]*?)(?=\s*(?:Konkrétna práca:|Kraj:|Okres:|Termín:|Odhad:|Fotografie vybrané:|$))/i)?.[1]?.trim() || 'neuvedený')}<br>
+    📍 Kraj: ${esc(lead.region || 'neuvedený')}<br>
+    📍 Okres: ${esc(lead.okres || 'neuvedený')}<br>
+    📅 Termín: ${esc((lead.popis || '').match(/Termín:\s*([\s\S]*?)(?=\s*(?:Odhad:|Fotografie vybrané:|$))/i)?.[1]?.trim() || 'neuvedený')}<br>
+    📝 Popis: ${esc((lead.popis || '').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
+  `
+  : `
+    📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([^\n]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+    🏠 Krytina: ${esc((lead.popis || '').match(/Krytina:\s*([^\n]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+    🔨 Krov: ${esc((lead.popis || '').match(/Krov:\s*([^\n]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+    📍 Kraj: ${esc(lead.region || 'neuvedený')}<br>
+    📍 Okres: ${esc(lead.okres || 'neuvedený')}<br>
+    📅 Termín: ${esc((lead.popis || '').match(/Termín:\s*([^\n]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+    📝 Popis: ${esc((lead.popis || '').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
+  `}
+
 </div>
     <div style="margin-top:10px">
       🔓 <b>Kontakt zákazníka</b><br>
@@ -1624,6 +2764,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   const email=$('registerCompanyEmail').value.trim();
   const phone=$('registerCompanyPhone').value.trim();
   const region=$('registerCompanyRegion').value;
+    const okres=$('registerCompanyOkres').value;
     const work=$('registerCompanyWork').value;
   const password=$('registerCompanyPassword').value;
   const passwordConfirm=$('registerCompanyPasswordConfirm').value;
@@ -1634,7 +2775,7 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   const fakturacne_mesto=$('registerCompanyCity').value.trim();
   const msg=$('registerCompanyMsg');
   msg.innerHTML='';
- if(!name || !email || !phone || !region || !work || !password || !ico || !fakturacna_ulica || !fakturacne_psc || !fakturacne_mesto){
+ if(!name || !email || !phone || !region || !okres || !work || !password || !ico || !fakturacna_ulica || !fakturacne_psc || !fakturacne_mesto){
     msg.innerHTML='<div class="error">Vyplňte povinné údaje vrátane fakturačnej adresy a IČO.</div>';return;
   }
   if(!/^\d{8}$/.test(ico)){
@@ -1654,10 +2795,10 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   }
   const btn=$('registerCompanySubmit');btn.disabled=true;btn.textContent='Vytváram účet...';
   try{
-    const authResponse=await fetch(AUTH_URL+'/signup',{
+    const authResponse=await fetch(AUTH_URL+'/signup?redirect_to='+encodeURIComponent(window.location.origin+'/'),{
       method:'POST',headers:{apikey:API_KEY,'Content-Type':'application/json'},
       body:JSON.stringify({email,password,data:{
-      company_name:name,phone,region,typ_prace:work,ico,dic,
+      company_name:name,phone,region,okres,typ_prace:work,ico,dic,
         fakturacna_ulica,fakturacne_psc,fakturacne_mesto
       }})
     });
@@ -1730,13 +2871,15 @@ $('logoutBtn').addEventListener('click',()=>{
   $('companyDashboard').style.display='none';
   $('companyPortal').style.display='none';
   $('companyRegister').style.display='none';
- if(wasAdmin){
+
+if(wasAdmin){
   $('customer').style.display='none';
   $('admin').classList.add('show');
   showLogin();
 }else{
-  $('customer').style.display='block';
+  zobrazHlavnuStranku();
 }
+
 
   window.scrollTo({top:0,behavior:'smooth'});
 });
@@ -2347,8 +3490,27 @@ $('form').addEventListener('submit',async e=>{
   const cover=$('cover').value;
   const truss=$('truss').value;
 
-  const est=calcEstimate(area,type,cover,truss);
-  const price=est.lo.toLocaleString('sk-SK')+' – '+est.hi.toLocaleString('sk-SK')+' €';
+   const est = $('remeslo').value === 'sadrokarton'
+    ? calcSdkEstimate(
+        Number($('sdkArea').value),
+        $('sdkType').value
+      )
+    : calcEstimate(area, type, cover, truss);
+    if (!est) {
+    $('result').innerHTML =
+      '<div class="error">Pre tento typ prác zatiaľ nevieme vypočítať orientačnú cenu. Vyberte konkrétny typ sadrokartónových prác.</div>';
+    btn.disabled = false;
+    btn.textContent = 'Vytvoriť dopyt a vypočítať odhad';
+    return;
+  }
+ const cenaIndividualna =
+  $('remeslo').value === 'sadrokarton' &&
+  $('sdkType').value === 'Iné';
+
+const price = cenaIndividualna
+  ? 'Individuálne podľa rozsahu prác'
+  : est.lo.toLocaleString('sk-SK') + ' – ' +
+    est.hi.toLocaleString('sk-SK') + ' €';
 
  const selectedPhotos=[...selectedPhotoFiles];
   if(selectedPhotos.length > 5){
@@ -2358,25 +3520,47 @@ $('form').addEventListener('submit',async e=>{
   return;
 }
 
-  const details=[
-    $('desc').value.trim()||'Bez doplňujúceho popisu',
-    'Plocha: '+area+' m²',
-    'Krytina: '+cover,
-    'Krov: '+truss,
-    'Kraj: '+$('leadRegion').value,
-    'Termín: '+$('term').value,
-    'Odhad: '+price,
-   
-    'Fotografie vybrané: '+selectedPhotos.length
+const jeSdk = $('remeslo').value === 'sadrokarton';
+
+if (cenaIndividualna && !$('desc').value.trim()) {
+  $('result').innerHTML =
+    '<div class="error">Pri iných sadrokartónových prácach opíšte, čo potrebujete.</div>';
+
+  btn.disabled = false;
+  btn.textContent = 'Vytvoriť dopyt a vypočítať odhad';
+  return;
+}
+
+const details = [
+    $('desc').value.trim() || 'Bez doplňujúceho popisu',
+
+    ...(jeSdk ? [
+      'Plocha: ' + Number($('sdkArea').value) + ' m²',
+      'Typ sadrokartónu: ' + $('sdkType').value,
+...($('sdkType').value === 'Iné' ? [
+  'Konkrétna práca: ' + $('sdkOtherType').value
+] : [])
+] : [
+      'Plocha: ' + area + ' m²',
+      'Krytina: ' + cover,
+      'Krov: ' + truss
+    ]),
+
+    'Kraj: ' + $('leadRegion').value,
+    'Okres: ' + $('leadOkres').value,
+    'Termín: ' + $('term').value,
+    'Odhad: ' + price,
+    'Fotografie vybrané: ' + selectedPhotos.length
   ].filter(Boolean).join('\n');
 
   const payload={
     meno:$('name').value.trim(),
     telefon:$('phone').value.trim(),
     email:$('email').value.trim(),
-    typ_prace:type,
+        typ_prace: $('remeslo').value === 'sadrokarton' ? 'Sadrokartón' : type,
     lokalita:$('city').value.trim(),
     region:$('leadRegion').value,
+    okres:$('leadOkres').value,
     popis:details,
     odhad_ceny:est.mid
   };
@@ -2386,7 +3570,7 @@ $('form').addEventListener('submit',async e=>{
     // 1. Uložíme dopyt a necháme si vrátiť jeho ID
  
 const r=await fetch(
-  API_URL + '/rpc/vytvor_dopyt_s_token',
+API_URL + '/rpc/vytvor_dopyt_s_token_v2',
   {
 
   method:'POST',
@@ -2402,6 +3586,7 @@ const r=await fetch(
     p_typ_prace:payload.typ_prace,
     p_lokalita:payload.lokalita,
     p_region:payload.region,
+    p_okres:payload.okres,
     p_popis:payload.popis,
     p_odhad_ceny:payload.odhad_ceny
   })
@@ -2577,7 +3762,9 @@ if(!updateRes.ok){
         ? '✅ Dopyt bol uložený. Potvrďte svoj e-mail.'
         : '⚠️ Dopyt bol uložený, ale potvrdenie e-mailu sa nepodarilo odoslať.'
       ) + '</b><br><br>' +
-      'Orientačný odhad: <span class="price">' + price + '</span><br><br>' +
+     (cenaIndividualna
+  ? 'Cena: <span class="price">' + price + '</span><br><br>'
+  : 'Orientačný odhad: <span class="price">' + price + '</span><br><br>') +
       '<span class="muted">' +
       (emailRequested
         ? 'Na váš e-mail sme odoslali potvrdzovací odkaz. Skontrolujte aj Spam. Firmám sprístupníme dopyt až po potvrdení e-mailu.'
@@ -2586,8 +3773,11 @@ if(!updateRes.ok){
       '</span></div>';
 
 
-    $('form').reset();
-    selectedPhotoFiles=[];
+$('form').reset();
+prepniRemeslo();
+aktualizujSdkOtherField();
+aktualizujOkresy('leadRegion', 'leadOkres');
+selectedPhotoFiles=[];
 $('photoCount').textContent='Vybrané fotografie: 0/5';
     $('result').scrollIntoView({behavior:'smooth',block:'center'});
 
@@ -2611,4 +3801,146 @@ $('photoCount').textContent='Vybrané fotografie: 0/5';
 if(new URLSearchParams(window.location.search).get('payment')==='success'){
   setTimeout(()=>loadCompanyCredit(),1000);
 }
+  
+/* DopytAI – navigacia novej hlavnej stranky */
+
+function zobrazHlavnuStranku() {
+  $('homeLanding').style.display = 'block';
+  $('customer').style.display = 'none';
+  $('admin').classList.remove('show');
+
+  [
+    'companyPortal',
+    'companyDashboard',
+    'companyRegister',
+    'companyPasswordReset'
+  ].forEach(id => {
+    $(id).style.display = 'none';
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function otvorRemeslo(remeslo) {
+  $('homeLanding').style.display = 'none';
+  $('customer').style.display = 'block';
+  $('admin').classList.remove('show');
+
+  $('remeslo').value = remeslo;
+  prepniRemeslo();
+  aktualizujSdkOtherField();
+
+  $('form').scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+}
+
+$('homeRoofBtn').addEventListener('click', () => {
+  otvorRemeslo('strechy');
+});
+
+$('homeSdkBtn').addEventListener('click', () => {
+  otvorRemeslo('sadrokarton');
+});
+
+$('homeRegisterBtn').addEventListener('click', () => {
+  $('homeLanding').style.display = 'none';
+  $('customer').style.display = 'none';
+  $('admin').classList.remove('show');
+  $('companyPortal').style.display = 'none';
+  $('companyDashboard').style.display = 'none';
+  $('companyRegister').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* Pri otvoreni firemneho prihlasenia skryjeme uvod. */
+$('openCompany').addEventListener('click', () => {
+  $('homeLanding').style.display = 'none';
+});
+
+/* Kliknutie na logo vrati navstevnika na hlavnu stranku. */
+document.querySelector('.top .brand')
+  .addEventListener('click', zobrazHlavnuStranku);
+
+/* Uvodna stranka pre bezneho neprihlaseneho navstevnika. */
+const homeParams = new URLSearchParams(window.location.search);
+const hasLoginSession = Boolean(
+  localStorage.getItem('dopytai_access_token') ||
+  localStorage.getItem('dopytai_company_token')
+);
+
+if (
+  !hasLoginSession &&
+  homeParams.get('admin') !== '1' &&
+  homeParams.get('payment') !== 'success' &&
+  !recoveryAccessToken
+) {
+  zobrazHlavnuStranku();
+}
+
+/* DopytAI – ovladanie mobilneho menu */
+
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileNav = document.querySelector('.dopytai-nav');
+
+function zatvorMobilneMenu() {
+  mobileNav.classList.remove('menu-open');
+  mobileMenuBtn.setAttribute('aria-expanded', 'false');
+  mobileMenuBtn.setAttribute('aria-label', 'Otvoriť navigáciu');
+}
+
+mobileMenuBtn.addEventListener('click', () => {
+  const otvorene = mobileNav.classList.toggle('menu-open');
+
+  mobileMenuBtn.setAttribute(
+    'aria-expanded',
+    String(otvorene)
+  );
+
+  mobileMenuBtn.setAttribute(
+    'aria-label',
+    otvorene ? 'Zatvoriť navigáciu' : 'Otvoriť navigáciu'
+  );
+});
+
+/* Po vybere polozky menu zatvorime. */
+mobileNav.querySelectorAll('.main-nav button, .main-nav a, .nav-actions button')
+  .forEach(prvok => {
+    prvok.addEventListener('click', zatvorMobilneMenu);
+  });
+
+/* Kliknutie na logo zatvori menu. */
+mobileNav.querySelector('.brand')
+  .addEventListener('click', zatvorMobilneMenu);
+
+/* Pri prechode na pocitac zatvorime mobilne menu. */
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 700) {
+    zatvorMobilneMenu();
+  }
+});
+  
+/* Skrytie prihlasenia a registracie po prihlaseni */
+
+const navPrihlasenie = document.getElementById('openCompany');
+const navRegistracia = document.querySelector('.nav-register');
+const navOdhlasenie = document.getElementById('logoutBtn');
+
+function aktualizujFiremneTlacidla() {
+  const prihlaseny = navOdhlasenie.style.display === 'block';
+
+  navPrihlasenie.style.display = prihlaseny ? 'none' : '';
+  navRegistracia.style.display = prihlaseny ? 'none' : '';
+}
+
+new MutationObserver(aktualizujFiremneTlacidla)
+  .observe(navOdhlasenie, {
+    attributes: true,
+    attributeFilter: ['style']
+  });
+
+aktualizujFiremneTlacidla();
+
+
 </script><footer style="border-top:1px solid #dce7f1;background:#fff;padding:24px 16px;text-align:center;color:#66778d;font-size:14px;line-height:1.8"><div>© 2026 DopytAI</div><div><a href="/ochrana-osobnych-udajov.html" style="color:#087cf0;text-decoration:none;font-weight:700">Ochrana osobných údajov</a> · <a href="/obchodne-podmienky.html" style="color:#087cf0;text-decoration:none;font-weight:700">Obchodné podmienky</a> · <a href="mailto:info@dopytai24.sk" style="color:#087cf0;text-decoration:none;font-weight:700">info@dopytai24.sk</a></div></footer></body></html>

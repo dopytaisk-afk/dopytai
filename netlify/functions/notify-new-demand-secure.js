@@ -22,7 +22,7 @@ exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return reply(405, { error: "Method not allowed" });
   }
-
+  
   const secret = process.env.DOPYTAI_WEBHOOK_SECRET;
   const supplied =
     event.headers?.["x-dopytai-secret"] ||
@@ -39,7 +39,14 @@ exports.handler = async (event) => {
   ) {
     return reply(401, { error: "Unauthorized" });
   }
-
+  // V testovacom prostredi neposielame upozornenia firmam.
+  if (process.env.CONTEXT !== "production") {
+    return reply(200, {
+      sent: 0,
+      failed: 0,
+      disabled: true
+    });
+  }
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const resendKey = process.env.RESEND_API_KEY;
@@ -130,20 +137,22 @@ if (lead.stav !== "novy") {
       `firmy?select=id,email,region,typ_prace,stav&region=eq.${encodeURIComponent(lead.region)}&stav=in.(aktivna,akt%C3%ADvna)`
     );
 
-    const work = String(lead.typ_prace || "").toLowerCase();
+       const work = String(lead.typ_prace || "").trim();
+
+    const isRoofLead = [
+      "Nová strecha",
+      "Rekonštrukcia strechy",
+      "Oprava / zatekanie"
+    ].includes(work);
+
+    const isSdkLead = work === "Sadrokartón";
 
     const matching = companies.filter((company) => {
-      const companyWork = String(company.typ_prace || "").toLowerCase();
+      const companyWork = String(company.typ_prace || "").trim();
 
-      return (
-        company.email &&
-        companyWork.includes("strech") &&
-        (
-          work.includes("strech") ||
-          work.includes("nová") ||
-          work.includes("rekonštrukcia") ||
-          work.includes("oprava")
-        )
+      return Boolean(company.email) && (
+        (companyWork === "Strechy" && isRoofLead) ||
+        (companyWork === "Sadrokartón" && isSdkLead)
       );
     });
 
@@ -155,11 +164,21 @@ if (lead.stav !== "novy") {
 
 const priceRange = priceMatch?.[1]?.trim();
 
+const cenaIndividualna =
+  lead.typ_prace === "Sadrokartón" &&
+  /(?:^|\n)Typ sadrokartónu:\s*Iné(?:\r?\n|$)/.test(
+    String(lead.popis || "")
+  );
+
 const safeBudget = escapeHtml(
-  priceRange ||
-  (lead.odhad_ceny == null
-    ? "-"
-    : `${Number(lead.odhad_ceny).toLocaleString("sk-SK")} €`)
+  cenaIndividualna
+    ? "Individuálne podľa rozsahu prác"
+    : (
+        priceRange ||
+        (lead.odhad_ceny == null
+          ? "-"
+          : `${Number(lead.odhad_ceny).toLocaleString("sk-SK")} €`)
+      )
 );
 const safeUnlockPrice = escapeHtml(
   lead.cena_dopytu == null
