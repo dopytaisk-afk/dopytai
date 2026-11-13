@@ -3863,20 +3863,39 @@ $('openCompany').addEventListener('click', () => {
 document.querySelector('.top .brand')
   .addEventListener('click', zobrazHlavnuStranku);
 
-/* Uvodna stranka pre bezneho neprihlaseneho navstevnika. */
+/* Uvodna stranka a navrat po potvrdeni registracie firmy. */
 const homeParams = new URLSearchParams(window.location.search);
+
 const hasLoginSession = Boolean(
   localStorage.getItem('dopytai_access_token') ||
   localStorage.getItem('dopytai_company_token')
 );
 
+const confirmationParams = new URLSearchParams(
+  window.location.hash.substring(1)
+);
+
+const potvrdenaRegistracia =
+  confirmationParams.get('type') === 'signup';
+
 if (
-  !hasLoginSession &&
-  homeParams.get('admin') !== '1' &&
-  homeParams.get('payment') !== 'success' &&
-  !recoveryAccessToken
+  potvrdenaRegistracia ||
+  (
+    !hasLoginSession &&
+    homeParams.get('admin') !== '1' &&
+    homeParams.get('payment') !== 'success' &&
+    !recoveryAccessToken
+  )
 ) {
   zobrazHlavnuStranku();
+}
+
+if (potvrdenaRegistracia) {
+  window.history.replaceState(
+    null,
+    '',
+    window.location.pathname + window.location.search
+  );
 }
 
 /* DopytAI – ovladanie mobilneho menu */
