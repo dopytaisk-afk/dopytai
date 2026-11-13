@@ -2391,12 +2391,25 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
     💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
     <div style="margin-top:10px;line-height:1.7">
   <b>📋 Detaily zákazky</b><br>
- 📐 Plocha: ${esc((lead.popis||'').match(/Plocha:\s*([^]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
-🏠 Krytina: ${esc((lead.popis||'').match(/Krytina:\s*([^]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
-🔨 Krov: ${esc((lead.popis||'').match(/Krov:\s*([^]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
-📍 Kraj: ${esc((lead.popis||'').match(/Kraj:\s*([^]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
-📅 Termín: ${esc(((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený')}<br> 
-📝 Popis: ${esc((lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
+ 
+${String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
+  ? `
+    📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([\d,.]+\s*m(?:²|2))/i)?.[1] || 'neuvedená')}<br>
+    🔨 Typ sadrokartónu: ${esc((lead.popis || '').match(/Typ sadrokartónu:\s*([\s\S]*?)(?=\s*(?:Konkrétna práca:|Kraj:|Okres:|Termín:|Odhad:|Fotografie vybrané:|$))/i)?.[1]?.trim() || 'neuvedený')}<br>
+    📍 Kraj: ${esc(lead.region || 'neuvedený')}<br>
+    📍 Okres: ${esc(lead.okres || 'neuvedený')}<br>
+    📅 Termín: ${esc((lead.popis || '').match(/Termín:\s*([\s\S]*?)(?=\s*(?:Odhad:|Fotografie vybrané:|$))/i)?.[1]?.trim() || 'neuvedený')}<br>
+    📝 Popis: ${esc((lead.popis || '').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
+  `
+  : `
+    📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([^\n]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+    🏠 Krytina: ${esc((lead.popis || '').match(/Krytina:\s*([^\n]*?)(?=\s*Krov:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
+    🔨 Krov: ${esc((lead.popis || '').match(/Krov:\s*([^\n]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+    📍 Kraj: ${esc((lead.popis || '').match(/Kraj:\s*([^\n]*?)(?=\s*Termín:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+    📅 Termín: ${esc((lead.popis || '').match(/Termín:\s*([^\n]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
+    📝 Popis: ${esc((lead.popis || '').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
+  `}
+
 </div>
     <div style="margin-top:10px">
       🔓 <b>Kontakt zákazníka</b><br>
