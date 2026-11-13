@@ -2857,13 +2857,15 @@ $('logoutBtn').addEventListener('click',()=>{
   $('companyDashboard').style.display='none';
   $('companyPortal').style.display='none';
   $('companyRegister').style.display='none';
- if(wasAdmin){
+
+if(wasAdmin){
   $('customer').style.display='none';
   $('admin').classList.add('show');
   showLogin();
 }else{
-  $('customer').style.display='block';
+  zobrazHlavnuStranku();
 }
+
 
   window.scrollTo({top:0,behavior:'smooth'});
 });
