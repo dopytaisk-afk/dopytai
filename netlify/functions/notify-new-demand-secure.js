@@ -39,6 +39,10 @@ exports.handler = async (event) => {
   ) {
     return reply(401, { error: "Unauthorized" });
   }
+  console.info("DopytAI notification environment:", {
+  context: process.env.CONTEXT || "nenastaveny",
+  branch: process.env.BRANCH || "nenastavena"
+});
   // V testovacom prostredi neposielame upozornenia firmam.
   if (process.env.CONTEXT !== "production") {
     return reply(200, {
