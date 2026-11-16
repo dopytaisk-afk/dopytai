@@ -44,7 +44,7 @@ exports.handler = async (event) => {
   branch: process.env.BRANCH || "nenastavena"
 });
   // V testovacom prostredi neposielame upozornenia firmam.
-  if (process.env.CONTEXT !== "production") {
+if (process.env.DOPYTAI_ENABLE_NOTIFICATIONS !== "true") {
     return reply(200, {
       sent: 0,
       failed: 0,
