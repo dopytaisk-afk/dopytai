@@ -159,7 +159,13 @@ if (lead.stav !== "novy") {
         (companyWork === "Sadrokartón" && isSdkLead)
       );
     });
-
+console.info("DopytAI notification matching:", {
+  leadId,
+  region: lead.region,
+  work: lead.typ_prace,
+  companiesFound: companies.length,
+  matchingCompanies: matching.length
+});
     const safeWork = escapeHtml(lead.typ_prace || "Nový dopyt");
     const safeLocation = escapeHtml(lead.lokalita || "-");
  const safeArea = escapeHtml((String(lead.popis || "").match(/Plocha:\s*(\d+(?:[.,]\d+)?)\s*m²/i) || [])[1] || "-");
