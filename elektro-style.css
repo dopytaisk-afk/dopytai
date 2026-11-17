@@ -1,7 +1,7 @@
 
 /* DopytAI: elektro vizual, samostatny od strechy a sadrokartonu */
 .home-elektro-image {
-  background: #dceeff url('/elektro-ilustracia.svg') center/cover no-repeat !important;
+  background: #dceeff url('/elektro-foto-dopytai.webp') center/cover no-repeat !important;
 }
 .home-elektro-image::after { content: none !important; }
 .roof-hero.elektro-hero {
@@ -72,7 +72,7 @@
   width:100%;
   height: 475px;
   border-radius: 22px;
-  background: #d9edff url('/elektro-ilustracia.svg') center / cover no-repeat;
+  background: #d9edff url('/elektro-foto-dopytai.webp') center / cover no-repeat;
   box-shadow: 0 14px 38px #09244820;
 }
 .roof-hero.elektro-hero .estimate-cta {
@@ -102,3 +102,9 @@
   .elektro-features span { min-height:60px; padding:10px 9px; font-size:12px; }
   .roof-hero.elektro-hero .estimate-cta { display:flex !important; width:100%; font-size:15px; }
 }
+
+/* Elektro: odstrániť zdvojené CTA zo SDK hero; tlačidlo je len v ľavom stĺpci. */
+.roof-hero.elektro-hero #sdkHeroButton { display: none !important; }
+.roof-hero.elektro-hero { min-height: 0; height: auto; }
+.roof-hero.elektro-hero .roof-hero-copy { padding-bottom: 18px; }
+.roof-hero.elektro-hero .roof-hero-copy .roof-hero-sub { clear: both; }
