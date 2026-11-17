@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="760" viewBox="0 0 920 760" role="img" aria-label="Ilustrácia elektrikára pracujúceho pri rozvádzači">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d8ebfc"/><stop offset="1" stop-color="#f7fbff"/></linearGradient>
+<linearGradient id="wall" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#dfebf7"/></linearGradient>
+<linearGradient id="overalls" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#237be2"/><stop offset="1" stop-color="#063a85"/></linearGradient>
+<linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fac9a5"/><stop offset="1" stop-color="#cf8869"/></linearGradient>
+<filter id="shadow"><feDropShadow dx="2" dy="12" stdDeviation="16" flood-color="#1a4572" flood-opacity=".18"/></filter>
+</defs>
+<rect width="920" height="760" rx="40" fill="url(#bg)"/>
+<path d="M0 720Q220 640 450 682Q690 728 920 610V760H0Z" fill="#cee7ff"/>
+<rect x="566" y="74" width="296" height="530" rx="18" fill="url(#wall)" stroke="#98b8d6" stroke-width="5" filter="url(#shadow)"/>
+<rect x="586" y="104" width="258" height="466" rx="9" fill="#dae6f3" stroke="#b6ccdf" stroke-width="2"/>
+<rect x="605" y="126" width="220" height="427" rx="8" fill="#f4f8ff"/>
+<g stroke-width="7" fill="none" stroke-linecap="round"><path stroke="#126fd8" d="M618 140v110q0 24 38 24h41"/><path stroke="#f5c424" d="M638 135v112q0 17 34 17h24"/><path stroke="#16956c" d="M663 135v90q0 28 44 28h20"/><path stroke="#184f9f" d="M790 140v118q0 24-25 24h-46"/></g>
+<g fill="#fff" stroke="#b7cadb" stroke-width="2">
+<rect x="624" y="278" width="176" height="82" rx="7"/><rect x="624" y="382" width="176" height="82" rx="7"/>
+</g>
+<g fill="#e8f4ff" stroke="#8baecd" stroke-width="1">
+<rect x="634" y="292" width="26" height="55" rx="3"/><rect x="668" y="292" width="26" height="55" rx="3"/><rect x="702" y="292" width="26" height="55" rx="3"/><rect x="736" y="292" width="26" height="55" rx="3"/><rect x="770" y="292" width="21" height="55" rx="3"/>
+<rect x="634" y="395" width="26" height="55" rx="3"/><rect x="668" y="395" width="26" height="55" rx="3"/><rect x="702" y="395" width="26" height="55" rx="3"/><rect x="736" y="395" width="26" height="55" rx="3"/><rect x="770" y="395" width="21" height="55" rx="3"/>
+</g>
+<g fill="#1378ed"><rect x="637" y="315" width="20" height="14" rx="3"/><rect x="671" y="315" width="20" height="14" rx="3"/><rect x="705" y="315" width="20" height="14" rx="3"/><rect x="739" y="315" width="20" height="14" rx="3"/><rect x="773" y="315" width="15" height="14" rx="3"/><rect x="637" y="419" width="20" height="14" rx="3"/><rect x="671" y="419" width="20" height="14" rx="3"/><rect x="705" y="419" width="20" height="14" rx="3"/><rect x="739" y="419" width="20" height="14" rx="3"/><rect x="773" y="419" width="15" height="14" rx="3"/></g>
+<g filter="url(#shadow)">
+<path d="M210 755L236 485Q250 394 334 382L432 380Q520 385 530 484L564 755Z" fill="url(#overalls)"/>
+<path d="M255 455L335 430L375 505L405 414L479 447L444 756L266 756Z" fill="#1b67c6"/>
+<path d="M336 344v73q31 44 77 0v-75Z" fill="url(#skin)"/>
+<path d="M316 206q-12 29-5 103q15 76 77 83q65-5 83-81l-6-86Z" fill="url(#skin)"/>
+<path d="M325 301q20 39 63 42q46-1 78-35q-6 66-51 81q-58 10-85-39Z" fill="#684537"/>
+<path d="M334 285q18 9 32 1M402 285q19 8 33-4" stroke="#503b32" stroke-width="6" fill="none" stroke-linecap="round"/>
+<path d="M285 245Q288 138 388 128Q489 140 484 242L281 254Z" fill="#1064c7" stroke="#053f88" stroke-width="6"/>
+<path d="M285 238q109-24 209-4q53 12 78 31q-120 7-276 1Z" fill="#0751ac"/>
+<rect x="340" y="180" width="94" height="34" rx="9" fill="#eaf5ff"/><text x="387" y="202" fill="#0751ac" font-size="19" font-weight="800" font-family="Arial" text-anchor="middle">DopytAI</text>
+<path d="M308 270q74-25 147-1" fill="none" stroke="#c4f0ff" stroke-width="10" opacity=".8"/>
+<path d="M275 472q-65 30-93 119l52 25q39-58 86-91Z" fill="#1a5faa"/>
+<path d="M470 461q59 9 115-18l32 55q-53 40-118 39Z" fill="#1865bd"/>
+<path d="M582 444l34-20q24-10 35 8l10 16q7 15-10 26l-34 20Z" fill="#4e637a"/>
+<path d="M639 437l-2-71" stroke="#f54432" stroke-width="12" stroke-linecap="round"/>
+<path d="M639 366l18-10" stroke="#f9d441" stroke-width="9" stroke-linecap="round"/>
+<path d="M177 565l-34 82q-11 26 7 38l18 11q19 10 33-15l38-85Z" fill="#4d6378"/>
+</g>
+<circle cx="754" cy="625" r="42" fill="#fff" stroke="#aec9df" stroke-width="4"/>
+<circle cx="740" cy="620" r="6" fill="#14599d"/><circle cx="766" cy="620" r="6" fill="#14599d"/><path d="M754 632v12" stroke="#14599d" stroke-width="5" stroke-linecap="round"/>
+<path d="M782 710q65 0 138-63v113H570Z" fill="#0b78f6" opacity=".95"/>
+</svg>
