@@ -1759,8 +1759,8 @@ hero.querySelector('.roof-hero-sub').textContent =
   document.querySelector('.roof-hero')
   ?.classList.toggle('sdk-hero', jeSadrokarton);
   hero.classList.toggle('elektro-hero', jeElektro);
-  $('sdkHeroButton').style.display =
-  jeSadrokarton ? 'block' : 'none';
+  // Iba SDK pouziva samostatne tlacidlo na pozadi, elektro ma svoje CTA v lavom stlpci.
+  $('sdkHeroButton').style.display = jeSadrokarton ? 'block' : 'none';
   hero.querySelector('.roof-hero-content .estimate-cta').style.display =
   jeSadrokarton ? 'none' : 'block';
     document.querySelector('.form-heading').textContent =
