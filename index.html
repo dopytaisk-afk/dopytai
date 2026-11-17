@@ -1722,12 +1722,13 @@ hero.querySelector('.roof-hero-sub').textContent =
   hero.querySelector('.roof-hero-content .estimate-cta').style.display =
   jeSadrokarton ? 'none' : 'block';
     document.querySelector('.form-heading').textContent =
-    jeSadrokarton
-      ? 'Povedzte nám viac o vašich sadrokartónových prácach'
+    jeElektro ? 'Povedzte nám viac o elektroinštalačných prácach'
+      : jeSadrokarton ? 'Povedzte nám viac o vašich sadrokartónových prácach'
       : 'Povedzte nám viac o vašej streche';
 
-  $('desc').placeholder = jeSadrokarton
-    ? 'Napr. podhľady v rodinnom dome, dvojité opláštenie, izolácia...'
+  $('desc').placeholder = jeElektro
+    ? 'Napr. kompletná elektroinštalácia novostavby, požadovaný počet zásuviek, projekt...'
+    : jeSadrokarton ? 'Napr. podhľady v rodinnom dome, dvojité opláštenie, izolácia...'
     : 'Napr. novostavba bungalovu, väzníkový krov...';
 
   $('elektroFields').style.display = jeElektro ? 'block' : 'none';
@@ -1736,7 +1737,7 @@ hero.querySelector('.roof-hero-sub').textContent =
 
   ['type', 'area', 'cover', 'truss'].forEach(id => {
     $(id).closest('.field').style.display =
-      jeSadrokarton ? 'none' : 'block';
+      (jeSadrokarton || jeElektro) ? 'none' : 'block';
   });
 
   $('area').required = !(jeSadrokarton || jeElektro);
@@ -3488,6 +3489,11 @@ if(accessToken) showPanel(); else showLogin();
 
 $('form').addEventListener('submit',async e=>{
   e.preventDefault();
+  // WIP: Neodosielat elektro dopyty, kym nie su pripravene SQL/RPC, notifikacie a zobrazenie.
+  if ($('remeslo').value === 'elektro') {
+    $('result').innerHTML = '<div class="error">Elektroinštalácie pripravujeme. Odosielanie dopytov ešte nie je aktívne.</div>';
+    return;
+  }
 
   const btn=$('submitBtn');
   btn.disabled=true;
