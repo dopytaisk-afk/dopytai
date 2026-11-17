@@ -1,5 +1,5 @@
 <!doctype html><html lang="sk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DopytAI</title><style>
+<title>DopytAI</title><link rel="stylesheet" href="/elektro-style.css"><style>
 :root{--b:#087cf0;--bd:#0666ca;--n:#092448;--bg:#f5f9fd;--line:#dce7f1;--mut:#66778d;--g:#179a47;--pale:#eaf4ff;--err:#b42318}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--n);font-family:Inter,Arial,sans-serif}.wrap{width:min(760px,92%);margin:auto}
 .top{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 3px 16px #0924480a}.nav{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
@@ -1118,12 +1118,21 @@
 
 <section class="roof-hero">
   <div class="roof-hero-content">
-    <h1>Nová <span>strecha</span> začína<br>dobrým plánom</h1>
-    <p>Zistite orientačnú cenu a nájdite firmu na realizáciu.</p>
-    <p class="roof-hero-sub">Zadanie dopytu je zdarma a nezáväzné.</p>
-   <a class="estimate-cta" href="#form">
-  Zistiť orientačnú cenu zdarma →
-</a>
+    <div class="roof-hero-copy">
+      <span class="elektro-tag">⚡ Elektroinštalácie na DopytAI</span>
+      <h1>Nová <span>strecha</span> začína<br>dobrým plánom</h1>
+      <p>Zistite orientačnú cenu a nájdite firmu na realizáciu.</p>
+      <div class="elektro-features" aria-label="Typy elektroinštalácií">
+        <span><b>⚡</b> Kompletná elektroinštalácia</span>
+        <span><b>🛠</b> Opravy a poruchy</span>
+        <span><b>✓</b> Revízie</span>
+        <span><b>⌂</b> Rodinné domy, byty a iné objekty</span>
+      </div>
+      <a class="estimate-cta" href="#form">Zistiť orientačnú cenu zdarma →</a>
+      <a class="elektro-secondary-cta" href="#howItWorks">Ako to funguje</a>
+      <p class="roof-hero-sub">Zadanie dopytu je zdarma a nezáväzné.</p>
+    </div>
+    <div class="elektro-image" role="img" aria-label="Elektrikár pri elektroinštalačnom rozvádzači"></div>
   </div>
   <a id="sdkHeroButton"
      class="estimate-cta"
@@ -1133,7 +1142,7 @@
   </a>
 </section>
 
-<section class="how-it-works">
+<section class="how-it-works" id="howItWorks">
   <h2>Ako funguje DopytAI</h2>
 
   <div class="steps-grid">
@@ -1737,11 +1746,11 @@ function prepniRemeslo() {
     : 'Opíšte svoju strechu';
   const hero = document.querySelector('.roof-hero');
 
-hero.querySelector('h1').innerHTML = jeElektro ? 'Elektroinštalácie <span>pre váš domov</span>' : jeSadrokarton
+hero.querySelector('h1').innerHTML = jeElektro ? 'Elektroinštalácie' : jeSadrokarton
   ? 'Sadrokartónové <span>práce</span><br>rýchlo a jednoducho'
   : 'Nová <span>strecha</span> začína<br>dobrým plánom';
 
-hero.querySelector('.roof-hero-content > p').textContent = jeElektro ? 'Zadajte dopyt na rozvody, opravu alebo revíziu a nájdite elektrikára.' : jeSadrokarton
+hero.querySelector('.roof-hero-copy > p').textContent = jeElektro ? 'Nájdite spoľahlivého elektrikára vo vašom kraji. Odhad ceny závisí od rozsahu prác.' : jeSadrokarton
   ? 'Zadajte dopyt na priečky, podhľady, predsadené steny alebo iné sadrokartónové práce a získajte cenový odhad.'
   : 'Zistite orientačnú cenu a nájdite firmu na realizáciu.';
 
@@ -1749,10 +1758,11 @@ hero.querySelector('.roof-hero-sub').textContent =
   'Zadanie dopytu je zdarma a nezáväzné.';
   document.querySelector('.roof-hero')
   ?.classList.toggle('sdk-hero', jeSadrokarton);
+  hero.classList.toggle('elektro-hero', jeElektro);
   $('sdkHeroButton').style.display =
   jeSadrokarton ? 'block' : 'none';
   hero.querySelector('.roof-hero-content .estimate-cta').style.display =
-  (jeSadrokarton || jeElektro) ? 'none' : 'block';
+  jeSadrokarton ? 'none' : 'block';
     document.querySelector('.form-heading').textContent =
     jeElektro ? 'Povedzte nám viac o elektroinštalačných prácach'
       : jeSadrokarton ? 'Povedzte nám viac o vašich sadrokartónových prácach'
