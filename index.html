@@ -1174,11 +1174,18 @@
     <select id="remeslo">
       <option value="strechy">Strechy</option>
       <option value="sadrokarton">Sadrokartón</option>
+      <option value="elektro">Elektroinštalácie</option>
     </select>
   </div>
 </div>
 <form id="form" class="card">
 <div class="field"><label>Čo potrebujete?</label><select id="type"><option>Nová strecha</option><option>Rekonštrukcia strechy</option><option>Oprava / zatekanie</option></select></div>
+<div id="elektroFields" style="display:none">
+  <div class="field"><label for="elektroType">Typ elektroinštalačných prác</label><select id="elektroType"><option>Kompletná elektroinštalácia</option><option>Čiastočná elektroinštalácia</option><option>Oprava alebo porucha</option><option>Elektroinštalačná revízia</option></select></div>
+  <div class="field"><label for="elektroObjekt">Objekt</label><select id="elektroObjekt"><option>Rodinný dom</option><option>Byt</option><option>Iný objekt</option></select></div>
+  <div class="field"><label for="elektroArea">Plocha objektu v m² (voliteľné)</label><input id="elektroArea" type="number" min="1" placeholder="napr. 120"></div>
+  <p class="note">Cenu elektroinštalácie nacení realizačná firma podľa konkrétneho rozsahu prác.</p>
+</div>
 <div id="sadrokartonFields" style="display:none">
   <div class="field">
     <label for="sdkType">Aké sadrokartónové práce potrebujete?</label>
@@ -1444,6 +1451,7 @@
     <option value="">Vyberte remeslo</option>
     <option value="Strechy">Strechy – pokrývačské a klampiarske práce</option>
    <option value="Sadrokartón">Sadrokartón – sadrokartónové práce</option>
+    <option value="Elektroinštalácie">Elektroinštalácie – elektrikárske práce</option>
   </select>
 </div>
     <div class="field">
@@ -1690,17 +1698,18 @@ $('type').addEventListener('change', aktualizujPopisPlochy);
 aktualizujPopisPlochy();
 function prepniRemeslo() {
   const jeSadrokarton = $('remeslo').value === 'sadrokarton';
+  const jeElektro = $('remeslo').value === 'elektro';
   document.querySelector('.how-it-works .step-card h3').textContent =
-  jeSadrokarton
+  jeElektro ? 'Opíšte požadovanú elektroinštaláciu' : jeSadrokarton
     ? 'Opíšte svoje sadrokartónové práce'
     : 'Opíšte svoju strechu';
   const hero = document.querySelector('.roof-hero');
 
-hero.querySelector('h1').innerHTML = jeSadrokarton
+hero.querySelector('h1').innerHTML = jeElektro ? 'Elektroinštalácie <span>pre váš domov</span>' : jeSadrokarton
   ? 'Sadrokartónové <span>práce</span><br>rýchlo a jednoducho'
   : 'Nová <span>strecha</span> začína<br>dobrým plánom';
 
-hero.querySelector('.roof-hero-content > p').textContent = jeSadrokarton
+hero.querySelector('.roof-hero-content > p').textContent = jeElektro ? 'Zadajte dopyt na rozvody, opravu alebo revíziu a nájdite elektrikára.' : jeSadrokarton
   ? 'Zadajte dopyt na priečky, podhľady, predsadené steny alebo iné sadrokartónové práce a získajte cenový odhad.'
   : 'Zistite orientačnú cenu a nájdite firmu na realizáciu.';
 
@@ -1721,6 +1730,7 @@ hero.querySelector('.roof-hero-sub').textContent =
     ? 'Napr. podhľady v rodinnom dome, dvojité opláštenie, izolácia...'
     : 'Napr. novostavba bungalovu, väzníkový krov...';
 
+  $('elektroFields').style.display = jeElektro ? 'block' : 'none';
   $('sadrokartonFields').style.display =
     jeSadrokarton ? 'block' : 'none';
 
@@ -1729,7 +1739,7 @@ hero.querySelector('.roof-hero-sub').textContent =
       jeSadrokarton ? 'none' : 'block';
   });
 
-  $('area').required = !jeSadrokarton;
+  $('area').required = !(jeSadrokarton || jeElektro);
   $('sdkArea').required = jeSadrokarton;
 }
 
