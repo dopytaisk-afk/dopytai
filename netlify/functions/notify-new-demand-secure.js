@@ -150,13 +150,15 @@ if (lead.stav !== "novy") {
     ].includes(work);
 
     const isSdkLead = work === "Sadrokartón";
+    const isElektroLead = work === "Elektroinštalácie";
 
     const matching = companies.filter((company) => {
       const companyWork = String(company.typ_prace || "").trim();
 
       return Boolean(company.email) && (
         (companyWork === "Strechy" && isRoofLead) ||
-        (companyWork === "Sadrokartón" && isSdkLead)
+        (companyWork === "Sadrokartón" && isSdkLead) ||
+        (companyWork === "Elektroinštalácie" && isElektroLead)
       );
     });
 console.info("DopytAI notification matching:", {
@@ -175,10 +177,11 @@ console.info("DopytAI notification matching:", {
 const priceRange = priceMatch?.[1]?.trim();
 
 const cenaIndividualna =
-  lead.typ_prace === "Sadrokartón" &&
+  lead.typ_prace === "Elektroinštalácie" ||
+  (lead.typ_prace === "Sadrokartón" &&
   /(?:^|\n)Typ sadrokartónu:\s*Iné(?:\r?\n|$)/.test(
     String(lead.popis || "")
-  );
+  ));
 
 const safeBudget = escapeHtml(
   cenaIndividualna
@@ -237,7 +240,9 @@ const safeUnlockPrice = escapeHtml(
                     <div style="padding:26px 24px;">
                       <h2 style="margin:0 0 20px;">${safeWork}</h2>
                       <p><strong>📍 Lokalita:</strong> ${safeLocation}</p>
-                      <p><strong>📐 Plocha:</strong> ${safeArea} m²</p>
+                      ${isElektroLead
+                        ? '<p><strong>⚡ Elektroinštalácie:</strong> ' + escapeHtml((String(lead.popis || '').match(/(?:^|\n)Typ elektroinštalácie:\s*([^\r\n]+)/) || [])[1] || 'podľa zadania') + '</p>'
+                        : '<p><strong>📐 Plocha:</strong> ' + safeArea + ' m²</p>'}
                       <p><strong>💰 Orientačný odhad:</strong> ${safeBudget}</p>
                       <div style="margin-top:24px;padding:18px;background:#eef6ff;border-radius:12px;line-height:1.6;">
                         <strong>🔒 Kontakt zákazníka je skrytý.</strong><br>
