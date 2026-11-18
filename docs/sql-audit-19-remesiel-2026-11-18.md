@@ -48,3 +48,12 @@ Stav 18. 11. 2026. Podkladom sú dva CSV exporty z produkčného Supabase SQL Ed
 - `kup_dopyt`: správne remeslo, aktívna firma, kredit, dostupnosť a exkluzivita, **nie kontrola kraja**.
 - Okres iba informačný údaj pred nákupom; nemení filtrovanie ani možnosť kúpy.
 - Návrh SQL bol upravený podľa tohto pravidla; produkcia nezmenená.
+
+## Fotografie a notifikácie – implementované na vývojovej vetve (18.11.2026)
+- `netlify/functions/_shared/trade-types.js`: spoločný whitelist pre 19 firemných remesiel (3 strešné typy -> Strechy).
+- `netlify/functions/get-lead-photos.js`: kontrola prihláseného používateľa, aktívnej firmy a **zhody remesla**, už pred nákupom; kúpený dopyt sa kontroluje samostatne. **Kraj/okres sa nekontroluje**. Fotografie sa vracajú ako podpísané URL platné 600 sekúnd; nie ako verejný bucket.
+- `netlify/functions/notify-new-demand-secure.js`: zdieľaný whitelist podporuje nové remeslá, regionálny filter v query zostal; e-mail neobsahuje kompletný voľný opis. Neznáme typy neposielajú emaily.
+- `netlify/functions/confirm-demand-email.js` už spúšťa notifikáciu po úspešnom prechode `caka_na_overenie` -> `novy` pomocou internej funkcie; databázový AFTER INSERT trigger je iná cesta a jej odlišná udalosť ešte nepreukazuje chybu emailov.
+- `tests/trade-routing.test.js`: základná regresná kontrola mapovania; syntax JavaScriptu a vlastná sada kontrol zhody remesla overené v analýze. **E2E ani živé emailové testy neprebehli.**
+- GitHub vetva `feature/elektroinstalacie`; PR #9 draft. Produkcia a Supabase bez zmien.
+- **Zostáva pred produkciou:** DB bezpečné zobrazenie a SQL whitelist, skutočné nahratie/prehliadanie fotografií s dvoma firmami rozdielnych remesiel, správny stav a token, emailová notifikácia až po potvrdení, kontrola regiónu iba pre emaily, potvrdzovanie unikátnych pokusov.
