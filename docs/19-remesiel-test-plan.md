@@ -32,3 +32,11 @@
 - Existujuci legacy `INSERT` webhook je odlisny od `confirm-demand-email` workflow, ale samotny INSERT bol v notifikacnom JS odfiltrovany; overit logy bez realnych rozosielok.
 - Bezpecnost volneho popisu a anonymizacia pri novych remeslach sa musia potvrdit na urovni DB a Netlify.
 - Pred nasadenim v TEST skontrolovat celu logiku `anon` tabulkovych prav a `SECURITY DEFINER` vlastnikov.
+
+## DopytAI-TEST audit funkcií – CSV #8 (18.11.2026)
+- Overené štyri funkcie na oddelenom TEST: `bezpecne_dopyty()`, `kup_dopyt(bigint,bigint,numeric)`, `vytvor_dopyt_s_token(...)`, `vytvor_dopyt_s_token_v2(...)`. Všetky SECURITY DEFINER.
+- TEST `bezpecne_dopyty()` **filtruje kraj** cez `f.region = d.region` a whitelist iba Strechy/Sadrokartón. SELECT nemá rovnaké stĺpce ako produkčný návrh: posledné sú `d.cena_dopytu, d.okres`, chýba `d.anonymizovane_at`. Preto produkčný návrh nie je vhodný do TEST.
+- TEST `kup_dopyt()` **blokuje cez kraj**, ale má legitímnu kontrolu `p_suma IS DISTINCT FROM v_cena`, auth aktívnej firmy, FOR UPDATE a odpočet kreditu. Nová migrácia má zachovať kontrolu p_suma, vynechať kontrolu kraja.
+- TEST `vytvor_dopyt_s_token_v2()` povoľuje iba strešné podtypy a SDK. Staršia `vytvor_dopyt_s_token()` povoľuje prakticky ľubovoľný typ práce a preto si vyžaduje obmedzenie direct EXECUTE.
+- Pred vytvorením bezpečne vykonateľného TEST SQL: overiť aktuálne TEST stĺpce, typy a constraints tabuliek, vlastníkov funkcií, runtime grants, triggers, fotografie / storage a hodnoty remesiel vo firmách.
+- Dokončená len analýza CSV #8. Na TEST ani produkcii zatiaľ nič nemenené.
