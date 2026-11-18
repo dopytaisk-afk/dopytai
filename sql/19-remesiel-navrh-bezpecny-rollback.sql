@@ -134,8 +134,10 @@ BEGIN
 END
 $body$;
 
--- 4. Spevnenie bezpecneho nakupu: auth, stav firmy, remeslo, kraj,
--- stav dopytu, exkluzivita, serverova cena aj atomicky odpocet kreditu.
+-- 4. Bezpecny nakup: auth, stav firmy, remeslo, stav dopytu,
+-- exkluzivita, serverova cena a atomicky odpocet kreditu.
+-- KRAJ ANI OKRES NESMU OBMEDZOVAT VIDITELNOST ALEBO NAKUP.
+-- Kraj pouzit iba pre emailove upozornenia firmam daneho remesla.
 CREATE OR REPLACE FUNCTION public.kup_dopyt(
  p_firma_id bigint, p_dopyt_id bigint, p_suma numeric
 ) RETURNS void
@@ -145,14 +147,12 @@ DECLARE
  v_firma_id bigint;
  v_firma_stav text;
  v_firma_typ text;
- v_firma_region text;
  v_cena numeric;
  v_stav text;
  v_typ text;
- v_region text;
 BEGIN
- SELECT id,stav,typ_prace,region
- INTO v_firma_id,v_firma_stav,v_firma_typ,v_firma_region
+ SELECT id,stav,typ_prace
+ INTO v_firma_id,v_firma_stav,v_firma_typ
  FROM public.firmy
  WHERE auth_user_id=auth.uid();
 
@@ -161,8 +161,8 @@ BEGIN
  IF v_firma_stav <> 'aktivna'
  THEN RAISE EXCEPTION 'Firma nie je aktivna.'; END IF;
 
- SELECT cena_dopytu,stav,typ_prace,region
- INTO v_cena,v_stav,v_typ,v_region
+ SELECT cena_dopytu,stav,typ_prace
+ INTO v_cena,v_stav,v_typ
  FROM public.dopyty
  WHERE id=p_dopyt_id
  FOR UPDATE;
@@ -173,8 +173,6 @@ BEGIN
  THEN RAISE EXCEPTION 'Neplatna cena dopytu.'; END IF;
  IF public.dopytai_typ_firmy(v_typ) IS DISTINCT FROM v_firma_typ
  THEN RAISE EXCEPTION 'Dopyt nepatri do remesla firmy.'; END IF;
- IF v_region IS DISTINCT FROM v_firma_region
- THEN RAISE EXCEPTION 'Dopyt nepatri do kraja firmy.'; END IF;
 
  IF EXISTS(SELECT 1 FROM public.odomknute_dopyty WHERE dopyt_id=p_dopyt_id)
  THEN RAISE EXCEPTION 'Dopyt uz bol odomknuty.'; END IF;
@@ -195,12 +193,15 @@ $body$;
 --
 -- Pred schvalenim finalnej migracie sa sem musi doplnit:
 --   * branch pre Elektro + 16 novych remesiel bez sukromneho popisu pred kupou
---   * filter pre mapovanie firma.typ_prace na dopyt.typ_prace a kraj
+--   * filter pre remeslo (bez podmienky na kraj/okres)
 --   * stav='novy' pri neodomknutych dopytoch
 --   * zachovanie vsetkych 16 stlpcov v presnom poradi
 --   * regression test pre Strechy a Sadrokarton
 --   * audit foto pristupu (fotky maju byt viditelne pred kupou bez URL tokenov)
 --   * audit webhooku INSERT vs UPDATE (notifikacie len po potvrdeni emailu)
+--   * EMAILY len firmam z kraja dopytu a spravneho remesla,
+--     VIDITELNOST a NAKUP rovnakeho remesla pre firmy z celeho Slovenska.
+--     Okres je len informativny udaj pred kupou.
 --
 -- 6. Ochranna blokada: navrh sa NESMIE uspesne dokoncit.
 -- Umyselne zastavi transakciu aj ked niekto omylom spusti cely subor.
