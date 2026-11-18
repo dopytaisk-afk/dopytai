@@ -305,3 +305,137 @@
     font-size: 13px;
   }
 }
+
+/* DopytAI unified-trade-hero 2026
+   Rovnaky hero pre vsetky remesla: text vlavo, fotografia vpravo.
+   Jednotny dizajn, ziadna zmena formularov ani pristupovych prav. */
+.roof-hero.unified-trade-hero,
+.roof-hero.unified-trade-hero.sdk-hero,
+.roof-hero.unified-trade-hero.elektro-hero,
+.roof-hero.unified-trade-hero.generic-hero {
+  position: relative;
+  width:100%;
+  min-height: 0;
+  height: auto;
+  padding: clamp(28px,4vw,54px) max(18px,4%) !important;
+  background:linear-gradient(125deg,#f8fbff 0%,#eaf5ff 75%,#d9ecff 100%) !important;
+  text-align: left;
+  border-radius: 0 0 18px 18px;
+}
+.roof-hero.unified-trade-hero .roof-hero-content,
+.roof-hero.unified-trade-hero.sdk-hero .roof-hero-content,
+.roof-hero.unified-trade-hero.elektro-hero .roof-hero-content,
+.roof-hero.unified-trade-hero.generic-hero .roof-hero-content {
+  display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);
+  align-items:center;
+  gap:clamp(20px,3vw,46px);
+  width:100%;
+  max-width:1260px;
+  margin:0 auto;
+  text-align:left;
+}
+.roof-hero.unified-trade-hero .roof-hero-copy {
+  min-width:0;
+  padding:0;
+  text-align:left;
+}
+.roof-hero.unified-trade-hero h1,
+.roof-hero.unified-trade-hero.sdk-hero h1 {
+  font-size:clamp(33px,4.5vw,58px);
+  line-height:1.12;
+  color:#092448;
+  letter-spacing:-1px;
+  margin:0 0 20px;
+  font-weight:900;
+  text-shadow:none;
+}
+.roof-hero.unified-trade-hero .roof-hero-copy > p,
+.roof-hero.unified-trade-hero.sdk-hero .roof-hero-copy > p {
+  max-width:600px;
+  font-size:clamp(16px,1.8vw,21px);
+  line-height:1.5;
+  font-weight:650;
+  color:#18375a;
+  margin:0 0 16px;
+  text-shadow:none;
+}
+.roof-hero.unified-trade-hero .roof-hero-sub {
+  display:block;
+  width:fit-content;
+  max-width:100%;
+  padding:0;
+  margin:12px 0 0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  font-size:15px;
+  font-weight:700;
+  line-height:1.5;
+  color:#15395e;
+  text-shadow:none;
+}
+.roof-hero.unified-trade-hero .elektro-image,
+.roof-hero.unified-trade-hero.sdk-hero .elektro-image,
+.roof-hero.unified-trade-hero.elektro-hero .elektro-image,
+.roof-hero.unified-trade-hero.generic-hero .elektro-image {
+  display:block;
+  min-width:0;
+  width:100%;
+  height:clamp(270px,32vw,440px);
+  border-radius:20px;
+  box-shadow:0 12px 30px rgba(9,36,72,.15);
+  background-color:#dceeff;
+}
+.roof-hero.unified-trade-hero:not(.sdk-hero):not(.elektro-hero):not(.generic-hero) .elektro-image {
+  background-image:url('/strecha-hero.webp');
+  background-position:center 57%;
+  background-size:cover;
+  background-repeat:no-repeat;
+}
+.roof-hero.unified-trade-hero.sdk-hero .elektro-image {
+  background-image:url('/sadrokarton-pozadie.webp');
+  background-position:center 45%;
+  background-size:cover;
+  background-repeat:no-repeat;
+}
+.roof-hero.unified-trade-hero .elektro-tag,
+.roof-hero.unified-trade-hero .elektro-features,
+.roof-hero.unified-trade-hero .elektro-secondary-cta,
+.roof-hero.unified-trade-hero #sdkHeroButton {
+  display:none !important;
+}
+.roof-hero.unified-trade-hero .roof-hero-content .estimate-cta,
+.roof-hero.unified-trade-hero.sdk-hero .roof-hero-content .estimate-cta,
+.roof-hero.unified-trade-hero.elektro-hero .roof-hero-content .estimate-cta,
+.roof-hero.unified-trade-hero.generic-hero .roof-hero-content .estimate-cta {
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  width:auto;
+  max-width:100%;
+  margin:14px 0 8px;
+  padding:16px 22px;
+  font-size:16px;
+  white-space:normal;
+  text-align:center;
+}
+@media(max-width:790px) {
+  .roof-hero.unified-trade-hero .roof-hero-content,
+  .roof-hero.unified-trade-hero.sdk-hero .roof-hero-content,
+  .roof-hero.unified-trade-hero.elektro-hero .roof-hero-content,
+  .roof-hero.unified-trade-hero.generic-hero .roof-hero-content {
+    grid-template-columns:1fr;
+    gap:20px;
+  }
+  .roof-hero.unified-trade-hero .elektro-image,
+  .roof-hero.unified-trade-hero.sdk-hero .elektro-image,
+  .roof-hero.unified-trade-hero.elektro-hero .elektro-image,
+  .roof-hero.unified-trade-hero.generic-hero .elektro-image {
+    height:clamp(220px,58vw,330px);
+  }
+  .roof-hero.unified-trade-hero .roof-hero-content .estimate-cta {
+    width:100%;
+  }
+}
