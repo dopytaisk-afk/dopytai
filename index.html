@@ -1830,6 +1830,10 @@ function prepniRemeslo() {
   jeElektro ? 'Opíšte požadovanú elektroinštaláciu' : jeSadrokarton
     ? 'Opíšte svoje sadrokartónové práce'
     : 'Opíšte svoju strechu';
+  document.querySelectorAll('.how-it-works .step-card')[1].querySelector('p').textContent =
+    jeElektro
+      ? 'Orientačné rozpätie sa zobrazí zdarma už počas vypĺňania formulára.'
+      : 'Po odoslaní uvidíte orientačné cenové rozpätie.';
   const hero = document.querySelector('.roof-hero');
 
 hero.querySelector('h1').innerHTML = jeElektro ? 'Elektroinštalácie' : jeSadrokarton
