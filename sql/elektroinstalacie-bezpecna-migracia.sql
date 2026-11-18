@@ -15,6 +15,13 @@ BEGIN
     'public.vytvor_dopyt_s_token_v2(text,text,text,text,text,text,text,numeric,text)'::regprocedure
   ) INTO v_def;
 
+  -- Fail-closed: definicia musi byt presne ta, ktoru sme zalohovali 18.11.2026.
+  IF md5(v_def) <> '566a8d4ff9e9e27ab7aa6e3cc62fd0e1' THEN
+    RAISE EXCEPTION 'Definicia vytvor_dopyt_s_token_v2 sa zmenila. ROLLBACK.';
+  END IF;
+  -- Supabase funkcie pouzivaju CRLF v tele; normalizacia len bielych znakov.
+  v_def := replace(v_def, chr(13) || chr(10), chr(10));
+
   IF position('''Elektroinštalácie''' IN v_def) > 0 THEN
     RAISE EXCEPTION 'vytvor_dopyt_s_token_v2 uz uvadza elektroinstalacie: skontrolovat manualne';
   END IF;
@@ -92,6 +99,11 @@ DECLARE
 BEGIN
   SELECT pg_get_functiondef('public.bezpecne_dopyty()'::regprocedure)
   INTO v_def;
+
+  IF md5(v_def) <> 'd45f9ecf839e7e955ada8282f21f7ca8' THEN
+    RAISE EXCEPTION 'Definicia bezpecne_dopyty sa zmenila. ROLLBACK.';
+  END IF;
+  v_def := replace(v_def, chr(13) || chr(10), chr(10));
 
   IF position('Elektroinštalácie' IN v_def) > 0 THEN
     RAISE EXCEPTION 'bezpecne_dopyty uz uvadza elektroinstalacie: skontrolovat manualne';
