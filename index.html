@@ -1853,7 +1853,7 @@ function vykresliNoveRemesla() {
     // Jediný lokálny atlas s presne schválenými obrázkami z konverzácie.
     // Ak sa atlas ešte nenahral na Netlify, zobrazí sa SVG záloha.
     image.style.backgroundImage =
-      'url("/remesla-foto-atlas.webp"),url("/remesla-ikony.svg")';
+      'url("/dopytai-remesla-schvalene.jpg"),url("/remesla-ikony.svg")';
     image.style.backgroundSize = '400% 400%, 400% 400%';
     image.style.backgroundPosition =
       (stlpec * 100 / 3) + '% ' + (riadok * 100 / 3) + '%,' +
@@ -1928,11 +1928,30 @@ hero.querySelector('.roof-hero-sub').textContent =
   ?.classList.toggle('sdk-hero', jeSadrokarton);
   hero.classList.toggle('elektro-hero', jeElektro);
   hero.classList.toggle('generic-hero', Boolean(noveRemeslo));
+  const hlavnyObrazok = hero.querySelector('.elektro-image');
+  if (noveRemeslo) {
+    const poradie = NOVE_REMESLA.findIndex(([id]) => id === noveRemeslo.id);
+    const poziciaX = (poradie % 4) * 100 / 3;
+    const poziciaY = Math.floor(poradie / 4) * 100 / 3;
+    hlavnyObrazok.style.backgroundImage =
+      'url("/dopytai-remesla-schvalene.jpg"),url("/remesla-ikony.svg")';
+    hlavnyObrazok.style.backgroundSize = '400% 400%,400% 400%';
+    hlavnyObrazok.style.backgroundPosition =
+      poziciaX + '% ' + poziciaY + '%,' + poziciaX + '% ' + poziciaY + '%';
+    hlavnyObrazok.style.backgroundRepeat = 'no-repeat,no-repeat';
+    hlavnyObrazok.setAttribute('aria-label','Fotografia remesla: ' + noveRemeslo.nazov);
+  } else {
+    hlavnyObrazok.style.backgroundImage = '';
+    hlavnyObrazok.style.backgroundSize = '';
+    hlavnyObrazok.style.backgroundPosition = '';
+    hlavnyObrazok.style.backgroundRepeat = '';
+    hlavnyObrazok.setAttribute('aria-label','Elektrikár pri elektroinštalačnom rozvádzači');
+  }
   // Iba SDK pouziva samostatne tlacidlo na pozadi, elektro ma svoje CTA v lavom stlpci.
   $('sdkHeroButton').style.display = jeSadrokarton ? 'block' : 'none';
   const heroCta = hero.querySelector('.roof-hero-content .estimate-cta');
   heroCta.style.display = jeSadrokarton ? 'none' : 'block';
-  heroCta.textContent = noveRemeslo ? 'Pozrieť pripravovaný formulár →' : 'Zistiť orientačnú cenu zdarma →';
+  heroCta.textContent = noveRemeslo ? 'Zadať dopyt na ' + noveRemeslo.nazov + ' →' : 'Zistiť orientačnú cenu zdarma →';
     document.querySelector('.form-heading').textContent =
     noveRemeslo ? 'Povedzte nám viac: ' + noveRemeslo.nazov : jeElektro ? 'Povedzte nám viac o elektroinštalačných prácach'
       : jeSadrokarton ? 'Povedzte nám viac o vašich sadrokartónových prácach'
