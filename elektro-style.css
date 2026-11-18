@@ -254,3 +254,29 @@
   }
   .roof-hero.generic-hero { padding: 30px 16px !important; }
 }
+
+/* Zlepsena citatelnost fotografickeho hero sadrokartonu.
+   Nezasahuje do formulara ani funkcnosti. */
+.roof-hero.sdk-hero {
+  background:
+    linear-gradient(90deg,
+      rgba(248,251,255,.92) 0%,
+      rgba(248,251,255,.73) 43%,
+      rgba(248,251,255,.28) 100%),
+    url('/sadrokarton-pozadie.webp') center 45% / cover no-repeat !important;
+}
+.roof-hero.sdk-hero h1,
+.roof-hero.sdk-hero .roof-hero-copy > p,
+.roof-hero.sdk-hero .roof-hero-sub {
+  text-shadow: 0 2px 8px rgba(255,255,255,.95), 0 0 18px rgba(255,255,255,.85);
+}
+.roof-hero.sdk-hero .roof-hero-copy > p {
+  color: #092448;
+  font-weight: 750;
+}
+.roof-hero.generic-hero h1 { color:#082044; font-weight:900; }
+.roof-hero.generic-hero .roof-hero-copy > p,
+.roof-hero.generic-hero .roof-hero-sub {
+  color: #15395e;
+  font-weight: 700;
+}
