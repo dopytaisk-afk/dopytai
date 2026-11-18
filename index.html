@@ -1832,7 +1832,7 @@ function vykresliNoveRemesla() {
   const grid = document.querySelector('.home-trades-grid');
   const select = $('remeslo');
   const firmaSelect = $('registerCompanyWork');
-  NOVE_REMESLA.forEach(([id,nazov,ikona,popis]) => {
+  NOVE_REMESLA.forEach(([id,nazov,ikona,popis], index) => {
     const option = document.createElement('option');
     option.value = id;
     option.textContent = nazov;
@@ -1846,20 +1846,23 @@ function vykresliNoveRemesla() {
     card.className = 'home-trade-card';
     const image = document.createElement('div');
     image.className = 'home-trade-image';
-    image.style.background = 'linear-gradient(135deg,#dcefff,#b4dcff 55%,#e7f5ff)';
-    image.style.display = 'grid';
-    image.style.placeItems = 'center';
-    image.style.fontSize = 'clamp(62px,6vw,92px)';
-    image.style.color = '#0868bb';
-    image.setAttribute('aria-hidden','true');
-    image.textContent = ikona;
+    // Vlastná jednotná SVG ilustrácia z atlasu 4 x 4. Nevyžaduje externý hosting.
+    // Každý obrázok má rovnakú veľkosť a bezpečné okraje, nezobrazuje text.
+    const stlpec = index % 4;
+    const riadok = Math.floor(index / 4);
+    image.style.backgroundImage = "url('/remesla-ikony.svg')";
+    image.style.backgroundSize = '400% 400%';
+    image.style.backgroundPosition =
+      (stlpec * 100 / 3) + '% ' + (riadok * 100 / 3) + '%';
+    image.style.backgroundRepeat = 'no-repeat';
+    image.setAttribute('aria-hidden', 'true');
     const content = document.createElement('div');
     content.className = 'home-trade-content';
     const h = document.createElement('h3'); h.textContent = nazov;
     const p = document.createElement('p'); p.textContent = popis;
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.textContent = 'Zobraziť práce →';
+    btn.textContent = 'Zobraziť formulár →';
     btn.addEventListener('click', () => otvorRemeslo(id));
     content.append(h,p,btn);
     card.append(image,content);
