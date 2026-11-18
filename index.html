@@ -1225,7 +1225,18 @@
   <div id="elektroOdhadPreview" class="success" aria-live="polite" style="display:none"></div>
   <p class="note">Ide o nezáväzný odhad bežného rozsahu. Nezahŕňa projekt, nadštandard, veľké stavebné úpravy ani nepredvídané závady. Presnú cenu určí elektrikár po posúdení.</p>
 </div>
-<div id="genericTradeFields" style="display:none"><div class="field"><label for="genericWorkType">Aký druh prác potrebujete?</label><select id="genericWorkType"></select></div><div class="field"><label for="genericArea">Približná plocha prác (m², voliteľné)</label><input id="genericArea" type="number" min="1" max="100000" placeholder="napr. 80"></div><p class="note">Táto kategória sa pripravuje. Orientačnú cenu a odosielanie dopytu sprístupníme až po dokončení kalkulácie a bezpečnostných testov.</p></div>
+<div id="genericTradeFields" style="display:none">
+  <div class="field"><label for="genericWorkType">Aký druh prác potrebujete?</label><select id="genericWorkType"></select></div>
+  <div class="field" id="genericQuantityField">
+    <label id="genericQuantityLabel" for="genericArea">Rozsah prác</label>
+    <input id="genericArea" type="number" inputmode="decimal" min="1" max="10000" step="0.1" placeholder="Napr. 50">
+    <p id="genericQuantityHint" class="note"></p>
+  </div>
+  <button type="button" class="btn" id="genericCalcBtn" style="margin:12px 0">Vypočítať orientačnú cenu zdarma →</button>
+  <div id="genericPricePreview" class="success" style="display:none" aria-live="polite"></div>
+  <p class="note">Orientačný výpočet podľa zverejnených slovenských cenníkov 2026. <strong>Cena zahŕňa len prácu, nie materiál, dopravu ani DPH.</strong> Pri drobných a atypických zákazkách môže byť cena výrazne iná. Nejde o záväznú ponuku.</p>
+  <p class="note">Dopyty tohto remesla zatiaľ nie je možné odosielať. Pripravujeme ich bezpečné prepojenie s databázou.</p>
+</div>
 <div id="sadrokartonFields" style="display:none">
   <div class="field">
     <label for="sdkType">Aké sadrokartónové práce potrebujete?</label>
@@ -1828,6 +1839,73 @@ function renderElektroDetails(lead) {
 // Katalog novych remesiel – len vyvojove rozhranie, bez odosielania do Supabase.
 const NOVE_REMESLA = [["voda","Vodoinštalácie","🚰","Rozvody vody, odpady a montáž sanity",["Nové rozvody vody a odpadu","Oprava úniku vody","Montáž sanity","Iné vodoinštalačné práce"]],["kurenie","Kúrenie","♨️","Radiátory, podlahové kúrenie a kotly",["Podlahové kúrenie","Radiátory a rozvody","Výmena zdroja vykurovania","Oprava kúrenia"]],["klima","Klimatizácie","❄️","Montáž, servis a výmena klimatizácií",["Montáž klimatizácie","Servis a čistenie","Oprava klimatizácie","Multi-split systém"]],["murarske","Murárske práce","🧱","Murovanie, priečky a stavebné úpravy",["Nové murivo","Vnútorné priečky","Omietky","Stavebné úpravy"]],["fasady","Fasády a zateplenie","🏠","Zateplenie, omietky a oprava fasád",["Zateplenie fasády","Nová fasádna omietka","Oprava fasády","Iné fasádne práce"]],["maliarske","Maliarske práce","🎨","Maľovanie stien, stropov a povrchov",["Maľovanie interiéru","Maľovanie exteriéru","Stierkovanie","Tapetovanie"]],["obklady","Obklady a dlažby","▦","Keramika, kúpeľne a pokládka dlažby",["Obklad kúpeľne","Pokládka interiérovej dlažby","Pokládka terasovej dlažby","Oprava obkladov"]],["podlahy","Podlahy","🪵","Vinyl, laminát, drevo a nivelizácia",["Vinylová podlaha","Laminátová podlaha","Drevená podlaha","Príprava a nivelizácia"]],["okna","Okná a dvere","🚪","Výmena a montáž okien či dverí",["Plastové okná","Drevené okná","Vchodové dvere","Interiérové dvere"]],["tesarske","Tesárske práce","🪚","Krovy, drevené konštrukcie a prístrešky",["Krov strechy","Drevený prístrešok","Terasa z dreva","Iné tesárske práce"]],["izolacie","Hydroizolácie","💧","Izolácie základov, terás a plochých striech",["Izolácia základov","Izolácia terasy","Plochá strecha","Sanácia vlhkosti"]],["zamkova","Zámková dlažba","🧩","Chodníky, príjazdové cesty a spevnené plochy",["Chodníky","Príjazdová cesta","Terasa a dvor","Oprava dlažby"]],["ploty","Ploty a brány","🚧","Montáž oplotenia, brán a pohonov",["Nový plot","Posuvná brána","Krídlová brána","Oprava oplotenia"]],["zemne","Zemné práce","🚜","Výkopy, terénne úpravy a základy",["Výkop základov","Prípojky a ryhy","Úprava terénu","Búranie a odvoz"]],["kupelne","Rekonštrukcie kúpeľní","🛁","Kompletná prerábka kúpeľne a WC",["Kompletná rekonštrukcia","Výmena vane alebo sprchy","Čiastočná rekonštrukcia","Samostatné WC"]],["beton","Betonárske práce","🏗️","Základové dosky, betónovanie a potery",["Základová doska","Betónový poter","Schodisko","Iné betónové práce"]]];
 const NOVE_REMESLA_MAPA = Object.fromEntries(NOVE_REMESLA.map(([id,nazov,ikona,popis,typy]) => [id,{id,nazov,ikona,popis,typy}]));
+
+// Orientacne sadzby 2026 podla verejnych slovenskych cennikov. Nejde o zivý cennik.
+// Sadzby su REDAKCNY ODHAD prace bez materialu, dopravy a DPH, NIE presne citacie zdrojov.
+// Pole: [jednotka, spodna_sadzba, horna_sadzba, minimalna_zakazka_jednotiek, nazov_mnozstva, poznamka].
+// null: neporovnatelna atypicka praca, vyzaduje obhliadku/cenovu ponuku.
+const CENOVE_PRAVIDLA_2026 = {"voda":[["ks",45,95,1,"Počet vývodov vody alebo odpadu","Bežný vývod; bez sekania, opráv stien a materiálu."],["ks",65,180,1,"Počet samostatných opráv","Pri skrytých poruchách môže byť potrebná obhliadka."],["ks",60,170,1,"Počet montovaných zariadení","Umývadlo, batéria, WC alebo podobné zariadenie; bez jeho ceny."],null],"kurenie":[["m²",18,35,10,"Plocha podlahového kúrenia","Montáž rozvodov bez materiálu, izolácie, poteru a zdroja tepla."],["ks",75,160,1,"Počet radiátorov / vykurovacích telies","Bežná montáž bez radiátora a väčších úprav rozvodov."],null,["ks",65,180,1,"Počet servisných zásahov","Bežné opravy; výmena kotla a odborné revízie sa oceňujú osobitne."]],"klima":[["ks",250,420,1,"Počet split klimatizácií","Štandardná montáž bez ceny jednotky; atypická trasa a elektroprípojka navyše."],["ks",50,110,1,"Počet servisovaných jednotiek","Bežné čistenie a kontrola; bez chladiva a náhradných dielov."],null,null],"murarske":[["m²",18,38,5,"Plocha murovaných stien","Bežné murovanie bez tehál, lepidla, prekladov a dopravy."],["m²",15,32,5,"Plocha vnútorných priečok","Bežná priečka; bez materiálu a povrchových úprav."],["m²",9,19,5,"Plocha omietok","Bežná omietka bez materiálu a sanácie podkladu."],null],"fasady":[["m²",25,45,10,"Plocha zatepľovanej fasády","Práca na zateplení; izolant, omietka a lešenie nie sú započítané."],["m²",11,22,10,"Plocha novej omietky","Práca bez omietkovej zmesi, lešenia a opráv podkladu."],["m²",15,35,5,"Plocha opravovanej fasády","Rozsah závisí od podkladu a výšky budovy."],null],"maliarske":[["m²",3,7,10,"Plocha stien a stropov","Skutočná plocha maľovaných povrchov, nie podlahová plocha."],["m²",6,13,10,"Plocha exteriérovej maľby","Bez fasádnej opravy, lešenia a materiálu."],["m²",8,15,5,"Plocha stierkovania","Bežné stierkovanie bez materiálu a výnimočných nerovností."],["m²",8,18,5,"Plocha tapetovania","Bez ceny tapiet a zložitej prípravy podkladu."]],"obklady":[["m²",28,50,5,"Plocha obkladov","Bežný formát; bez obkladov, lepidla, hydroizolácie a búrania."],["m²",24,42,5,"Plocha dlažby","Bežné kladenie v interiéri, materiál a nivelizácia navyše."],["m²",30,55,5,"Plocha terasovej dlažby","Bez dlažby, podkladovej vrstvy a odvodnenia."],["ks",80,240,1,"Počet menších opráv","Lokalizovaná oprava obkladu alebo dlažby; podľa dostupnosti náhradných kusov."]],"podlahy":[["m²",12,22,5,"Plocha vinylovej podlahy","Montáž bez vinylu, líšt a nivelizácie."],["m²",10,18,5,"Plocha laminátovej podlahy","Pokládka bez materiálu, líšt a úprav podkladu."],["m²",18,33,5,"Plocha drevenej podlahy","Bežné uloženie bez ceny podlahy a brúsenia."],["m²",7,15,5,"Plocha pripraveného podkladu","Práca na vyrovnaní; materiál a hrubé opravy zvlášť."]],"okna":[["ks",85,180,1,"Počet plastových okien","Len montáž bežného okna; bez výrobku a murárskeho začistenia."],["ks",100,220,1,"Počet drevených okien","Len montáž; atypické rozmery a špalety zmenia cenu."],["ks",150,330,1,"Počet vchodových dverí","Bežné osadenie; bez ceny dverí, zárubní a murárskych opráv."],["ks",70,130,1,"Počet interiérových dverí","Montáž zárubne a dverí; bez ceny dverí."]],"tesarske":[["m²",20,40,10,"Plocha krovu / strechy","Montáž bežného krovu bez reziva, spojovacieho materiálu a krytiny."],["m²",45,100,5,"Pôdorysná plocha prístrešku","Montáž jednoduchej drevenej konštrukcie bez reziva a krytiny."],["m²",20,45,5,"Plocha drevenej terasy","Práca bez terasových dosiek a materiálu."],null],"izolacie":[["m²",10,22,5,"Plocha izolácie základov","Práca na hydroizolácii bez pásov, náterov a výkopu."],["m²",13,25,5,"Plocha terasy","Práca bez izolačného materiálu a nových povrchov."],["m²",15,30,10,"Plocha plochej strechy","Bežná realizácia hydroizolačnej vrstvy bez materiálu a opráv podkladu."],null],"zamkova":[["m²",15,25,5,"Plocha chodníkov","Samotná pokládka; bez dlažby, výkopov a kompletnej podkladovej skladby."],["m²",18,30,5,"Plocha príjazdovej cesty","Samotná pokládka, bez hutneného podložia a materiálu."],["m²",17,30,5,"Plocha terasy alebo dvora","Bez dlažby, obrubníkov, drenáže a prípravy podkladu."],["m²",15,30,5,"Plocha opravy dlažby","Rozobratie a znovuuloženie; výmena poškodeného materiálu navyše."]],"ploty":[["bm",20,45,5,"Dĺžka bežného plota","Montáž bežného panelového plota; bez dielcov, betónu a zemných prác."],["ks",250,600,1,"Počet posuvných brán","Osadenie štandardnej brány; výrobok, pohon a základy zvlášť."],["ks",160,400,1,"Počet krídlových brán","Osadenie štandardnej brány; výrobok a kotvenie na mieru zvlášť."],null],"zemne":[["m³",12,35,3,"Objem výkopu základov","Strojný výkop bez odvozu zeminy a prepravy stroja."],["m³",15,38,1,"Objem ryhy / výkopu","Strojná práca podľa prístupnosti a podložia; odvoz zvlášť."],["m²",2,7,20,"Plocha terénnych úprav","Základné zarovnanie, bez navezenia zeminy a odvozu."],null],"kupelne":[null,["ks",200,500,1,"Počet výmien vane alebo sprchy","Demontáž a bežná montáž, bez sanity, materiálu a kompletnej hydroizolácie."],null,["ks",150,400,1,"Počet rekonštruovaných WC","Bežné montážne a drobné stavebné práce, bez sanity a obkladov."]],"beton":[["m²",30,65,10,"Plocha základovej dosky","Len bežné práce na doske; bez betónu, ocele, výkopu, izolácie a dopravy."],["m²",8,17,10,"Plocha poteru","Práca na potere; bez materiálu a čerpania na náročné miesto."],null,["m³",40,90,2,"Objem betónovania","Práca na ukladaní betónu; bez betónovej zmesi, dopravy a debnenia."]]};
+const CENOVE_ZDROJE_2026 = {"voda":"https://numiq.com/sk/stavebne-prace/vodoinstalacne-prace/","kurenie":"https://www.klimaprof.sk/sluzby/podlahove-kurenie","klima":"https://numiq.com/sk/stavebne-prace/montaz-klimatizacie/","murarske":"https://numiq.com/sk/stavebne-prace/murarske-prace/","fasady":"https://numiq.com/sk/stavebne-prace/zateplenie-budovy-fasadne-prace/","maliarske":"https://www.bratislava-maliar.sk/cennik","obklady":"https://www.renovopro.sk/cennik/","podlahy":"https://numiq.com/sk/blog/cennik-stavebnych-prac-2026-prehlad-cien/","okna":"https://numiq.com/sk/stavebne-prace/rekonstrukcia-bytu/","tesarske":"https://www.flavio.sk/cena/stavebnictvo-a-rekonstrukcia","izolacie":"https://topizolacia.sk/izolacia-zakladov-proti-vlhkosti/","zamkova":"https://zamkova.sk/cena-pokladky-zamkovej-dlazby/","ploty":"https://numiq.com/sk/stavebne-prace/oplotenie/","zemne":"https://numiq.com/sk/stavebne-prace/zemne-prace/","kupelne":"https://numiq.com/sk/stavebne-prace/rekonstrukcia-kupelne/","beton":"https://numiq.com/sk/stavebne-prace/betonarske-prace/"};
+function vypocitajCenuRemesla2026(remeslo, typIndex, mnozstvo) {
+  const pravidla = CENOVE_PRAVIDLA_2026[remeslo];
+  if (!pravidla || !Number.isInteger(typIndex) || typIndex < 0 || typIndex >= pravidla.length) {
+    return {valid:false, message:'Vyberte typ prác.'};
+  }
+  const pravidlo = pravidla[typIndex];
+  if (!pravidlo) return {valid:true, individual:true, message:'Individuálne nacenenie podľa rozsahu prác a obhliadky.'};
+  const [jednotka, sadzbaOd, sadzbaDo, minimum, label, poznamka] = pravidlo;
+  const hodnota = Number(mnozstvo);
+  if (mnozstvo === '' || mnozstvo == null || !Number.isFinite(hodnota) || hodnota <= 0 || hodnota > 10000) {
+    return {valid:false, message:'Zadajte kladný rozsah prác, maximálne 10 000 '+jednotka+'.'};
+  }
+  if (jednotka === 'ks' && !Number.isInteger(hodnota)) {
+    return {valid:false, message:'Počet kusov musí byť celé číslo.'};
+  }
+  const zaklad = Math.max(hodnota, minimum);
+  const lo = Math.round(zaklad * sadzbaOd / 5) * 5;
+  const hi = Math.round(zaklad * sadzbaDo / 5) * 5;
+  return {valid:true, individual:false, lo, hi, mid:Math.round((lo+hi)/2), jednotka,
+    mnozstvo:hodnota, minimum, sadzbaOd, sadzbaDo, label, poznamka,
+    minimumPouzite:hodnota < minimum};
+}
+const naEuraSK = n => n.toLocaleString('sk-SK',{maximumFractionDigits:0}) + ' €';
+function aktualizujGenericCenu() {
+  const id = $('remeslo').value;
+  const cfg = NOVE_REMESLA_MAPA[id];
+  const output = $('genericPricePreview');
+  if (!cfg) {output.style.display='none';return;}
+  const index = $('genericWorkType').selectedIndex;
+  const pravidlo = CENOVE_PRAVIDLA_2026[id]?.[index];
+  const input = $('genericArea');
+  const hasRate = Boolean(pravidlo);
+  $('genericQuantityField').style.display = hasRate ? 'block' : 'none';
+  input.required = hasRate;
+  if (hasRate) {
+    const [jednotka, , , minimum, label] = pravidlo;
+    $('genericQuantityLabel').textContent = label + ' (' + jednotka + ')';
+    input.step = jednotka === 'ks' ? '1' : '0.1';
+    input.min = jednotka === 'ks' ? '1' : '0.1';
+    $('genericQuantityHint').textContent = 'Odhad práce podľa množstva ('+jednotka+'). Minimálny rozsah pre výpočet: '+minimum+' '+jednotka+'.';
+  }
+  const est = vypocitajCenuRemesla2026(id,index,input.value);
+  output.style.display='block';
+  if (!est.valid) {
+    output.innerHTML='<strong>Doplňte rozsah zákazky</strong><p>'+esc(est.message)+'</p>';
+    return;
+  }
+  if (est.individual) {
+    output.innerHTML='<strong>Orientačná cena: individuálne</strong><p>'+esc(est.message)+
+      ' Bez poznania materiálov, technológie a rozsahu nie je spoľahlivý výpočet možný.</p>';
+    return;
+  }
+  output.innerHTML='<strong>Orientačná cena práce</strong>'+
+    '<div class="price">'+naEuraSK(est.lo)+' – '+naEuraSK(est.hi)+'</div>'+
+    '<p class="note">Základná sadzba: '+est.sadzbaOd+' – '+est.sadzbaDo+' €/'+esc(est.jednotka)+
+    '. '+esc(est.poznamka)+'</p>'+
+    (est.minimumPouzite ? '<p class="note">Použité minimálne účtované množstvo '+est.minimum+
+      ' '+esc(est.jednotka)+' – malé zákazky sa neoceňujú úplne pomerne.</p>' : '')+
+    '<p class="note"><strong>Len práca. Bez materiálu, dopravy a DPH. Ceny sú orientačné.</strong></p>';
+}
 function vykresliNoveRemesla() {
   const grid = document.querySelector('.home-trades-grid');
   const select = $('remeslo');
@@ -1886,7 +1964,8 @@ function prepniGenerickePolia(remeslo) {
   const cfg = NOVE_REMESLA_MAPA[remeslo];
   const box = $('genericTradeFields');
   box.style.display = cfg ? 'block' : 'none';
-  if (!cfg) return;
+  if (!cfg) { $('genericArea').required=false; $('genericPricePreview').style.display='none'; return; }
+  $('genericArea').value = '';
   const typ = $('genericWorkType');
   typ.replaceChildren();
   cfg.typy.forEach(nazov => {
@@ -1895,8 +1974,12 @@ function prepniGenerickePolia(remeslo) {
     option.value = nazov;
     typ.appendChild(option);
   });
+  aktualizujGenericCenu();
 }
 vykresliNoveRemesla();
+$('genericWorkType').addEventListener('change', () => { $('genericArea').value=''; aktualizujGenericCenu(); });
+$('genericArea').addEventListener('input', aktualizujGenericCenu);
+$('genericCalcBtn').addEventListener('click', aktualizujGenericCenu);
 function prepniRemeslo() {
   const jeSadrokarton = $('remeslo').value === 'sadrokarton';
   const jeElektro = $('remeslo').value === 'elektro';
@@ -1908,7 +1991,7 @@ function prepniRemeslo() {
     : 'Opíšte svoju strechu';
   document.querySelectorAll('.how-it-works .step-card')[1].querySelector('p').textContent =
     noveRemeslo
-      ? 'Pri tomto remesle pripravujeme orientačný odhad a odosielanie dopytu.'
+      ? 'Orientačnú cenu práce získate po zadaní typu a rozsahu zákazky.'
       : jeElektro
         ? 'Orientačné rozpätie sa zobrazí zdarma už počas vypĺňania formulára.'
         : 'Po odoslaní uvidíte orientačné cenové rozpätie.';
@@ -1959,9 +2042,7 @@ hero.querySelector('.roof-hero-sub').textContent =
   $('sdkHeroButton').style.display = 'none';
   const heroCta = hero.querySelector('.roof-hero-content .estimate-cta');
   heroCta.style.display = 'inline-flex';
-  heroCta.textContent = noveRemeslo
-    ? 'Pozrieť formulár →'
-    : 'Zistiť orientačnú cenu zdarma →';
+  heroCta.textContent = 'Zistiť orientačnú cenu zdarma →';
     document.querySelector('.form-heading').textContent =
     noveRemeslo ? 'Povedzte nám viac: ' + noveRemeslo.nazov : jeElektro ? 'Povedzte nám viac o elektroinštalačných prácach'
       : jeSadrokarton ? 'Povedzte nám viac o vašich sadrokartónových prácach'
