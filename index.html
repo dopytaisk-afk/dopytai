@@ -1891,9 +1891,11 @@ function prepniRemeslo() {
     ? 'Opíšte svoje sadrokartónové práce'
     : 'Opíšte svoju strechu';
   document.querySelectorAll('.how-it-works .step-card')[1].querySelector('p').textContent =
-    jeElektro
-      ? 'Orientačné rozpätie sa zobrazí zdarma už počas vypĺňania formulára.'
-      : 'Po odoslaní uvidíte orientačné cenové rozpätie.';
+    noveRemeslo
+      ? 'Pri tomto remesle pripravujeme orientačný odhad a odosielanie dopytu.'
+      : jeElektro
+        ? 'Orientačné rozpätie sa zobrazí zdarma už počas vypĺňania formulára.'
+        : 'Po odoslaní uvidíte orientačné cenové rozpätie.';
   const hero = document.querySelector('.roof-hero');
 
 hero.querySelector('h1').innerHTML = noveRemeslo ? esc(noveRemeslo.nazov) : jeElektro ? 'Elektroinštalácie' : jeSadrokarton
@@ -1912,8 +1914,9 @@ hero.querySelector('.roof-hero-sub').textContent =
   hero.classList.toggle('generic-hero', Boolean(noveRemeslo));
   // Iba SDK pouziva samostatne tlacidlo na pozadi, elektro ma svoje CTA v lavom stlpci.
   $('sdkHeroButton').style.display = jeSadrokarton ? 'block' : 'none';
-  hero.querySelector('.roof-hero-content .estimate-cta').style.display =
-  jeSadrokarton ? 'none' : 'block';
+  const heroCta = hero.querySelector('.roof-hero-content .estimate-cta');
+  heroCta.style.display = jeSadrokarton ? 'none' : 'block';
+  heroCta.textContent = noveRemeslo ? 'Pozrieť pripravovaný formulár →' : 'Zistiť orientačnú cenu zdarma →';
     document.querySelector('.form-heading').textContent =
     noveRemeslo ? 'Povedzte nám viac: ' + noveRemeslo.nazov : jeElektro ? 'Povedzte nám viac o elektroinštalačných prácach'
       : jeSadrokarton ? 'Povedzte nám viac o vašich sadrokartónových prácach'
@@ -1935,6 +1938,8 @@ hero.querySelector('.roof-hero-sub').textContent =
 
   $('area').required = !(jeSadrokarton || jeElektro || noveRemeslo);
   $('sdkArea').required = jeSadrokarton;
+  $('submitBtn').textContent = noveRemeslo ? 'Odosielanie pripravujeme' : 'Vytvoriť dopyt a vypočítať odhad';
+  $('submitBtn').disabled = Boolean(noveRemeslo);
   aktualizujElektroOdhad();
 }
 
