@@ -108,3 +108,19 @@
 .roof-hero.elektro-hero { min-height: 0; height: auto; }
 .roof-hero.elektro-hero .roof-hero-copy { padding-bottom: 18px; }
 .roof-hero.elektro-hero .roof-hero-copy .roof-hero-sub { clear: both; }
+
+/* Nove remesla: neutrálne pozadie, bez fotografie strechy a zdvojených CTA. */
+.roof-hero.generic-hero {
+  min-height: 350px;
+  padding: 55px 24px 55px;
+  background: radial-gradient(ellipse at 90% 25%,#c9e6ff 0%,transparent 50%),
+              linear-gradient(130deg,#f7fbff,#deefff) !important;
+  text-align: center;
+}
+.roof-hero.generic-hero .roof-hero-content { max-width: 930px; margin: 0 auto; }
+.roof-hero.generic-hero .roof-hero-copy > p { max-width: 680px; margin: 0 auto; }
+.roof-hero.generic-hero .estimate-cta { max-width: 400px; }
+.roof-hero.generic-hero #sdkHeroButton { display:none !important; }
+@media (max-width:700px) {
+  .roof-hero.generic-hero { min-height: 280px; padding: 34px 16px 40px; }
+}
