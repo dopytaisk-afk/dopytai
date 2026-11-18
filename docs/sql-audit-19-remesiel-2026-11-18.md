@@ -24,7 +24,7 @@ Stav 18. 11. 2026. Podkladom sú dva CSV exporty z produkčného Supabase SQL Ed
 ## Návrh
 1. Jedna centrálna databázová whitelist mapa remesiel (v migrácii explicitné typy, prípadne tabuľka katalógu po kontrole bezpečnosti RPC), bez opakovania funkcií pre každú kategóriu.
 2. Zachovať pôvodné strešné a sadrokartónové formáty, bezpečné prezentačné whitelisty pre ďalšie typy, ochranu kontaktov aj po kúpe.
-3. Spevniť `kup_dopyt`: serverovo overiť stav firmy, typ remesla, prípadne kraj podľa finálneho pravidla, a exkluzivitu; zachovať atomický odpočet kreditu.
+3. Spevniť `kup_dopyt`: serverovo overiť stav firmy, typ remesla a exkluzivitu; kraj nesmie obmedzovať viditeľnosť ani nákup; zachovať atomický odpočet kreditu.
 4. Zabezpečiť, aby nový typ práce pred emailovým potvrdením nezískal stav `novy` a nevyvolal notifikácie.
 5. **Pred migračným SQL** skontrolovať efektívne GRANT/EXECUTE oprávnenia, trigger, DB role a existujúce možné duplicitné odomknutia (iba agregovaným SELECT); potom až navrhnúť transakčný skript s precondition hash kontrolou.
 6. Vždy vychádzať z aktuálneho exportu funkcií, nikdy nepoužiť starý elektro string-replacement skript.
@@ -40,3 +40,11 @@ Stav 18. 11. 2026. Podkladom sú dva CSV exporty z produkčného Supabase SQL Ed
 - Trigger `dopytai_novy_dopyt_email` je AFTER INSERT a volá `odosli_novy_dopyt_webhook()`, telo trigger-funkcie zatiaľ nebolo auditované.
 - **Dôležitý nový nález:** `vytvor_dopyt_s_token` ako priamo anon-EXECUTE volateľná SECURITY DEFINER funkcia nemá whitelist remesiel ani povinný e-mail/okres. Vonkajšiu validáciu `vytvor_dopyt_s_token_v2` možno teoreticky obísť volaním pôvodného RPC. Pred migráciou treba upraviť EXECUTE oprávnenie alebo zaviesť ekvivalentnú validáciu priamo do vnútornej funkcie, preveriť závislosti existujúceho workflow.
 - **Zatiaľ nebol vykonaný žiadny produkčný SQL zápis.** Zostávajúci read-only audit: `pg_class.relrowsecurity`, `pg_class.relforcerowsecurity`, režim funkcie `odosli_novy_dopyt_webhook()`, `has_table_privilege` pre INSERT/UPDATE/DELETE a `auth` caller kontext.
+
+## Potvrdené pravidlo používateľa: kraj iba pre notifikácie
+- Dopyt zo Žiliny musí vidieť a môže si ho kúpiť aj firma z Bratislavy, ak má rovnaké remeslo a spĺňa podmienky nákupu.
+- E-mail o novom dopyte dostanú iba firmy správneho remesla z **kraja dopytu** (napr. Žilinský kraj), po overení zákazníka.
+- `bezpecne_dopyty`: správne remeslo, nie filter na kraj.
+- `kup_dopyt`: správne remeslo, aktívna firma, kredit, dostupnosť a exkluzivita, **nie kontrola kraja**.
+- Okres iba informačný údaj pred nákupom; nemení filtrovanie ani možnosť kúpy.
+- Návrh SQL bol upravený podľa tohto pravidla; produkcia nezmenená.
