@@ -280,3 +280,28 @@
   color: #15395e;
   font-weight: 700;
 }
+
+/* Strechy: citatelny podtext pod modrym CTA aj na fotografii.
+   Plati iba pre existujuci strechovy hero. */
+.roof-hero:not(.sdk-hero):not(.elektro-hero):not(.generic-hero) .roof-hero-sub {
+  display: inline-block;
+  width: auto;
+  max-width: calc(100% - 20px);
+  margin: 12px auto 0;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.94);
+  border: 1px solid rgba(191,215,236,.85);
+  color: #092448;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.45;
+  text-shadow: none;
+  box-shadow: 0 4px 14px rgba(9,36,72,.12);
+}
+@media (max-width: 480px) {
+  .roof-hero:not(.sdk-hero):not(.elektro-hero):not(.generic-hero) .roof-hero-sub {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
