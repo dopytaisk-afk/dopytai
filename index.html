@@ -1214,8 +1214,16 @@
 <div id="elektroFields" style="display:none">
   <div class="field"><label for="elektroType">Typ elektroinštalačných prác</label><select id="elektroType"><option>Kompletná elektroinštalácia</option><option>Čiastočná elektroinštalácia</option><option>Oprava alebo porucha</option><option>Elektroinštalačná revízia</option></select></div>
   <div class="field"><label for="elektroObjekt">Objekt</label><select id="elektroObjekt"><option>Rodinný dom</option><option>Byt</option><option>Iný objekt</option></select></div>
-  <div class="field"><label for="elektroArea">Plocha objektu v m² (voliteľné)</label><input id="elektroArea" type="number" min="1" placeholder="napr. 120"></div>
-  <p class="note">Cenu elektroinštalácie nacení realizačná firma podľa konkrétneho rozsahu prác.</p>
+  <div class="field" id="elektroAreaField"><label for="elektroArea">Plocha elektroinštalačných prác (m²)</label><input id="elektroArea" type="number" min="1" max="10000" step="1" placeholder="napr. 120"></div>
+  <div class="field" id="elektroRozsahField" style="display:none"><label for="elektroRozsah">Rozsah opravy</label>
+    <select id="elektroRozsah">
+      <option value="mala">Menšia oprava – 1 až 2 zásuvky, vypínače alebo body</option>
+      <option value="stredna">Stredná oprava – 3 až 5 bodov</option>
+      <option value="vacsia">Rozsiahlejšia oprava – viac než 5 bodov</option>
+    </select>
+  </div>
+  <div id="elektroOdhadPreview" class="success" aria-live="polite" style="display:none"></div>
+  <p class="note">Ide o nezáväzný odhad bežného rozsahu. Nezahŕňa projekt, nadštandard, veľké stavebné úpravy ani nepredvídané závady. Presnú cenu určí elektrikár po posúdení.</p>
 </div>
 <div id="sadrokartonFields" style="display:none">
   <div class="field">
@@ -1715,6 +1723,84 @@ function calcSdkEstimate(area, type) {
     mid: Math.round((lo + hi) / 2)
   };
 }
+
+// Orientačný model pre elektroinštalácie, Slovensko 2026.
+// Približné rozpätia z verejných cenníkov, nie záväzná ponuka ani cenová garancia.
+// Kompletné práce: bežný rozsah vrátane práce a základného materiálu.
+// Čiastočné práce: plocha SKUTOČNE dotknutej časti, nie celého objektu.
+// Opravy a revízie: podľa rozsahu, nie podľa m².
+// Zdrojové odkazy v docs/elektro-kalkulacka.md.
+function calcElektroEstimate(type, object, area, scope) {
+  const round10 = x => Math.round(x / 10) * 10;
+  let lo, hi, note;
+  if (type === 'Kompletná elektroinštalácia' || type === 'Čiastočná elektroinštalácia') {
+    const a = Number(area);
+    if (!Number.isFinite(a) || a <= 0 || !Number.isInteger(a) || a > 10000) {
+      return { valid: false, message: 'Zadajte plochu prác v celých m² (1 až 10 000).' };
+    }
+    if (object === 'Iný objekt') {
+      return { valid: false, individual: true, message: 'Pri inom objekte stanoví cenu firma individuálne podľa projektu.' };
+    }
+    const complete = type === 'Kompletná elektroinštalácia';
+    const lowRate = complete ? 35 : 15;
+    const highRate = complete ? 65 : 35;
+    lo = Math.max(complete ? 900 : 200, round10(a * lowRate));
+    hi = Math.max(complete ? 1300 : 350, round10(a * highRate));
+    note = complete
+      ? 'Bežné vnútorné rozvody, montáž a základný materiál; počet bodov a rozvádzač môžu cenu zmeniť.'
+      : 'Počíta sa len plocha, na ktorej sa práce vykonajú. Sekanie, náročné prístupy a materiál menia cenu.';
+  } else if (type === 'Oprava alebo porucha') {
+    const rates = {
+      mala: [60, 180],
+      stredna: [130, 380],
+      vacsia: [300, 850]
+    };
+    if (!Object.prototype.hasOwnProperty.call(rates, scope)) {
+      return { valid: false, message: 'Vyberte rozsah opravy.' };
+    }
+    [lo, hi] = rates[scope];
+    note = 'Počíta sa bežný výjazd a oprava; pri diagnostike skrytej poruchy môže byť suma vyššia.';
+  } else if (type === 'Elektroinštalačná revízia') {
+    if (object === 'Iný objekt') {
+      return { valid: false, individual: true, message: 'Revízia iného objektu sa naceňuje individuálne podľa počtu okruhov a zariadení.' };
+    }
+    [lo, hi] = object === 'Byt' ? [90, 240] : [150, 420];
+    note = 'Odhad pre bežnú revíziu elektroinštalácie; závisí od počtu okruhov, rozsahu meraní a dokumentácie.';
+  } else {
+    return { valid: false, message: 'Vyberte druh elektroinštalačných prác.' };
+  }
+  return { valid: true, lo, hi, mid: Math.round((lo + hi) / 2), note };
+}
+function aktualizujElektroOdhad() {
+  const elektro = $('remeslo').value === 'elektro';
+  const type = $('elektroType').value;
+  const requiresArea = type === 'Kompletná elektroinštalácia' || type === 'Čiastočná elektroinštalácia';
+  $('elektroAreaField').style.display = requiresArea && elektro ? 'block' : 'none';
+  $('elektroRozsahField').style.display = elektro && type === 'Oprava alebo porucha' ? 'block' : 'none';
+  $('elektroArea').required = elektro && requiresArea;
+  $('elektroAreaField').querySelector('label').textContent =
+    type === 'Čiastočná elektroinštalácia'
+      ? 'Plocha, ktorej sa práce týkajú (m²)'
+      : 'Plocha objektu (m²)';
+  const preview = $('elektroOdhadPreview');
+  if (!elektro) { preview.style.display = 'none'; return; }
+  const est = calcElektroEstimate(type, $('elektroObjekt').value, $('elektroArea').value, $('elektroRozsah').value);
+  preview.style.display = 'block';
+  if (!est.valid) {
+    preview.innerHTML = '<strong>' + (est.individual ? 'Individuálne nacenenie' : 'Na výpočet ceny doplňte údaje') +
+      '</strong><p>' + esc(est.message) + '</p>';
+  } else {
+    preview.innerHTML = '<strong>Orientačná cena zdarma</strong>' +
+      '<div class="price">' + est.lo.toLocaleString('sk-SK') + ' – ' +
+      est.hi.toLocaleString('sk-SK') + ' €</div>' +
+      '<p class="note">' + esc(est.note) + ' Ide o nezáväzný odhad, nie cenovú ponuku.</p>';
+  }
+}
+['elektroType','elektroObjekt','elektroRozsah'].forEach(id => {
+  $(id).addEventListener('change', aktualizujElektroOdhad);
+});
+$('elektroArea').addEventListener('input', aktualizujElektroOdhad);
+
 function aktualizujPopisPlochy() {
   const oprava = $('type').value.includes('Oprava');
 
@@ -1784,6 +1870,7 @@ hero.querySelector('.roof-hero-sub').textContent =
 
   $('area').required = !(jeSadrokarton || jeElektro);
   $('sdkArea').required = jeSadrokarton;
+  aktualizujElektroOdhad();
 }
 
 $('remeslo').addEventListener('change', prepniRemeslo);
@@ -3550,19 +3637,22 @@ $('form').addEventListener('submit',async e=>{
   const truss=$('truss').value;
 
    const est = $('remeslo').value === 'elektro'
-    ? { lo: 0, hi: 0, mid: 0 }
+    ? calcElektroEstimate(
+        $('elektroType').value, $('elektroObjekt').value,
+        $('elektroArea').value, $('elektroRozsah').value
+      )
     : $('remeslo').value === 'sadrokarton'
       ? calcSdkEstimate(Number($('sdkArea').value), $('sdkType').value)
       : calcEstimate(area, type, cover, truss);
-    if (!est) {
+    if (!est || est.valid === false) {
     $('result').innerHTML =
-      '<div class="error">Pre tento typ prác zatiaľ nevieme vypočítať orientačnú cenu. Vyberte konkrétny typ sadrokartónových prác.</div>';
+      '<div class="error">' + esc(est?.message || 'Pre tento typ prác zatiaľ nevieme vypočítať orientačnú cenu.') + '</div>';
     btn.disabled = false;
     btn.textContent = 'Vytvoriť dopyt a vypočítať odhad';
     return;
   }
  const cenaIndividualna =
-  $('remeslo').value === 'elektro' ||
+  ($('remeslo').value === 'elektro' && est.individual === true) ||
   ($('remeslo').value === 'sadrokarton' && $('sdkType').value === 'Iné');
 
 const price = cenaIndividualna
@@ -3603,7 +3693,8 @@ const details = [
     ...(jeElektro ? [
       'Typ elektroinštalácie: ' + $('elektroType').value,
       'Objekt: ' + $('elektroObjekt').value,
-      'Plocha objektu: ' + ($('elektroArea').value ? Number($('elektroArea').value) + ' m²' : 'neuvedená')
+      'Plocha objektu: ' + (($('elektroType').value === 'Kompletná elektroinštalácia' || $('elektroType').value === 'Čiastočná elektroinštalácia') ? Number($('elektroArea').value) + ' m²' : 'neuvedená'),
+      'Rozsah opravy: ' + ($('elektroType').value === 'Oprava alebo porucha' ? $('elektroRozsah').selectedOptions[0].textContent : 'neuvedený')
     ] : jeSdk ? [
       'Plocha: ' + Number($('sdkArea').value) + ' m²',
       'Typ sadrokartónu: ' + $('sdkType').value,
