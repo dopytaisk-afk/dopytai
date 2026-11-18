@@ -1230,12 +1230,11 @@
   <div class="field" id="genericQuantityField">
     <label id="genericQuantityLabel" for="genericArea">Rozsah prác</label>
     <input id="genericArea" type="number" inputmode="decimal" min="1" max="10000" step="0.1" placeholder="Napr. 50">
-    <p id="genericQuantityHint" class="note"></p>
+    <p id="genericQuantityHint" class="note" style="display:none"></p>
   </div>
   <button type="button" class="btn" id="genericCalcBtn" style="margin:12px 0">Vypočítať orientačnú cenu zdarma →</button>
   <div id="genericPricePreview" class="success" style="display:none" aria-live="polite"></div>
-  <p class="note">Orientačný výpočet podľa zverejnených slovenských cenníkov 2026. <strong>Cena zahŕňa len prácu, nie materiál, dopravu ani DPH.</strong> Pri drobných a atypických zákazkách môže byť cena výrazne iná. Nejde o záväznú ponuku.</p>
-  <p class="note">Dopyty tohto remesla zatiaľ nie je možné odosielať. Pripravujeme ich bezpečné prepojenie s databázou.</p>
+  <p class="note">Cena je orientačná, zahŕňa len prácu bez materiálu, dopravy a DPH. Konečnú ponuku určí realizačná firma.</p>
 </div>
 <div id="sadrokartonFields" style="display:none">
   <div class="field">
@@ -1885,26 +1884,27 @@ function aktualizujGenericCenu() {
     $('genericQuantityLabel').textContent = label + ' (' + jednotka + ')';
     input.step = jednotka === 'ks' ? '1' : '0.1';
     input.min = jednotka === 'ks' ? '1' : '0.1';
-    $('genericQuantityHint').textContent = 'Odhad podľa množstva ('+jednotka+'). Modelové minimum pre drobnú zákazku: '+minimum+' '+jednotka+'.';
+    $('genericQuantityHint').textContent = '';
   }
   const est = vypocitajCenuRemesla2026(id,index,input.value);
+  if (!est.valid && !input.value.trim()) {
+    output.style.display='none';
+    output.textContent='';
+    return;
+  }
   output.style.display='block';
   if (!est.valid) {
-    output.innerHTML='<strong>Doplňte rozsah zákazky</strong><p>'+esc(est.message)+'</p>';
+    output.innerHTML='<strong>Skontrolujte zadané množstvo</strong><p>'+esc(est.message)+'</p>';
     return;
   }
   if (est.individual) {
-    output.innerHTML='<strong>Orientačná cena: individuálne</strong><p>'+esc(est.message)+
-      ' Bez poznania materiálov, technológie a rozsahu nie je spoľahlivý výpočet možný.</p>';
+    output.innerHTML='<strong>Individuálna cenová ponuka</strong>'+
+      '<p>Pri tomto type prác cenu určí realizačná firma podľa rozsahu zákazky.</p>';
     return;
   }
   output.innerHTML='<strong>Orientačná cena práce</strong>'+
     '<div class="price">'+naEuraSK(est.lo)+' – '+naEuraSK(est.hi)+'</div>'+
-    '<p class="note">Základná sadzba: '+est.sadzbaOd+' – '+est.sadzbaDo+' €/'+esc(est.jednotka)+
-    '. '+esc(est.poznamka)+'</p>'+
-    (est.minimumPouzite ? '<p class="note">Použité minimálne účtované množstvo '+est.minimum+
-      ' '+esc(est.jednotka)+' pre orientačný odhad – skutočné minimálne účtovanie určí firma.</p>' : '')+
-    '<p class="note"><strong>Len práca. Bez materiálu, dopravy a DPH. Ceny sú orientačné.</strong></p>';
+    '<p class="note">Konečnú cenu určí realizačná firma podľa rozsahu prác.</p>';
 }
 function vykresliNoveRemesla() {
   const grid = document.querySelector('.home-trades-grid');
