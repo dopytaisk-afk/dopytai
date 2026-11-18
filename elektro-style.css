@@ -124,3 +124,70 @@
 @media (max-width:700px) {
   .roof-hero.generic-hero { min-height: 280px; padding: 34px 16px 40px; }
 }
+
+/* Jednotné karty pre všetky remeslá vrátane pôvodných 3.
+   Fotografie zostávajú na pôvodných kartách, nové majú vlastné SVG. */
+.home-trades-grid { align-items: stretch; }
+.home-trade-card {
+  min-width: 0;
+  min-height: 188px;
+  grid-template-columns: minmax(0, 42%) minmax(0, 58%);
+  border: 1px solid #dce7f1;
+  box-shadow: 0 7px 23px #09244813;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.home-trade-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px #0924481e;
+}
+.home-trade-card .home-trade-image {
+  min-height: 188px;
+  width: 100%;
+  overflow: hidden;
+}
+.home-trade-card .home-trade-content {
+  min-width: 0;
+  padding: 21px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.home-trade-card .home-trade-content h3 {
+  overflow-wrap: anywhere;
+  font-size: clamp(19px,2vw,25px);
+  line-height: 1.18;
+  margin-bottom: 10px;
+}
+.home-trade-card .home-trade-content p {
+  flex: 1;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.home-trade-card .home-trade-content button {
+  margin-top: auto;
+  width: auto;
+  min-height: 43px;
+  max-width: 100%;
+  line-height: 1.25;
+  white-space: normal;
+  text-align: left;
+  padding: 11px 14px;
+}
+@media (max-width: 700px) {
+  .home-trades-grid { gap: 14px; }
+  .home-trade-card {
+    grid-template-columns: minmax(0,40%) minmax(0,60%);
+    min-height: 165px;
+  }
+  .home-trade-card .home-trade-image { min-height: 165px; }
+  .home-trade-card .home-trade-content { padding: 16px 13px; }
+  .home-trade-card .home-trade-content h3 { font-size: clamp(17px,4.2vw,21px); }
+  .home-trade-card .home-trade-content p { font-size: 13px; }
+  .home-trade-card .home-trade-content button { font-size: 12px; padding: 10px 11px; }
+}
+@media (max-width: 360px) {
+  .home-trade-card { grid-template-columns: 37% 63%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-trade-card { transition: none; }
+}
