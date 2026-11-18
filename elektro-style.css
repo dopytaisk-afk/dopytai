@@ -439,3 +439,20 @@
     width:100%;
   }
 }
+
+/* Strechy: stara biela pill mala vyssiu specificitu; zrusit len v zjednotenom hero. */
+.roof-hero.unified-trade-hero:not(.sdk-hero):not(.elektro-hero):not(.generic-hero) .roof-hero-sub {
+  display:block;
+  width:fit-content;
+  max-width:100%;
+  margin:12px 0 0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  color:#15395e;
+  font-size:15px;
+  line-height:1.5;
+  text-shadow:none;
+}
