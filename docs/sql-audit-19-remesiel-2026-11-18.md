@@ -30,3 +30,13 @@ Stav 18. 11. 2026. Podkladom sú dva CSV exporty z produkčného Supabase SQL Ed
 6. Vždy vychádzať z aktuálneho exportu funkcií, nikdy nepoužiť starý elektro string-replacement skript.
 
 Žiadny SQL príkaz z tohto dokumentu nebol aplikovaný na Supabase; `main` zostáva nezmenený.
+
+## Doplnkový audit oprávnení 18.11.2026 (Supabase CSV #5)
+- `duplicitne_predane_dopyty=0` (agregovaný audit), zatiaľ bez duplicitných nákupov.
+- RPC `bezpecne_dopyty` a `kup_dopyt`: `anon=false`, `authenticated=true`.
+- RPC `vytvor_dopyt_s_token` a `vytvor_dopyt_s_token_v2`: `anon=true`, `authenticated=true`.
+- RPC `rezervuj_upozornenie_v2`: `anon=false`, `authenticated=false`.
+- `public.dopyty` má tabuľkový SELECT grant pre anon aj authenticated, **toto nepreukazuje viditeľnosť riadkov**, keďže sa musí overiť FORCE/ENABLE RLS a efektívna RLS rola.
+- Trigger `dopytai_novy_dopyt_email` je AFTER INSERT a volá `odosli_novy_dopyt_webhook()`, telo trigger-funkcie zatiaľ nebolo auditované.
+- **Dôležitý nový nález:** `vytvor_dopyt_s_token` ako priamo anon-EXECUTE volateľná SECURITY DEFINER funkcia nemá whitelist remesiel ani povinný e-mail/okres. Vonkajšiu validáciu `vytvor_dopyt_s_token_v2` možno teoreticky obísť volaním pôvodného RPC. Pred migráciou treba upraviť EXECUTE oprávnenie alebo zaviesť ekvivalentnú validáciu priamo do vnútornej funkcie, preveriť závislosti existujúceho workflow.
+- **Zatiaľ nebol vykonaný žiadny produkčný SQL zápis.** Zostávajúci read-only audit: `pg_class.relrowsecurity`, `pg_class.relforcerowsecurity`, režim funkcie `odosli_novy_dopyt_webhook()`, `has_table_privilege` pre INSERT/UPDATE/DELETE a `auth` caller kontext.
