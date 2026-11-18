@@ -1862,7 +1862,16 @@ function vykresliNoveRemesla() {
     const p = document.createElement('p'); p.textContent = popis;
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.textContent = 'Zobraziť formulár →';
+    const popisTlacidla = {
+      voda: 'vodoinštalácie', kurenie: 'kúrenie', klima: 'klimatizáciu',
+      murarske: 'murárske práce', fasady: 'fasádu', maliarske: 'maľovanie',
+      obklady: 'obklady', podlahy: 'podlahy', okna: 'okná a dvere',
+      tesarske: 'tesárske práce', izolacie: 'hydroizolácie',
+      zamkova: 'zámkovú dlažbu', ploty: 'plot alebo bránu',
+      zemne: 'zemné práce', kupelne: 'rekonštrukciu kúpeľne',
+      beton: 'betonárske práce'
+    };
+    btn.textContent = 'Zadať dopyt na ' + popisTlacidla[id] + ' →';
     btn.addEventListener('click', () => otvorRemeslo(id));
     content.append(h,p,btn);
     card.append(image,content);
