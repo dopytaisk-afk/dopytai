@@ -1928,6 +1928,9 @@ hero.querySelector('.roof-hero-sub').textContent =
   ?.classList.toggle('sdk-hero', jeSadrokarton);
   hero.classList.toggle('elektro-hero', jeElektro);
   hero.classList.toggle('generic-hero', Boolean(noveRemeslo));
+  // Jednotny dvojstlpcovy vizual pre kazde remeslo; funkcionalita formularov bez zmeny.
+  hero.classList.add('unified-trade-hero');
+  hero.querySelector('.elektro-features').setAttribute('aria-hidden','true');
   const hlavnyObrazok = hero.querySelector('.elektro-image');
   if (noveRemeslo) {
     const poradie = NOVE_REMESLA.findIndex(([id]) => id === noveRemeslo.id);
@@ -1945,13 +1948,20 @@ hero.querySelector('.roof-hero-sub').textContent =
     hlavnyObrazok.style.backgroundSize = '';
     hlavnyObrazok.style.backgroundPosition = '';
     hlavnyObrazok.style.backgroundRepeat = '';
-    hlavnyObrazok.setAttribute('aria-label','Elektrikár pri elektroinštalačnom rozvádzači');
+    hlavnyObrazok.setAttribute(
+      'aria-label',
+      jeSadrokarton ? 'Sadrokartonarske prace v interieri' :
+      jeElektro ? 'Elektrikar pri elektroinstalacnom rozvadzaci' :
+      'Rodinny dom s kvalitnou strechou'
+    );
   }
   // Iba SDK pouziva samostatne tlacidlo na pozadi, elektro ma svoje CTA v lavom stlpci.
-  $('sdkHeroButton').style.display = jeSadrokarton ? 'block' : 'none';
+  $('sdkHeroButton').style.display = 'none';
   const heroCta = hero.querySelector('.roof-hero-content .estimate-cta');
-  heroCta.style.display = jeSadrokarton ? 'none' : 'block';
-  heroCta.textContent = noveRemeslo ? 'Zadať dopyt na ' + noveRemeslo.nazov + ' →' : 'Zistiť orientačnú cenu zdarma →';
+  heroCta.style.display = 'inline-flex';
+  heroCta.textContent = noveRemeslo
+    ? 'Pozrieť formulár →'
+    : 'Zistiť orientačnú cenu zdarma →';
     document.querySelector('.form-heading').textContent =
     noveRemeslo ? 'Povedzte nám viac: ' + noveRemeslo.nazov : jeElektro ? 'Povedzte nám viac o elektroinštalačných prácach'
       : jeSadrokarton ? 'Povedzte nám viac o vašich sadrokartónových prácach'
