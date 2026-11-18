@@ -1,5 +1,6 @@
 
 const crypto = require("crypto");
+const { tradeForDemand, companyMatchesDemand } = require("./_shared/trade-types");
 
 const reply = (statusCode, body) => ({
   statusCode,
@@ -152,15 +153,13 @@ if (lead.stav !== "novy") {
     const isSdkLead = work === "Sadrokartón";
     const isElektroLead = work === "Elektroinštalácie";
 
-    const matching = companies.filter((company) => {
-      const companyWork = String(company.typ_prace || "").trim();
-
-      return Boolean(company.email) && (
-        (companyWork === "Strechy" && isRoofLead) ||
-        (companyWork === "Sadrokartón" && isSdkLead) ||
-        (companyWork === "Elektroinštalácie" && isElektroLead)
-      );
-    });
+    // Region filtruje iba prijemcov e-mailov, nie viditelnost alebo nakup.
+    if (!tradeForDemand(work)) {
+      return reply(200, { sent: 0, failed: 0, skipped: "Nepodporovane remeslo" });
+    }
+    const matching = companies.filter((company) =>
+      Boolean(company.email) && companyMatchesDemand(company.typ_prace, work)
+    );
 console.info("DopytAI notification matching:", {
   leadId,
   region: lead.region,
@@ -193,6 +192,21 @@ const safeBudget = escapeHtml(
           : `${Number(lead.odhad_ceny).toLocaleString("sk-SK")} €`)
       )
 );
+const safeDetail = isElektroLead
+  ? '<p><strong>⚡ Elektroinštalácie:</strong> ' + escapeHtml(
+      (String(lead.popis || '').match(/(?:^|\n)Typ elektroinštalácie:\s*([^\r\n]+)/) || [])[1] || 'podľa zadania'
+    ) + '</p>'
+  : (isRoofLead || isSdkLead)
+    ? '<p><strong>📐 Plocha:</strong> ' + safeArea + ' m²</p>'
+    : (() => {
+        // Pre nove remesla neposielame surovy popis obsahujuci osobne udaje.
+        const quantity = String(lead.popis || '').match(
+          /(?:^|\n)Rozsah: ([0-9]{1,5}(?:[.,][0-9])? (?:m²|m³|bm|ks))(?:\r?\n|$)/
+        );
+        return quantity
+          ? '<p><strong>📐 Rozsah:</strong> ' + escapeHtml(quantity[1]) + '</p>'
+          : '<p><strong>📋 Typ prác:</strong> ' + escapeHtml(work) + '</p>';
+      })();
 const safeUnlockPrice = escapeHtml(
   lead.cena_dopytu == null
     ? "cenu uvedenú na stránke"
@@ -240,9 +254,7 @@ const safeUnlockPrice = escapeHtml(
                     <div style="padding:26px 24px;">
                       <h2 style="margin:0 0 20px;">${safeWork}</h2>
                       <p><strong>📍 Lokalita:</strong> ${safeLocation}</p>
-                      ${isElektroLead
-                        ? '<p><strong>⚡ Elektroinštalácie:</strong> ' + escapeHtml((String(lead.popis || '').match(/(?:^|\n)Typ elektroinštalácie:\s*([^\r\n]+)/) || [])[1] || 'podľa zadania') + '</p>'
-                        : '<p><strong>📐 Plocha:</strong> ' + safeArea + ' m²</p>'}
+                      ${safeDetail}
                       <p><strong>💰 Orientačný odhad:</strong> ${safeBudget}</p>
                       <div style="margin-top:24px;padding:18px;background:#eef6ff;border-radius:12px;line-height:1.6;">
                         <strong>🔒 Kontakt zákazníka je skrytý.</strong><br>
