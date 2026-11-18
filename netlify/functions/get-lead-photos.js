@@ -1,3 +1,7 @@
+"use strict";
+
+const { companyMatchesDemand } = require("./_shared/trade-types");
+
 exports.handler = async function (event) {
   if (event.httpMethod !== "POST") {
     return {
@@ -80,7 +84,7 @@ if (!Array.isArray(companies) || companies.length !== 1) {
 
     // Získame cesty fotografií uložené pri dopyte
     const leadResponse = await fetch(
-    `${supabaseUrl}/rest/v1/dopyty?id=eq.${dopytId}&select=id,fotky,stav,region`,
+    `${supabaseUrl}/rest/v1/dopyty?id=eq.${dopytId}&select=id,fotky,stav,typ_prace`,
       {
         headers: {
           apikey: supabaseServiceKey,
@@ -102,12 +106,7 @@ if (!Array.isArray(companies) || companies.length !== 1) {
 }
 
 const company = companies[0];
-    console.log("PHOTO COMPANY DEBUG:", {
-  firmaId,
-  companyId: company.id,
-  stav: company.stav,
-  typStavu: typeof company.stav
-});
+    // Nezalogovat sukromne informacie ani nepotrebne udaje o firme.
 const lead = leads[0];
 
 if (!["aktivna", "aktívna"].includes(String(company.stav || "").trim().toLowerCase())) {
@@ -116,6 +115,15 @@ if (!["aktivna", "aktívna"].includes(String(company.stav || "").trim().toLowerC
     body: JSON.stringify({ error: "Firma nie je aktivna." })
   };
 }
+// Zabezpecenie aj pred zakupenim: foto smie vyziadat iba firma
+// s rovnakym remeslom (bez regionalneho obmedzenia).
+if (!companyMatchesDemand(company.typ_prace, lead.typ_prace)) {
+  return {
+    statusCode: 403,
+    body: JSON.stringify({ error: "Dopyt nepatri do remesla firmy." })
+  };
+}
+
 const unlockResponse = await fetch(
   `${supabaseUrl}/rest/v1/odomknute_dopyty?dopyt_id=eq.${dopytId}&select=firma_id`,
   {
