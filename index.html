@@ -1850,23 +1850,13 @@ function vykresliNoveRemesla() {
     // Každý obrázok má rovnakú veľkosť a bezpečné okraje, nezobrazuje text.
     const stlpec = index % 4;
     const riadok = Math.floor(index / 4);
-    // Pestrost: nezavisle fotky remesiel z Pexels (s odlisnymi ludmi,
-    // detailmi a hotovymi realizaciami), s lokalnou SVG zalohou.
-    // Zatial externe linky; pre finalnu produkciu preferovat lokalne webp.
-    const pexelsFoto = {
-      voda: 32588548, kurenie: 34938442, klima: 5463582,
-      murarske: 30081237, fasady: 12741270, maliarske: 6764265,
-      obklady: 29181494, podlahy: 4263067, okna: 5691544,
-      tesarske: 38749905, izolacie: 39238313, zamkova: 14557579,
-      ploty: 10529669, zemne: 21033111, kupelne: 19991834,
-      beton: 37121406
-    };
-    const fotoId = pexelsFoto[id];
-    const fotoUrl = 'https://images.pexels.com/photos/' + fotoId +
-      '/pexels-photo-' + fotoId + '.jpeg?auto=compress&cs=tinysrgb&w=700';
-    image.style.backgroundImage = 'url("' + fotoUrl + '"),url("/remesla-ikony.svg")';
-    image.style.backgroundSize = 'cover, 400% 400%';
-    image.style.backgroundPosition = 'center,' +
+    // Jediný lokálny atlas s presne schválenými obrázkami z konverzácie.
+    // Ak sa atlas ešte nenahral na Netlify, zobrazí sa SVG záloha.
+    image.style.backgroundImage =
+      'url("/remesla-foto-atlas.webp"),url("/remesla-ikony.svg")';
+    image.style.backgroundSize = '400% 400%, 400% 400%';
+    image.style.backgroundPosition =
+      (stlpec * 100 / 3) + '% ' + (riadok * 100 / 3) + '%,' +
       (stlpec * 100 / 3) + '% ' + (riadok * 100 / 3) + '%';
     image.style.backgroundRepeat = 'no-repeat,no-repeat';
     image.setAttribute('aria-hidden', 'true');
