@@ -1918,7 +1918,9 @@ function vykresliNoveRemesla() {
     const companyOption = document.createElement('option');
     companyOption.value = nazov;
     companyOption.textContent = nazov;
-    companyOption.disabled = true; // backend whitelist a notifikacie este neoverene
+    // Nove remesla v registracii povolujeme len na overenom PR #9 testovacom nahľade.
+    // Test backend ma whitelist 19 remesiel; na produkcnej domene ostavaju blokovane.
+    companyOption.disabled = window.location.hostname !== 'deploy-preview-9--sparkly-choux-e2b050.netlify.app';
     firmaSelect.appendChild(companyOption);
     const card = document.createElement('article');
     card.className = 'home-trade-card';
