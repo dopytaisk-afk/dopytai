@@ -1816,6 +1816,24 @@ function aktualizujPopisPlochy() {
 
 $('type').addEventListener('change', aktualizujPopisPlochy);
 aktualizujPopisPlochy();
+function renderGenericTradeDetails(lead) {
+  const text = String(lead.popis || '');
+  const line = key => {
+    const match = text.match(new RegExp('(?:^|\\n)' + key + ': ([^\\r\\n]*)'));
+    return esc(match?.[1]?.trim() || 'neuvedené');
+  };
+  return '🔨 Druh práce: ' + line('Druh práce') + '<br>' +
+    '📐 Rozsah: ' + line('Rozsah') + '<br>';
+}
+function renderEstimate(lead) {
+  const text = String(lead.popis || '');
+  const estimate = text.match(/(?:^|\n)Odhad: ([^\r\n]*)/)?.[1]?.trim();
+  if (estimate) return esc(estimate);
+  const amount = Number(lead.odhad_ceny);
+  return esc(Number.isFinite(amount) && amount > 0
+    ? amount.toLocaleString('sk-SK') + ' €'
+    : 'Individuálne podľa rozsahu prác');
+}
 function renderElektroDetails(lead) {
   const text = String(lead.popis || '');
   const value = name => {
@@ -2623,14 +2641,14 @@ const ownUnlockedIds = new Set(
       <b>${esc(lead.typ_prace||'Dopyt')}</b><br>
       📍 ${esc(lead.lokalita||'')}<br>
     
-💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
+💰 Odhad: ${renderEstimate(lead)}<br>
 <small style="color:#66778d;display:block;margin-top:5px">
 Nezáväzný odhad. Konečnú cenu určí realizačná firma podľa skutočného rozsahu prác.
 </small>
 
 <div style="margin-top:10px;line-height:1.7">
 <b>📋 Detaily zákazky</b><br>
-${String(lead.typ_prace || '') === 'Elektroinštalácie' ? renderElektroDetails(lead) : String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
+${String(lead.typ_prace || '') === 'Elektroinštalácie' ? renderElektroDetails(lead) : NOVE_REMESLA.some(([, name]) => name === lead.typ_prace) ? renderGenericTradeDetails(lead) : String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
   ? `
     📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedená')}<br>
     🔨 Typ práce: ${esc((lead.popis || '').match(/Typ sadrokartónu:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedený')}<br>
@@ -2701,7 +2719,7 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
   <div class="card" style="margin-top:12px">
     <b>${esc(lead.typ_prace||'Dopyt')}</b><br>
     📍 ${esc(lead.lokalita||'')}<br>
-    💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
+    💰 Odhad: ${renderEstimate(lead)}<br>
     <div style="margin-top:10px;line-height:1.7">
   <b>📋 Detaily zákazky</b><br>
  
@@ -2757,7 +2775,7 @@ completedBox.querySelector('.completed-list').innerHTML = completedPurchasedLead
     <div class="card" style="margin-top:12px">
       <b>${esc(lead.typ_prace || 'Dopyt')}</b><br>
       📍 ${esc(lead.lokalita || '')}<br>
-     💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
+     💰 Odhad: ${renderEstimate(lead)}<br>
       <div style="margin-top:10px">
         🔓 <b>Kontakt zákazníka</b><br>
         👤 ${esc(lead.meno || '')}<br>
