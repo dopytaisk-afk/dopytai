@@ -189,22 +189,22 @@ console.info("DopytAI notification matching:", {
 
 const priceRange = priceMatch?.[1]?.trim();
 
-const cenaIndividualna =
-  lead.typ_prace === "Elektroinštalácie" ||
-  (lead.typ_prace === "Sadrokartón" &&
-  /(?:^|\n)Typ sadrokartónu:\s*Iné(?:\r?\n|$)/.test(
-    String(lead.popis || "")
-  ));
+// Cenu berieme z overeneho odhadu ulozeneho vo formulari pre KAZDE remeslo.
+// Nulovy odhad je signal individualneho ocenenia, nie cena 0 €.
+const hasNumericEstimate =
+  lead.odhad_ceny != null &&
+  Number.isFinite(Number(lead.odhad_ceny)) &&
+  Number(lead.odhad_ceny) > 0;
 
 const safeBudget = escapeHtml(
-  cenaIndividualna
-    ? "Individuálne podľa rozsahu prác"
-    : (
-        priceRange ||
-        (lead.odhad_ceny == null
-          ? "-"
-          : `${Number(lead.odhad_ceny).toLocaleString("sk-SK")} €`)
-      )
+  priceRange && (
+    /^Individuálne podľa rozsahu prác$/i.test(priceRange) ||
+    /^[0-9\s\u00a0\u202f]+\s*[–-]\s*[0-9\s\u00a0\u202f]+\s*€$/.test(priceRange)
+  )
+    ? priceRange
+    : hasNumericEstimate
+      ? `${Number(lead.odhad_ceny).toLocaleString("sk-SK")} €`
+      : "Individuálne podľa rozsahu prác"
 );
 const safeDetail = isElektroLead
   ? '<p><strong>⚡ Elektroinštalácie:</strong> ' + escapeHtml(
