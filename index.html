@@ -3853,29 +3853,6 @@ const price = cenaIndividualna
 
 const jeSdk = $('remeslo').value === 'sadrokarton';
 const jeElektro = $('remeslo').value === 'elektro';
-if (noveRemeslo && cenaIndividualna && !$('desc').value.trim()) {
-  $('result').innerHTML = '<div class="error">Pri individuálnom nacenení opíšte rozsah prác.</div>';
-  btn.disabled = false;
-  btn.textContent = 'Vytvoriť dopyt a vypočítať odhad';
-  return;
-}
-
-if (jeElektro && !$('desc').value.trim()) {
-  $('result').innerHTML = '<div class="error">Pri elektroinštaláciách prosím opíšte rozsah prác.</div>';
-  btn.disabled = false;
-  btn.textContent = 'Vytvoriť dopyt a vypočítať odhad';
-  return;
-}
-
-if (jeSdk && cenaIndividualna && !$('desc').value.trim()) {
-  $('result').innerHTML =
-    '<div class="error">Pri iných sadrokartónových prácach opíšte, čo potrebujete.</div>';
-
-  btn.disabled = false;
-  btn.textContent = 'Vytvoriť dopyt a vypočítať odhad';
-  return;
-}
-
 const details = [
     $('desc').value.trim() || 'Bez doplňujúceho popisu',
 
