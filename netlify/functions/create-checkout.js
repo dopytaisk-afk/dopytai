@@ -155,19 +155,10 @@ if (![25, 50, 100, 200].includes(amount)) {
     params.append("line_items[0][quantity]", "1");
 
          
-// Navrat po platbe len na spravny TEST nahľad PR #9.
-// Ostatne existujuce vetvy a produkcia si ponechavaju doterajsiu adresu.
-const isPR9Test =
-  process.env.CONTEXT === "deploy-preview" &&
-  process.env.BRANCH === "feature/elektroinstalacie" &&
-  paymentEnv === "test" &&
-  supabaseUrl === TEST_SUPABASE;
-
-const baseUrl = isPR9Test
-  ? "https://deploy-preview-9--sparkly-choux-e2b050.netlify.app"
-  : stripeKey.startsWith("sk_test_")
-    ? "https://rozsirenie-remesiel--sparkly-choux-e2b050.netlify.app"
-    : "https://dopytai24.sk";
+// Zachovane povodne Stripe navratove adresy bez noveho presmerovania.
+const baseUrl = stripeKey.startsWith("sk_test_")
+  ? "https://rozsirenie-remesiel--sparkly-choux-e2b050.netlify.app"
+  : "https://dopytai24.sk";
 
     params.append(
       "success_url",
