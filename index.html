@@ -2039,8 +2039,10 @@ hero.querySelector('.roof-hero-sub').textContent =
 
   $('area').required = !(jeSadrokarton || jeElektro || noveRemeslo);
   $('sdkArea').required = jeSadrokarton;
-  $('submitBtn').textContent = noveRemeslo ? 'Odosielanie pripravujeme' : 'Vytvoriť dopyt a vypočítať odhad';
-  $('submitBtn').disabled = Boolean(noveRemeslo);
+  $('submitBtn').textContent = 'Vytvoriť dopyt a vypočítať odhad';
+  // TEST PR #9: 19 remesiel. Produkcia a ostatne deploye zostavaju chranene.
+  $('submitBtn').disabled = Boolean((noveRemeslo || jeElektro) &&
+    window.location.hostname !== 'deploy-preview-9--sparkly-choux-e2b050.netlify.app');
   aktualizujElektroOdhad();
 }
 
@@ -3791,16 +3793,15 @@ async function updateLeadState(select){
 
 if(accessToken) showPanel(); else showLogin();
 
-// Prepnut po bezpecnom overeni SQL/RPC, notifikacii a zobrazenia elektro dopytov.
-const ELEKTRO_ODOSIELANIE_POVOLENE = false;
+// Odosielanie 19 remesiel iba na oddelenom TEST nahlade PR #9 a TEST databaze.
+const TEST_ODOSIELANIE_POVOLENE =
+  window.location.hostname === 'deploy-preview-9--sparkly-choux-e2b050.netlify.app' &&
+  API_URL === 'https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1';
 $('form').addEventListener('submit',async e=>{
   e.preventDefault();
-  if (NOVE_REMESLA_MAPA[$('remeslo').value]) {
-    $('result').innerHTML = '<div class="error">Toto remeslo pripravujeme. Dopyt zatiaľ nie je možné odoslať.</div>';
-    return;
-  }
-  if ($('remeslo').value === 'elektro' && !ELEKTRO_ODOSIELANIE_POVOLENE) {
-    $('result').innerHTML = '<div class="error">Elektroinštalácie pripravujeme. Odosielanie dopytov ešte nie je aktívne.</div>';
+  const noveRemeslo = NOVE_REMESLA_MAPA[$('remeslo').value];
+  if ((noveRemeslo || $('remeslo').value === 'elektro') && !TEST_ODOSIELANIE_POVOLENE) {
+    $('result').innerHTML = '<div class="error">Toto remeslo je na odosielanie povolené len v DopytAI-TEST.</div>';
     return;
   }
 
@@ -3815,14 +3816,16 @@ $('form').addEventListener('submit',async e=>{
   const cover=$('cover').value;
   const truss=$('truss').value;
 
-   const est = $('remeslo').value === 'elektro'
-    ? calcElektroEstimate(
-        $('elektroType').value, $('elektroObjekt').value,
-        $('elektroArea').value, $('elektroRozsah').value
-      )
-    : $('remeslo').value === 'sadrokarton'
-      ? calcSdkEstimate(Number($('sdkArea').value), $('sdkType').value)
-      : calcEstimate(area, type, cover, truss);
+   const est = noveRemeslo
+    ? vypocitajCenuRemesla2026(noveRemeslo.id, $('genericWorkType').selectedIndex, $('genericArea').value)
+    : $('remeslo').value === 'elektro'
+      ? calcElektroEstimate(
+          $('elektroType').value, $('elektroObjekt').value,
+          $('elektroArea').value, $('elektroRozsah').value
+        )
+      : $('remeslo').value === 'sadrokarton'
+        ? calcSdkEstimate(Number($('sdkArea').value), $('sdkType').value)
+        : calcEstimate(area, type, cover, truss);
     if (!est || est.valid === false) {
     $('result').innerHTML =
       '<div class="error">' + esc(est?.message || 'Pre tento typ prác zatiaľ nevieme vypočítať orientačnú cenu.') + '</div>';
@@ -3831,6 +3834,7 @@ $('form').addEventListener('submit',async e=>{
     return;
   }
  const cenaIndividualna =
+  (noveRemeslo && est.individual === true) ||
   ($('remeslo').value === 'elektro' && est.individual === true) ||
   ($('remeslo').value === 'sadrokarton' && $('sdkType').value === 'Iné');
 
@@ -3849,6 +3853,12 @@ const price = cenaIndividualna
 
 const jeSdk = $('remeslo').value === 'sadrokarton';
 const jeElektro = $('remeslo').value === 'elektro';
+if (noveRemeslo && cenaIndividualna && !$('desc').value.trim()) {
+  $('result').innerHTML = '<div class="error">Pri individuálnom nacenení opíšte rozsah prác.</div>';
+  btn.disabled = false;
+  btn.textContent = 'Vytvoriť dopyt a vypočítať odhad';
+  return;
+}
 
 if (jeElektro && !$('desc').value.trim()) {
   $('result').innerHTML = '<div class="error">Pri elektroinštaláciách prosím opíšte rozsah prác.</div>';
@@ -3869,7 +3879,12 @@ if (jeSdk && cenaIndividualna && !$('desc').value.trim()) {
 const details = [
     $('desc').value.trim() || 'Bez doplňujúceho popisu',
 
-    ...(jeElektro ? [
+    ...(noveRemeslo ? [
+      'Druh práce: ' + $('genericWorkType').value,
+      ...(est.individual
+        ? ['Rozsah: Individuálne podľa zadania']
+        : ['Rozsah: ' + est.mnozstvo + ' ' + est.jednotka])
+    ] : jeElektro ? [
       'Typ elektroinštalácie: ' + $('elektroType').value,
       'Objekt: ' + $('elektroObjekt').value,
       'Plocha objektu: ' + (($('elektroType').value === 'Kompletná elektroinštalácia' || $('elektroType').value === 'Čiastočná elektroinštalácia') ? Number($('elektroArea').value) + ' m²' : 'neuvedená'),
@@ -3897,12 +3912,12 @@ const details = [
     meno:$('name').value.trim(),
     telefon:$('phone').value.trim(),
     email:$('email').value.trim(),
-        typ_prace: jeElektro ? 'Elektroinštalácie' : jeSdk ? 'Sadrokartón' : type,
+        typ_prace: noveRemeslo ? noveRemeslo.nazov : jeElektro ? 'Elektroinštalácie' : jeSdk ? 'Sadrokartón' : type,
     lokalita:$('city').value.trim(),
     region:$('leadRegion').value,
     okres:$('leadOkres').value,
     popis:details,
-    odhad_ceny:est.mid
+    odhad_ceny: cenaIndividualna ? 0 : est.mid
   };
 
   try{
@@ -4103,7 +4118,7 @@ if(!updateRes.ok){
         : '⚠️ Dopyt bol uložený, ale potvrdenie e-mailu sa nepodarilo odoslať.'
       ) + '</b><br><br>' +
      (cenaIndividualna
-  ? 'Cenová ponuka: <span class="price">' + price + '</span><br><br>'
+  ? 'Orientačný odhad: <span class="price">' + price + '</span><br><br>'
   : 'Orientačný odhad: <span class="price">' + price + '</span><br><br>') +
       '<span class="muted">' +
       (emailRequested
