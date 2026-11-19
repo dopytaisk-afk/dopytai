@@ -1222,7 +1222,7 @@
       <option value="vacsia">Rozsiahlejšia oprava – viac než 5 bodov</option>
     </select>
   </div>
-  <div id="elektroOdhadPreview" class="success" aria-live="polite" style="display:none"></div>
+  <!-- Cena sa zobrazi az po odoslani dopytu. -->
   <p class="note">Ide o nezáväzný odhad bežného rozsahu. Nezahŕňa projekt, nadštandard, veľké stavebné úpravy ani nepredvídané závady. Presnú cenu určí elektrikár po posúdení.</p>
 </div>
 <div id="genericTradeFields" style="display:none">
@@ -1232,8 +1232,8 @@
     <input id="genericArea" type="number" inputmode="decimal" min="1" max="10000" step="0.1" placeholder="Napr. 50">
     <p id="genericQuantityHint" class="note" style="display:none"></p>
   </div>
-  <button type="button" class="btn" id="genericCalcBtn" style="margin:12px 0">Vypočítať orientačnú cenu zdarma →</button>
-  <div id="genericPricePreview" class="success" style="display:none" aria-live="polite"></div>
+  <!-- Cena sa zobrazi az po odoslani dopytu. -->
+  
   <p class="note">Cena je orientačná, zahŕňa len prácu bez materiálu, dopravy a DPH. Konečnú ponuku určí realizačná firma.</p>
 </div>
 <div id="sadrokartonFields" style="display:none">
@@ -1796,19 +1796,8 @@ function aktualizujElektroOdhad() {
     type === 'Čiastočná elektroinštalácia'
       ? 'Plocha, ktorej sa práce týkajú (m²)'
       : 'Plocha objektu (m²)';
-  const preview = $('elektroOdhadPreview');
-  if (!elektro) { preview.style.display = 'none'; return; }
-  const est = calcElektroEstimate(type, $('elektroObjekt').value, $('elektroArea').value, $('elektroRozsah').value);
-  preview.style.display = 'block';
-  if (!est.valid) {
-    preview.innerHTML = '<strong>' + (est.individual ? 'Individuálne nacenenie' : 'Na výpočet ceny doplňte údaje') +
-      '</strong><p>' + esc(est.message) + '</p>';
-  } else {
-    preview.innerHTML = '<strong>Orientačná cena zdarma</strong>' +
-      '<div class="price">' + est.lo.toLocaleString('sk-SK') + ' – ' +
-      est.hi.toLocaleString('sk-SK') + ' €</div>' +
-      '<p class="note">' + esc(est.note) + ' Ide o nezáväzný odhad, nie cenovú ponuku.</p>';
-  }
+  // Pri vyplnani iba nastavujeme povinne polia.
+  // Cena sa vypocita az v odosielacom handleri.
 }
 ['elektroType','elektroObjekt','elektroRozsah'].forEach(id => {
   $(id).addEventListener('change', aktualizujElektroOdhad);
@@ -1872,10 +1861,10 @@ function vypocitajCenuRemesla2026(remeslo, typIndex, mnozstvo) {
 }
 const naEuraSK = n => n.toLocaleString('sk-SK',{maximumFractionDigits:0}) + ' €';
 function aktualizujGenericCenu() {
+  // Pri vyplnani iba upravime povinne polia, bez vypoctu ceny.
   const id = $('remeslo').value;
   const cfg = NOVE_REMESLA_MAPA[id];
-  const output = $('genericPricePreview');
-  if (!cfg) {output.style.display='none';return;}
+  if (!cfg) return;
   const index = $('genericWorkType').selectedIndex;
   const pravidlo = CENOVE_PRAVIDLA_2026[id]?.[index];
   const input = $('genericArea');
@@ -1883,31 +1872,12 @@ function aktualizujGenericCenu() {
   $('genericQuantityField').style.display = hasRate ? 'block' : 'none';
   input.required = hasRate;
   if (hasRate) {
-    const [jednotka, , , minimum, label] = pravidlo;
+    const [jednotka, , , , label] = pravidlo;
     $('genericQuantityLabel').textContent = label + ' (' + jednotka + ')';
     input.step = jednotka === 'ks' ? '1' : '0.1';
     input.min = jednotka === 'ks' ? '1' : '0.1';
     $('genericQuantityHint').textContent = '';
   }
-  const est = vypocitajCenuRemesla2026(id,index,input.value);
-  if (!est.valid && !input.value.trim()) {
-    output.style.display='none';
-    output.textContent='';
-    return;
-  }
-  output.style.display='block';
-  if (!est.valid) {
-    output.innerHTML='<strong>Skontrolujte zadané množstvo</strong><p>'+esc(est.message)+'</p>';
-    return;
-  }
-  if (est.individual) {
-    output.innerHTML='<strong>Individuálna cenová ponuka</strong>'+
-      '<p>Pri tomto type prác cenu určí realizačná firma podľa rozsahu zákazky.</p>';
-    return;
-  }
-  output.innerHTML='<strong>Orientačná cena práce</strong>'+
-    '<div class="price">'+naEuraSK(est.lo)+' – '+naEuraSK(est.hi)+'</div>'+
-    '<p class="note">Konečnú cenu určí realizačná firma podľa rozsahu prác.</p>';
 }
 function vykresliNoveRemesla() {
   const grid = document.querySelector('.home-trades-grid');
@@ -1969,7 +1939,7 @@ function prepniGenerickePolia(remeslo) {
   const cfg = NOVE_REMESLA_MAPA[remeslo];
   const box = $('genericTradeFields');
   box.style.display = cfg ? 'block' : 'none';
-  if (!cfg) { $('genericArea').required=false; $('genericPricePreview').style.display='none'; return; }
+  if (!cfg) { $('genericArea').required=false; return; }
   $('genericArea').value = '';
   const typ = $('genericWorkType');
   typ.replaceChildren();
@@ -1984,7 +1954,7 @@ function prepniGenerickePolia(remeslo) {
 vykresliNoveRemesla();
 $('genericWorkType').addEventListener('change', () => { $('genericArea').value=''; aktualizujGenericCenu(); });
 $('genericArea').addEventListener('input', aktualizujGenericCenu);
-$('genericCalcBtn').addEventListener('click', aktualizujGenericCenu);
+
 function prepniRemeslo() {
   const jeSadrokarton = $('remeslo').value === 'sadrokarton';
   const jeElektro = $('remeslo').value === 'elektro';
