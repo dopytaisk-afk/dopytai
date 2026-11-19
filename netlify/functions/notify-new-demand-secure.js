@@ -44,7 +44,19 @@ exports.handler = async (event) => {
   context: process.env.CONTEXT || "nenastaveny",
   branch: process.env.BRANCH || "nenastavena"
 });
-  // V testovacom prostredi neposielame upozornenia firmam.
+  // TEST povoli notifikacie pre vsetky podporovane remesla iba v PR #9
+  // a iba ak server smeruje na izolovanu testovaciu databazu.
+  const isPreview = process.env.CONTEXT === "deploy-preview";
+  const isPR9Test =
+    isPreview &&
+    process.env.BRANCH === "feature/elektroinstalacie" &&
+    process.env.SUPABASE_URL?.replace(/\/$/, "") ===
+      "https://pwtvquyefpucjufvwnxp.supabase.co";
+
+  if (isPreview && !isPR9Test) {
+    return reply(200, { sent: 0, failed: 0, disabled: true });
+  }
+
 if (process.env.DOPYTAI_ENABLE_NOTIFICATIONS !== "true") {
     return reply(200, {
       sent: 0,
@@ -55,9 +67,11 @@ if (process.env.DOPYTAI_ENABLE_NOTIFICATIONS !== "true") {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const resendKey = process.env.RESEND_API_KEY;
- const siteUrl = process.env.BRANCH === "overenie-emailu"
-  ? "https://overenie-emailu--sparkly-choux-e2b050.netlify.app/"
-  : "https://dopytai24.sk/";
+ const siteUrl = isPR9Test
+  ? "https://deploy-preview-9--sparkly-choux-e2b050.netlify.app/"
+  : process.env.BRANCH === "overenie-emailu"
+    ? "https://overenie-emailu--sparkly-choux-e2b050.netlify.app/"
+    : "https://dopytai24.sk/";
 
   if (!url || !key || !resendKey) {
     return reply(500, { error: "Missing server configuration" });
