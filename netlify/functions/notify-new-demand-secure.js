@@ -1,5 +1,6 @@
 
 const crypto = require("crypto");
+const { tradeForDemand, companyMatchesDemand } = require("./_shared/trade-types");
 
 const reply = (statusCode, body) => ({
   statusCode,
@@ -43,7 +44,19 @@ exports.handler = async (event) => {
   context: process.env.CONTEXT || "nenastaveny",
   branch: process.env.BRANCH || "nenastavena"
 });
-  // V testovacom prostredi neposielame upozornenia firmam.
+  // TEST povoli notifikacie pre vsetky podporovane remesla iba v PR #9
+  // a iba ak server smeruje na izolovanu testovaciu databazu.
+  const isPreview = process.env.CONTEXT === "deploy-preview";
+  const isPR9Test =
+    isPreview &&
+    process.env.BRANCH === "feature/elektroinstalacie" &&
+    process.env.SUPABASE_URL?.replace(/\/$/, "") ===
+      "https://pwtvquyefpucjufvwnxp.supabase.co";
+
+  if (isPreview && !isPR9Test) {
+    return reply(200, { sent: 0, failed: 0, disabled: true });
+  }
+
 if (process.env.DOPYTAI_ENABLE_NOTIFICATIONS !== "true") {
     return reply(200, {
       sent: 0,
@@ -54,9 +67,11 @@ if (process.env.DOPYTAI_ENABLE_NOTIFICATIONS !== "true") {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const resendKey = process.env.RESEND_API_KEY;
- const siteUrl = process.env.BRANCH === "overenie-emailu"
-  ? "https://overenie-emailu--sparkly-choux-e2b050.netlify.app/"
-  : "https://dopytai24.sk/";
+ const siteUrl = isPR9Test
+  ? "https://deploy-preview-9--sparkly-choux-e2b050.netlify.app/"
+  : process.env.BRANCH === "overenie-emailu"
+    ? "https://overenie-emailu--sparkly-choux-e2b050.netlify.app/"
+    : "https://dopytai24.sk/";
 
   if (!url || !key || !resendKey) {
     return reply(500, { error: "Missing server configuration" });
@@ -150,15 +165,15 @@ if (lead.stav !== "novy") {
     ].includes(work);
 
     const isSdkLead = work === "Sadrokartón";
+    const isElektroLead = work === "Elektroinštalácie";
 
-    const matching = companies.filter((company) => {
-      const companyWork = String(company.typ_prace || "").trim();
-
-      return Boolean(company.email) && (
-        (companyWork === "Strechy" && isRoofLead) ||
-        (companyWork === "Sadrokartón" && isSdkLead)
-      );
-    });
+    // Region filtruje iba prijemcov e-mailov, nie viditelnost alebo nakup.
+    if (!tradeForDemand(work)) {
+      return reply(200, { sent: 0, failed: 0, skipped: "Nepodporovane remeslo" });
+    }
+    const matching = companies.filter((company) =>
+      Boolean(company.email) && companyMatchesDemand(company.typ_prace, work)
+    );
 console.info("DopytAI notification matching:", {
   leadId,
   region: lead.region,
@@ -174,22 +189,38 @@ console.info("DopytAI notification matching:", {
 
 const priceRange = priceMatch?.[1]?.trim();
 
-const cenaIndividualna =
-  lead.typ_prace === "Sadrokartón" &&
-  /(?:^|\n)Typ sadrokartónu:\s*Iné(?:\r?\n|$)/.test(
-    String(lead.popis || "")
-  );
+// Cenu berieme z overeneho odhadu ulozeneho vo formulari pre KAZDE remeslo.
+// Nulovy odhad je signal individualneho ocenenia, nie cena 0 €.
+const hasNumericEstimate =
+  lead.odhad_ceny != null &&
+  Number.isFinite(Number(lead.odhad_ceny)) &&
+  Number(lead.odhad_ceny) > 0;
 
 const safeBudget = escapeHtml(
-  cenaIndividualna
-    ? "Individuálne podľa rozsahu prác"
-    : (
-        priceRange ||
-        (lead.odhad_ceny == null
-          ? "-"
-          : `${Number(lead.odhad_ceny).toLocaleString("sk-SK")} €`)
-      )
+  priceRange && (
+    /^Individuálne podľa rozsahu prác$/i.test(priceRange) ||
+    /^[0-9\s\u00a0\u202f]+\s*[–-]\s*[0-9\s\u00a0\u202f]+\s*€$/.test(priceRange)
+  )
+    ? priceRange
+    : hasNumericEstimate
+      ? `${Number(lead.odhad_ceny).toLocaleString("sk-SK")} €`
+      : "Individuálne podľa rozsahu prác"
 );
+const safeDetail = isElektroLead
+  ? '<p><strong>⚡ Elektroinštalácie:</strong> ' + escapeHtml(
+      (String(lead.popis || '').match(/(?:^|\n)Typ elektroinštalácie:\s*([^\r\n]+)/) || [])[1] || 'podľa zadania'
+    ) + '</p>'
+  : (isRoofLead || isSdkLead)
+    ? '<p><strong>📐 Plocha:</strong> ' + safeArea + ' m²</p>'
+    : (() => {
+        // Pre nove remesla neposielame surovy popis obsahujuci osobne udaje.
+        const quantity = String(lead.popis || '').match(
+          /(?:^|\n)Rozsah: ([0-9]{1,5}(?:[.,][0-9])? (?:m²|m³|bm|ks))(?:\r?\n|$)/
+        );
+        return quantity
+          ? '<p><strong>📐 Rozsah:</strong> ' + escapeHtml(quantity[1]) + '</p>'
+          : '<p><strong>📋 Typ prác:</strong> ' + escapeHtml(work) + '</p>';
+      })();
 const safeUnlockPrice = escapeHtml(
   lead.cena_dopytu == null
     ? "cenu uvedenú na stránke"
@@ -237,7 +268,7 @@ const safeUnlockPrice = escapeHtml(
                     <div style="padding:26px 24px;">
                       <h2 style="margin:0 0 20px;">${safeWork}</h2>
                       <p><strong>📍 Lokalita:</strong> ${safeLocation}</p>
-                      <p><strong>📐 Plocha:</strong> ${safeArea} m²</p>
+                      ${safeDetail}
                       <p><strong>💰 Orientačný odhad:</strong> ${safeBudget}</p>
                       <div style="margin-top:24px;padding:18px;background:#eef6ff;border-radius:12px;line-height:1.6;">
                         <strong>🔒 Kontakt zákazníka je skrytý.</strong><br>
