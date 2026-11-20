@@ -155,20 +155,13 @@ if (![25, 50, 100, 200].includes(amount)) {
     params.append("line_items[0][quantity]", "1");
 
          
-// Zachovane povodne Stripe navratove adresy bez noveho presmerovania.
-// PR #9: vsetky nove testovacie platby vracame na aktualny TEST nahlad.
-// Produkcna adresa a ostatne vetvy ostavaju bez zmeny.
-const currentPreviewIsTest =
-  process.env.CONTEXT === "deploy-preview" &&
-  process.env.BRANCH === "feature/elektroinstalacie" &&
-  paymentEnv === "test" &&
-  supabaseUrl === TEST_SUPABASE;
-
-const baseUrl = currentPreviewIsTest
+// Tento subor v PR #9 ma JEDNU TEST navratovu adresu.
+// Podmienka na BRANCH sa nepouziva: pri Deploy Preview nemusi mat
+// ocakavanu hodnotu, co predtym vracalo pouzivatela na staru vetvu.
+// Bezpecnost prostredia (TEST Supabase + sk_test_) je overena vyssie.
+const baseUrl = paymentEnv === "test"
   ? "https://deploy-preview-9--sparkly-choux-e2b050.netlify.app"
-  : stripeKey.startsWith("sk_test_")
-    ? "https://rozsirenie-remesiel--sparkly-choux-e2b050.netlify.app"
-    : "https://dopytai24.sk";
+  : "https://dopytai24.sk";
 
     params.append(
       "success_url",
