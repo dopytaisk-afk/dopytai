@@ -3818,6 +3818,15 @@ const TEST_ODOSIELANIE_POVOLENE =
 $('form').addEventListener('submit',async e=>{
   e.preventDefault();
   const noveRemeslo = NOVE_REMESLA_MAPA[$('remeslo').value];
+  // Okres musi byt vybraty pri kazdom remesle; nikdy neposlat prazdny okres.
+  const vybranyKraj = $('leadRegion').value;
+  const vybranyOkres = $('leadOkres').value;
+  if (!vybranyKraj || !vybranyOkres ||
+      !(okresyPodlaKraja[vybranyKraj] || []).includes(vybranyOkres)) {
+    $('result').innerHTML = '<div class="error">Vyberte kraj a okres realizácie zákazky.</div>';
+    $('leadOkres').focus();
+    return;
+  }
   if ((noveRemeslo || $('remeslo').value === 'elektro') && !TEST_ODOSIELANIE_POVOLENE) {
     $('result').innerHTML = '<div class="error">Toto remeslo je na odosielanie povolené len v DopytAI-TEST.</div>';
     return;
