@@ -20,7 +20,7 @@ BEGIN
     OR position('SECURITY DEFINER' IN v_definition) = 0
     OR position('AND public.dopytai_typ_firmy(d.typ_prace) = f.typ_prace' IN v_definition) = 0
     OR position('NOT EXISTS (' IN v_definition) = 0
-    OR position('WHEN od.firma_id IS NOT NULL THEN d.popis' IN v_definition) = 0
+    OR v_definition !~ 'WHEN[[:space:]]+od[.]firma_id[[:space:]]+IS[[:space:]]+NOT[[:space:]]+NULL[[:space:]]+THEN[[:space:]]+d[.]popis'
   THEN RAISE EXCEPTION 'STOP: DB funkcia sa nezhoduje s TEST auditom.';
   END IF;
   v_count := (length(v_definition) - length(replace(v_definition, v_old, ''))) / length(v_old);
