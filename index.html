@@ -2723,7 +2723,7 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
     <div style="margin-top:10px;line-height:1.7">
   <b>📋 Detaily zákazky</b><br>
  
-${String(lead.typ_prace || '') === 'Elektroinštalácie' ? `${renderElektroDetails(lead)}📍 Kraj: ${esc(lead.region || 'neuvedený')}<br>📍 Okres: ${esc(lead.okres || 'neuvedený')}<br>📅 Termín: ${esc((lead.popis || '').match(/Termín:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedený')}` : String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
+${String(lead.typ_prace || '') === 'Elektroinštalácie' ? `${renderElektroDetails(lead)}📍 Kraj: ${esc(lead.region || 'neuvedený')}<br>📍 Okres: ${esc(lead.okres || 'neuvedený')}<br>📅 Termín: ${esc((lead.popis || '').match(/Termín:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedený')}` : NOVE_REMESLA.some(([, name]) => name === lead.typ_prace) ? `${renderGenericTradeDetails(lead)}📍 Kraj: ${esc(lead.region || 'neuvedený')}<br>📍 Okres: ${esc(lead.okres || 'neuvedený')}<br>📅 Termín: ${esc((lead.popis || '').match(/Termín:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedený')}` : String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
   ? `
     📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([\d,.]+\s*m(?:²|2))/i)?.[1] || 'neuvedená')}<br>
     🔨 Typ sadrokartónu: ${esc((lead.popis || '').match(/Typ sadrokartónu:\s*([\s\S]*?)(?=\s*(?:Konkrétna práca:|Kraj:|Okres:|Termín:|Odhad:|Fotografie vybrané:|$))/i)?.[1]?.trim() || 'neuvedený')}<br>
