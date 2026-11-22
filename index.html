@@ -1540,6 +1540,15 @@ const API_KEY = ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.ho
   ? 'sb_publishable_tD39CIcOeokbNGxDB5Lehg_EUYzmJ36'
   : 'sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-';
 
+// Povolit nove remesla iba na overenej ostrej domene s produkcnym Supabase
+// alebo na izolovanom testovacom nahľade PR #9 s TEST Supabase.
+const REMESLA_POVOLENE = (
+  (['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname) &&
+   API_URL === 'https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1') ||
+  (window.location.hostname === 'deploy-preview-9--sparkly-choux-e2b050.netlify.app' &&
+   API_URL === 'https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1')
+);
+
 const $=id=>document.getElementById(id);
   
 const okresyPodlaKraja = {
@@ -1913,9 +1922,8 @@ function vykresliNoveRemesla() {
     const companyOption = document.createElement('option');
     companyOption.value = nazov;
     companyOption.textContent = nazov;
-    // Nove remesla v registracii povolujeme len na overenom PR #9 testovacom nahľade.
-    // Test backend ma whitelist 19 remesiel; na produkcnej domene ostavaju blokovane.
-    companyOption.disabled = window.location.hostname !== 'deploy-preview-9--sparkly-choux-e2b050.netlify.app';
+    // Nove remesla len v overenej produkcii alebo izolovanom PR #9 TEST.
+    companyOption.disabled = !REMESLA_POVOLENE;
     firmaSelect.appendChild(companyOption);
     const card = document.createElement('article');
     card.className = 'home-trade-card';
@@ -2062,9 +2070,8 @@ hero.querySelector('.roof-hero-sub').textContent =
   $('area').required = !(jeSadrokarton || jeElektro || noveRemeslo);
   $('sdkArea').required = jeSadrokarton;
   $('submitBtn').textContent = 'Vytvoriť dopyt a vypočítať odhad';
-  // TEST PR #9: 19 remesiel. Produkcia a ostatne deploye zostavaju chranene.
-  $('submitBtn').disabled = Boolean((noveRemeslo || jeElektro) &&
-    window.location.hostname !== 'deploy-preview-9--sparkly-choux-e2b050.netlify.app');
+  // Odosielanie novych remesiel len v povolenom prostredi.
+  $('submitBtn').disabled = Boolean((noveRemeslo || jeElektro) && !REMESLA_POVOLENE);
   aktualizujElektroOdhad();
 }
 
@@ -3815,10 +3822,7 @@ async function updateLeadState(select){
 
 if(accessToken) showPanel(); else showLogin();
 
-// Odosielanie 19 remesiel iba na oddelenom TEST nahlade PR #9 a TEST databaze.
-const TEST_ODOSIELANIE_POVOLENE =
-  window.location.hostname === 'deploy-preview-9--sparkly-choux-e2b050.netlify.app' &&
-  API_URL === 'https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1';
+// Rovnake overenie prostredia plati pre tlacidlo aj skutocne odoslanie.
 $('form').addEventListener('submit',async e=>{
   e.preventDefault();
   const noveRemeslo = NOVE_REMESLA_MAPA[$('remeslo').value];
@@ -3831,8 +3835,8 @@ $('form').addEventListener('submit',async e=>{
     $('leadOkres').focus();
     return;
   }
-  if ((noveRemeslo || $('remeslo').value === 'elektro') && !TEST_ODOSIELANIE_POVOLENE) {
-    $('result').innerHTML = '<div class="error">Toto remeslo je na odosielanie povolené len v DopytAI-TEST.</div>';
+  if ((noveRemeslo || $('remeslo').value === 'elektro') && !REMESLA_POVOLENE) {
+    $('result').innerHTML = '<div class="error">Toto remeslo nie je v tomto prostredí povolené na odoslanie.</div>';
     return;
   }
 
