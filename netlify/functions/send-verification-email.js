@@ -138,8 +138,19 @@ const priceNote = isSdk
     : "Konečná cena závisí od rozsahu prác, použitých materiálov a podmienok realizácie.";
     const location = escapeHtml(lead.lokalita || "-");
     const description = String(lead.popis || "");
+    const detailValue = (key) => {
+      const match = description.match(new RegExp("(?:^|\\n)" + key + ":\\s*([^\\r\\n]*)"));
+      return match?.[1]?.trim() || "";
+    };
     const areaValue = (description.match(/(?:Plocha objektu|Plocha):\s*([\d.,]+)\s*m²/i) || [])[1];
     const area = areaValue ? escapeHtml(areaValue) + " m²" : "Neuvedená";
+    // Nové remeslá majú Druh práce + Rozsah, nie strešnú Plochu.
+    const workDetails = !isRoof && !isSdk && !isElektro
+      ? `<p><b>Druh práce:</b> ${escapeHtml(detailValue("Druh práce") || "Neuvedený")}</p>
+         <p><b>Rozsah:</b> ${escapeHtml(detailValue("Rozsah") || "Individuálne podľa zadania")}</p>`
+      : isElektro && !areaValue
+        ? `<p><b>Rozsah opravy:</b> ${escapeHtml(detailValue("Rozsah opravy") || "Podľa zadania")}</p>`
+        : `<p><b>Plocha:</b> ${area}</p>`;
     const estimate =
       (description.match(/Odhad:\s*([^\n]*)/) || [])[1]?.trim() ||
       "Odhad sa pripravuje";
@@ -180,7 +191,7 @@ const priceNote = isSdk
 
             <h3>Váš dopyt</h3>
             <p><b>Typ práce:</b> ${work}</p>
-            <p><b>Plocha:</b> ${area}</p>
+            ${workDetails}
             <p><b>Lokalita:</b> ${location}</p>
 
             <div style="margin-top:26px;padding:22px;
