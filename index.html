@@ -446,6 +446,20 @@
 .home-sdk-image {
   background-image: url('/sadrokarton-pozadie.webp');
 }
+.home-elektro-image {
+  background: linear-gradient(140deg, #083d78 0%, #087cf0 65%, #7cc9ff 100%);
+  position: relative;
+}
+.home-elektro-image::after {
+  content: '⚡';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 72px;
+  color: white;
+  text-shadow: 0 4px 24px #09244877;
+}
 
 .home-trade-content {
   padding: 22px;
@@ -881,7 +895,7 @@
   }
 }
 
-</style></head><body>
+</style><link rel="stylesheet" href="/elektro-style.css"></head><body>
 
 <!-- HORNE MENU DOPYTAI -->
 <header class="top">
@@ -964,8 +978,8 @@
     <div class="home-hero-content">
       <h1>Nájdite spoľahlivú firmu<br>pre stavebné práce</h1>
       <p>
-        Strechy, sadrokartón a ďalšie remeslá na jednom mieste.
-        Získajte orientačnú cenu rýchlo a jednoducho.
+        Strechy, sadrokartón, elektroinštalácie a ďalšie remeslá na jednom mieste.
+        Zistite orientačnú cenu prác zdarma a nájdite firmu vo svojom regióne.
       </p>
       <a href="#homeTrades" class="home-primary-btn">
         Vybrať remeslo
@@ -980,7 +994,7 @@
 
   <section id="homeTrades" class="home-trades">
     <h2>Vyberte si remeslo</h2>
-    <p>Zvoľte typ prác, zadajte dopyt a získajte orientačnú cenu.</p>
+    <p>Zvoľte typ prác a zadajte nezáväzný dopyt. Pri vybraných prácach získate orientačný odhad.</p>
 
     <div class="home-trades-grid">
       <article class="home-trade-card">
@@ -1002,6 +1016,14 @@
           <button type="button" id="homeSdkBtn">
             Zadať dopyt na sadrokartón →
           </button>
+        </div>
+      </article>
+      <article class="home-trade-card">
+        <div class="home-trade-image home-elektro-image" aria-hidden="true"></div>
+        <div class="home-trade-content">
+          <h3>Elektroinštalácie</h3>
+          <p>Nové rozvody, rekonštrukcie, opravy a revízie.</p>
+          <button type="button" id="homeElektroBtn">Zadať dopyt na elektrikára →</button>
         </div>
       </article>
     </div>
@@ -1096,12 +1118,21 @@
 
 <section class="roof-hero">
   <div class="roof-hero-content">
-    <h1>Nová <span>strecha</span> začína<br>dobrým plánom</h1>
-    <p>Zistite orientačnú cenu a nájdite firmu na realizáciu.</p>
-    <p class="roof-hero-sub">Zadanie dopytu je zdarma a nezáväzné.</p>
-   <a class="estimate-cta" href="#form">
-  Zistiť orientačnú cenu zdarma →
-</a>
+    <div class="roof-hero-copy">
+      <span class="elektro-tag">⚡ Elektroinštalácie na DopytAI</span>
+      <h1>Nová <span>strecha</span> začína<br>dobrým plánom</h1>
+      <p>Zistite orientačnú cenu a nájdite firmu na realizáciu.</p>
+      <div class="elektro-features" aria-label="Typy elektroinštalácií">
+        <span><b>⚡</b> Kompletná elektroinštalácia</span>
+        <span><b>🛠</b> Opravy a poruchy</span>
+        <span><b>✓</b> Revízie</span>
+        <span><b>⌂</b> Rodinné domy, byty a iné objekty</span>
+      </div>
+      <a class="estimate-cta" href="#form">Zistiť orientačnú cenu zdarma →</a>
+      <a class="elektro-secondary-cta" href="#howItWorks">Ako to funguje</a>
+      <p class="roof-hero-sub">Zadanie dopytu je zdarma a nezáväzné.</p>
+    </div>
+    <div class="elektro-image" role="img" aria-label="Elektrikár pri elektroinštalačnom rozvádzači"></div>
   </div>
   <a id="sdkHeroButton"
      class="estimate-cta"
@@ -1111,7 +1142,7 @@
   </a>
 </section>
 
-<section class="how-it-works">
+<section class="how-it-works" id="howItWorks">
   <h2>Ako funguje DopytAI</h2>
 
   <div class="steps-grid">
@@ -1174,11 +1205,37 @@
     <select id="remeslo">
       <option value="strechy">Strechy</option>
       <option value="sadrokarton">Sadrokartón</option>
+      <option value="elektro">Elektroinštalácie</option>
     </select>
   </div>
 </div>
 <form id="form" class="card">
 <div class="field"><label>Čo potrebujete?</label><select id="type"><option>Nová strecha</option><option>Rekonštrukcia strechy</option><option>Oprava / zatekanie</option></select></div>
+<div id="elektroFields" style="display:none">
+  <div class="field"><label for="elektroType">Typ elektroinštalačných prác</label><select id="elektroType"><option>Kompletná elektroinštalácia</option><option>Čiastočná elektroinštalácia</option><option>Oprava alebo porucha</option><option>Elektroinštalačná revízia</option></select></div>
+  <div class="field"><label for="elektroObjekt">Objekt</label><select id="elektroObjekt"><option>Rodinný dom</option><option>Byt</option><option>Iný objekt</option></select></div>
+  <div class="field" id="elektroAreaField"><label for="elektroArea">Plocha elektroinštalačných prác (m²)</label><input id="elektroArea" type="number" min="1" max="10000" step="1" placeholder="napr. 120"></div>
+  <div class="field" id="elektroRozsahField" style="display:none"><label for="elektroRozsah">Rozsah opravy</label>
+    <select id="elektroRozsah">
+      <option value="mala">Menšia oprava – 1 až 2 zásuvky, vypínače alebo body</option>
+      <option value="stredna">Stredná oprava – 3 až 5 bodov</option>
+      <option value="vacsia">Rozsiahlejšia oprava – viac než 5 bodov</option>
+    </select>
+  </div>
+  <!-- Cena sa zobrazi az po odoslani dopytu. -->
+  <p class="note">Ide o nezáväzný odhad bežného rozsahu. Nezahŕňa projekt, nadštandard, veľké stavebné úpravy ani nepredvídané závady. Presnú cenu určí elektrikár po posúdení.</p>
+</div>
+<div id="genericTradeFields" style="display:none">
+  <div class="field"><label for="genericWorkType">Aký druh prác potrebujete?</label><select id="genericWorkType"></select></div>
+  <div class="field" id="genericQuantityField">
+    <label id="genericQuantityLabel" for="genericArea">Rozsah prác</label>
+    <input id="genericArea" type="number" inputmode="decimal" min="1" max="10000" step="0.1" placeholder="Napr. 50">
+    <p id="genericQuantityHint" class="note" style="display:none"></p>
+  </div>
+  <!-- Cena sa zobrazi az po odoslani dopytu. -->
+  
+  <p class="note">Cena je orientačná, zahŕňa len prácu bez materiálu, dopravy a DPH. Konečnú ponuku určí realizačná firma.</p>
+</div>
 <div id="sadrokartonFields" style="display:none">
   <div class="field">
     <label for="sdkType">Aké sadrokartónové práce potrebujete?</label>
@@ -1320,6 +1377,9 @@
   <section id="companyPortal" style="display:none">
   <div class="card">
     <h2>Pre firmy</h2>
+    <div id="companyConfirmationMessage" role="status" style="display:none;margin:12px 0;padding:13px;border-radius:10px;background:#eef6ff;border:1px solid #b8d9ff;color:#123e70;font-weight:600;">
+      E-mailová adresa bola potvrdená. Teraz sa môžete prihlásiť do firemného účtu.
+    </div>
     <p>Získajte nové zákazky vo vašom regióne.</p>
 
     <div class="field">
@@ -1444,6 +1504,7 @@
     <option value="">Vyberte remeslo</option>
     <option value="Strechy">Strechy – pokrývačské a klampiarske práce</option>
    <option value="Sadrokartón">Sadrokartón – sadrokartónové práce</option>
+    <option value="Elektroinštalácie">Elektroinštalácie – elektrikárske práce</option>
   </select>
 </div>
     <div class="field">
@@ -1478,6 +1539,15 @@ const API_URL = ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.ho
 const API_KEY = ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname)
   ? 'sb_publishable_tD39CIcOeokbNGxDB5Lehg_EUYzmJ36'
   : 'sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-';
+
+// Povolit nove remesla iba na overenej ostrej domene s produkcnym Supabase
+// alebo na izolovanom testovacom nahľade PR #9 s TEST Supabase.
+const REMESLA_POVOLENE = (
+  (['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname) &&
+   API_URL === 'https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1') ||
+  (window.location.hostname === 'deploy-preview-9--sparkly-choux-e2b050.netlify.app' &&
+   API_URL === 'https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1')
+);
 
 const $=id=>document.getElementById(id);
   
@@ -1676,6 +1746,73 @@ function calcSdkEstimate(area, type) {
     mid: Math.round((lo + hi) / 2)
   };
 }
+
+// Orientačný model pre elektroinštalácie, Slovensko 2026.
+// Približné rozpätia z verejných cenníkov, nie záväzná ponuka ani cenová garancia.
+// Kompletné práce: bežný rozsah vrátane práce a základného materiálu.
+// Čiastočné práce: plocha SKUTOČNE dotknutej časti, nie celého objektu.
+// Opravy a revízie: podľa rozsahu, nie podľa m².
+// Zdrojové odkazy v docs/elektro-kalkulacka.md.
+function calcElektroEstimate(type, object, area, scope) {
+  const round10 = x => Math.round(x / 10) * 10;
+  let lo, hi, note;
+  if (type === 'Kompletná elektroinštalácia' || type === 'Čiastočná elektroinštalácia') {
+    const a = Number(area);
+    if (!Number.isFinite(a) || a <= 0 || !Number.isInteger(a) || a > 10000) {
+      return { valid: false, message: 'Zadajte plochu prác v celých m² (1 až 10 000).' };
+    }
+    if (object === 'Iný objekt') {
+      return { valid: false, individual: true, message: 'Pri inom objekte stanoví cenu firma individuálne podľa projektu.' };
+    }
+    const complete = type === 'Kompletná elektroinštalácia';
+    const lowRate = complete ? 35 : 15;
+    const highRate = complete ? 65 : 35;
+    lo = Math.max(complete ? 900 : 200, round10(a * lowRate));
+    hi = Math.max(complete ? 1300 : 350, round10(a * highRate));
+    note = complete
+      ? 'Bežné vnútorné rozvody, montáž a základný materiál; počet bodov a rozvádzač môžu cenu zmeniť.'
+      : 'Počíta sa len plocha, na ktorej sa práce vykonajú. Sekanie, náročné prístupy a materiál menia cenu.';
+  } else if (type === 'Oprava alebo porucha') {
+    const rates = {
+      mala: [60, 180],
+      stredna: [130, 380],
+      vacsia: [300, 850]
+    };
+    if (!Object.prototype.hasOwnProperty.call(rates, scope)) {
+      return { valid: false, message: 'Vyberte rozsah opravy.' };
+    }
+    [lo, hi] = rates[scope];
+    note = 'Počíta sa bežný výjazd a oprava; pri diagnostike skrytej poruchy môže byť suma vyššia.';
+  } else if (type === 'Elektroinštalačná revízia') {
+    if (object === 'Iný objekt') {
+      return { valid: false, individual: true, message: 'Revízia iného objektu sa naceňuje individuálne podľa počtu okruhov a zariadení.' };
+    }
+    [lo, hi] = object === 'Byt' ? [90, 240] : [150, 420];
+    note = 'Odhad pre bežnú revíziu elektroinštalácie; závisí od počtu okruhov, rozsahu meraní a dokumentácie.';
+  } else {
+    return { valid: false, message: 'Vyberte druh elektroinštalačných prác.' };
+  }
+  return { valid: true, lo, hi, mid: Math.round((lo + hi) / 2), note };
+}
+function aktualizujElektroOdhad() {
+  const elektro = $('remeslo').value === 'elektro';
+  const type = $('elektroType').value;
+  const requiresArea = type === 'Kompletná elektroinštalácia' || type === 'Čiastočná elektroinštalácia';
+  $('elektroAreaField').style.display = requiresArea && elektro ? 'block' : 'none';
+  $('elektroRozsahField').style.display = elektro && type === 'Oprava alebo porucha' ? 'block' : 'none';
+  $('elektroArea').required = elektro && requiresArea;
+  $('elektroAreaField').querySelector('label').textContent =
+    type === 'Čiastočná elektroinštalácia'
+      ? 'Plocha, ktorej sa práce týkajú (m²)'
+      : 'Plocha objektu (m²)';
+  // Pri vyplnani iba nastavujeme povinne polia.
+  // Cena sa vypocita az v odosielacom handleri.
+}
+['elektroType','elektroObjekt','elektroRozsah'].forEach(id => {
+  $(id).addEventListener('change', aktualizujElektroOdhad);
+});
+$('elektroArea').addEventListener('input', aktualizujElektroOdhad);
+
 function aktualizujPopisPlochy() {
   const oprava = $('type').value.includes('Oprava');
 
@@ -1688,19 +1825,188 @@ function aktualizujPopisPlochy() {
 
 $('type').addEventListener('change', aktualizujPopisPlochy);
 aktualizujPopisPlochy();
+function renderLeadTerm(lead) {
+  const match = String(lead.popis || '').match(/(?:^|\n)Termín:[ \t]*([^\r\n]*)/);
+  return esc(match?.[1]?.trim() || 'neuvedený');
+}
+function renderGenericTradeDetails(lead) {
+  const text = String(lead.popis || '');
+  const line = key => {
+    const match = text.match(new RegExp('(?:^|\\n)' + key + ': ([^\\r\\n]*)'));
+    return esc(match?.[1]?.trim() || 'neuvedené');
+  };
+  return '🔨 Druh práce: ' + line('Druh práce') + '<br>' +
+    '📐 Rozsah: ' + line('Rozsah') + '<br>';
+}
+function renderEstimate(lead) {
+  const text = String(lead.popis || '');
+  const estimate = text.match(/(?:^|\n)Odhad: ([^\r\n]*)/)?.[1]?.trim();
+  if (estimate) return esc(estimate);
+  const amount = Number(lead.odhad_ceny);
+  return esc(Number.isFinite(amount) && amount > 0
+    ? amount.toLocaleString('sk-SK') + ' €'
+    : 'Individuálne podľa rozsahu prác');
+}
+function renderElektroDetails(lead) {
+  const text = String(lead.popis || '');
+  const value = name => {
+    const line = text.split(/\r?\n/).find(x => x.startsWith(name + ': '));
+    return esc(line ? line.substring(name.length + 2).trim() : 'neuvedené');
+  };
+  return '⚡ Typ práce: ' + value('Typ elektroinštalácie') + '<br>' +
+    '🏠 Objekt: ' + value('Objekt') + '<br>' +
+    '📐 Plocha objektu: ' + value('Plocha objektu') + '<br>';
+}
+
+// Katalog novych remesiel – len vyvojove rozhranie, bez odosielania do Supabase.
+const NOVE_REMESLA = [["voda","Vodoinštalácie","🚰","Rozvody vody, odpady a montáž sanity",["Nové rozvody vody a odpadu","Oprava úniku vody","Montáž sanity","Iné vodoinštalačné práce"]],["kurenie","Kúrenie","♨️","Radiátory, podlahové kúrenie a kotly",["Podlahové kúrenie","Radiátory a rozvody","Výmena zdroja vykurovania","Oprava kúrenia"]],["klima","Klimatizácie","❄️","Montáž, servis a výmena klimatizácií",["Montáž klimatizácie","Servis a čistenie","Oprava klimatizácie","Multi-split systém"]],["murarske","Murárske práce","🧱","Murovanie, priečky a stavebné úpravy",["Nové murivo","Vnútorné priečky","Omietky","Stavebné úpravy"]],["fasady","Fasády a zateplenie","🏠","Zateplenie, omietky a oprava fasád",["Zateplenie fasády","Nová fasádna omietka","Oprava fasády","Iné fasádne práce"]],["maliarske","Maliarske práce","🎨","Maľovanie stien, stropov a povrchov",["Maľovanie interiéru","Maľovanie exteriéru","Stierkovanie","Tapetovanie"]],["obklady","Obklady a dlažby","▦","Keramika, kúpeľne a pokládka dlažby",["Obklad kúpeľne","Pokládka interiérovej dlažby","Pokládka terasovej dlažby","Oprava obkladov"]],["podlahy","Podlahy","🪵","Vinyl, laminát, drevo a nivelizácia",["Vinylová podlaha","Laminátová podlaha","Drevená podlaha","Príprava a nivelizácia"]],["okna","Okná a dvere","🚪","Výmena a montáž okien či dverí",["Plastové okná","Drevené okná","Vchodové dvere","Interiérové dvere"]],["tesarske","Tesárske práce","🪚","Krovy, drevené konštrukcie a prístrešky",["Krov strechy","Drevený prístrešok","Terasa z dreva","Iné tesárske práce"]],["izolacie","Hydroizolácie","💧","Izolácie základov, terás a plochých striech",["Izolácia základov","Izolácia terasy","Plochá strecha","Sanácia vlhkosti"]],["zamkova","Zámková dlažba","🧩","Chodníky, príjazdové cesty a spevnené plochy",["Chodníky","Príjazdová cesta","Terasa a dvor","Oprava dlažby"]],["ploty","Ploty a brány","🚧","Montáž oplotenia, brán a pohonov",["Nový plot","Posuvná brána","Krídlová brána","Oprava oplotenia"]],["zemne","Zemné práce","🚜","Výkopy, terénne úpravy a základy",["Výkop základov","Prípojky a ryhy","Úprava terénu","Búranie a odvoz"]],["kupelne","Rekonštrukcie kúpeľní","🛁","Kompletná prerábka kúpeľne a WC",["Kompletná rekonštrukcia","Výmena vane alebo sprchy","Čiastočná rekonštrukcia","Samostatné WC"]],["beton","Betonárske práce","🏗️","Základové dosky, betónovanie a potery",["Základová doska","Betónový poter","Schodisko","Iné betónové práce"]]];
+const NOVE_REMESLA_MAPA = Object.fromEntries(NOVE_REMESLA.map(([id,nazov,ikona,popis,typy]) => [id,{id,nazov,ikona,popis,typy}]));
+
+// Orientacne sadzby 2026 podla verejnych slovenskych cennikov. Nejde o zivý cennik.
+// Sadzby su REDAKCNY ODHAD prace bez materialu, dopravy a DPH, NIE presne citacie zdrojov.
+// Pole: [jednotka, spodna_sadzba, horna_sadzba, minimalna_zakazka_jednotiek, nazov_mnozstva, poznamka].
+// null: neporovnatelna atypicka praca, vyzaduje obhliadku/cenovu ponuku.
+const CENOVE_PRAVIDLA_2026 = {"voda":[["ks",45,95,1,"Počet vývodov vody alebo odpadu","Bežný vývod; bez sekania, opráv stien a materiálu."],["ks",65,180,1,"Počet samostatných opráv","Pri skrytých poruchách môže byť potrebná obhliadka."],["ks",60,170,1,"Počet montovaných zariadení","Umývadlo, batéria, WC alebo podobné zariadenie; bez jeho ceny."],null],"kurenie":[["m²",18,35,10,"Plocha podlahového kúrenia","Montáž rozvodov bez materiálu, izolácie, poteru a zdroja tepla."],["ks",75,160,1,"Počet radiátorov / vykurovacích telies","Bežná montáž bez radiátora a väčších úprav rozvodov."],null,["ks",65,180,1,"Počet servisných zásahov","Bežné opravy; výmena kotla a odborné revízie sa oceňujú osobitne."]],"klima":[["ks",250,420,1,"Počet split klimatizácií","Štandardná montáž bez ceny jednotky; atypická trasa a elektroprípojka navyše."],["ks",50,110,1,"Počet servisovaných jednotiek","Bežné čistenie a kontrola; bez chladiva a náhradných dielov."],null,null],"murarske":[["m²",18,38,5,"Plocha murovaných stien","Bežné murovanie bez tehál, lepidla, prekladov a dopravy."],["m²",15,32,5,"Plocha vnútorných priečok","Bežná priečka; bez materiálu a povrchových úprav."],["m²",9,19,5,"Plocha omietok","Bežná omietka bez materiálu a sanácie podkladu."],null],"fasady":[["m²",25,45,10,"Plocha zatepľovanej fasády","Práca na zateplení; izolant, omietka a lešenie nie sú započítané."],["m²",11,22,10,"Plocha novej omietky","Práca bez omietkovej zmesi, lešenia a opráv podkladu."],["m²",15,35,5,"Plocha opravovanej fasády","Rozsah závisí od podkladu a výšky budovy."],null],"maliarske":[["m²",3,7,10,"Plocha stien a stropov","Skutočná plocha maľovaných povrchov, nie podlahová plocha."],["m²",6,13,10,"Plocha exteriérovej maľby","Bez fasádnej opravy, lešenia a materiálu."],["m²",8,15,5,"Plocha stierkovania","Bežné stierkovanie bez materiálu a výnimočných nerovností."],["m²",8,18,5,"Plocha tapetovania","Bez ceny tapiet a zložitej prípravy podkladu."]],"obklady":[["m²",28,50,5,"Plocha obkladov","Bežný formát; bez obkladov, lepidla, hydroizolácie a búrania."],["m²",24,42,5,"Plocha dlažby","Bežné kladenie v interiéri, materiál a nivelizácia navyše."],["m²",30,55,5,"Plocha terasovej dlažby","Bez dlažby, podkladovej vrstvy a odvodnenia."],["ks",80,240,1,"Počet menších opráv","Lokalizovaná oprava obkladu alebo dlažby; podľa dostupnosti náhradných kusov."]],"podlahy":[["m²",12,22,5,"Plocha vinylovej podlahy","Montáž bez vinylu, líšt a nivelizácie."],["m²",10,18,5,"Plocha laminátovej podlahy","Pokládka bez materiálu, líšt a úprav podkladu."],["m²",18,33,5,"Plocha drevenej podlahy","Bežné uloženie bez ceny podlahy a brúsenia."],["m²",7,15,5,"Plocha pripraveného podkladu","Práca na vyrovnaní; materiál a hrubé opravy zvlášť."]],"okna":[["ks",85,180,1,"Počet plastových okien","Len montáž bežného okna; bez výrobku a murárskeho začistenia."],["ks",100,220,1,"Počet drevených okien","Len montáž; atypické rozmery a špalety zmenia cenu."],["ks",150,330,1,"Počet vchodových dverí","Bežné osadenie; bez ceny dverí, zárubní a murárskych opráv."],["ks",70,130,1,"Počet interiérových dverí","Montáž zárubne a dverí; bez ceny dverí."]],"tesarske":[["m²",20,40,10,"Plocha krovu / strechy","Montáž bežného krovu bez reziva, spojovacieho materiálu a krytiny."],["m²",45,100,5,"Pôdorysná plocha prístrešku","Montáž jednoduchej drevenej konštrukcie bez reziva a krytiny."],["m²",20,45,5,"Plocha drevenej terasy","Práca bez terasových dosiek a materiálu."],null],"izolacie":[["m²",10,22,5,"Plocha izolácie základov","Práca na hydroizolácii bez pásov, náterov a výkopu."],["m²",13,25,5,"Plocha terasy","Práca bez izolačného materiálu a nových povrchov."],["m²",15,30,10,"Plocha plochej strechy","Bežná realizácia hydroizolačnej vrstvy bez materiálu a opráv podkladu."],null],"zamkova":[["m²",15,25,5,"Plocha chodníkov","Samotná pokládka; bez dlažby, výkopov a kompletnej podkladovej skladby."],["m²",18,30,5,"Plocha príjazdovej cesty","Samotná pokládka, bez hutneného podložia a materiálu."],["m²",17,30,5,"Plocha terasy alebo dvora","Bez dlažby, obrubníkov, drenáže a prípravy podkladu."],["m²",15,30,5,"Plocha opravy dlažby","Rozobratie a znovuuloženie; výmena poškodeného materiálu navyše."]],"ploty":[["bm",20,45,5,"Dĺžka bežného plota","Montáž bežného panelového plota; bez dielcov, betónu a zemných prác."],["ks",250,600,1,"Počet posuvných brán","Osadenie štandardnej brány; výrobok, pohon a základy zvlášť."],["ks",160,400,1,"Počet krídlových brán","Osadenie štandardnej brány; výrobok a kotvenie na mieru zvlášť."],null],"zemne":[["m³",12,35,3,"Objem výkopu základov","Strojný výkop bez odvozu zeminy a prepravy stroja."],["m³",15,38,1,"Objem ryhy / výkopu","Strojná práca podľa prístupnosti a podložia; odvoz zvlášť."],["m²",2,7,20,"Plocha terénnych úprav","Základné zarovnanie, bez navezenia zeminy a odvozu."],null],"kupelne":[null,["ks",200,500,1,"Počet výmien vane alebo sprchy","Demontáž a bežná montáž, bez sanity, materiálu a kompletnej hydroizolácie."],null,["ks",150,400,1,"Počet rekonštruovaných WC","Bežné montážne a drobné stavebné práce, bez sanity a obkladov."]],"beton":[["m²",30,65,10,"Plocha základovej dosky","Len bežné práce na doske; bez betónu, ocele, výkopu, izolácie a dopravy."],["m²",8,17,10,"Plocha poteru","Práca na potere; bez materiálu a čerpania na náročné miesto."],null,["m³",40,90,2,"Objem betónovania","Práca na ukladaní betónu; bez betónovej zmesi, dopravy a debnenia."]]};
+// Referencne verejne zdroje a interpretacia odhadov: docs/orientacne-kalkulacky-2026.md
+function vypocitajCenuRemesla2026(remeslo, typIndex, mnozstvo) {
+  const pravidla = CENOVE_PRAVIDLA_2026[remeslo];
+  if (!pravidla || !Number.isInteger(typIndex) || typIndex < 0 || typIndex >= pravidla.length) {
+    return {valid:false, message:'Vyberte typ prác.'};
+  }
+  const pravidlo = pravidla[typIndex];
+  if (!pravidlo) return {valid:true, individual:true, message:'Individuálne nacenenie podľa rozsahu prác a obhliadky.'};
+  const [jednotka, sadzbaOd, sadzbaDo, minimum, label, poznamka] = pravidlo;
+  const hodnota = Number(mnozstvo);
+  if (mnozstvo === '' || mnozstvo == null || !Number.isFinite(hodnota) || hodnota <= 0 || hodnota > 10000) {
+    return {valid:false, message:'Zadajte kladný rozsah prác, maximálne 10 000 '+jednotka+'.'};
+  }
+  if (jednotka === 'ks' && !Number.isInteger(hodnota)) {
+    return {valid:false, message:'Počet kusov musí byť celé číslo.'};
+  }
+  const zaklad = Math.max(hodnota, minimum);
+  const lo = Math.round(zaklad * sadzbaOd / 5) * 5;
+  const hi = Math.round(zaklad * sadzbaDo / 5) * 5;
+  return {valid:true, individual:false, lo, hi, mid:Math.round((lo+hi)/2), jednotka,
+    mnozstvo:hodnota, minimum, sadzbaOd, sadzbaDo, label, poznamka,
+    minimumPouzite:hodnota < minimum};
+}
+const naEuraSK = n => n.toLocaleString('sk-SK',{maximumFractionDigits:0}) + ' €';
+function aktualizujGenericCenu() {
+  // Pri vyplnani iba upravime povinne polia, bez vypoctu ceny.
+  const id = $('remeslo').value;
+  const cfg = NOVE_REMESLA_MAPA[id];
+  if (!cfg) return;
+  const index = $('genericWorkType').selectedIndex;
+  const pravidlo = CENOVE_PRAVIDLA_2026[id]?.[index];
+  const input = $('genericArea');
+  const hasRate = Boolean(pravidlo);
+  $('genericQuantityField').style.display = hasRate ? 'block' : 'none';
+  input.required = hasRate;
+  if (hasRate) {
+    const [jednotka, , , , label] = pravidlo;
+    $('genericQuantityLabel').textContent = label + ' (' + jednotka + ')';
+    input.step = jednotka === 'ks' ? '1' : '0.1';
+    input.min = jednotka === 'ks' ? '1' : '0.1';
+    $('genericQuantityHint').textContent = '';
+  }
+}
+function vykresliNoveRemesla() {
+  const grid = document.querySelector('.home-trades-grid');
+  const select = $('remeslo');
+  const firmaSelect = $('registerCompanyWork');
+  NOVE_REMESLA.forEach(([id,nazov,ikona,popis], index) => {
+    const option = document.createElement('option');
+    option.value = id;
+    option.textContent = nazov;
+    select.appendChild(option);
+    const companyOption = document.createElement('option');
+    companyOption.value = nazov;
+    companyOption.textContent = nazov;
+    // Nove remesla len v overenej produkcii alebo izolovanom PR #9 TEST.
+    companyOption.disabled = !REMESLA_POVOLENE;
+    firmaSelect.appendChild(companyOption);
+    const card = document.createElement('article');
+    card.className = 'home-trade-card';
+    const image = document.createElement('div');
+    image.className = 'home-trade-image';
+    // Vlastná jednotná SVG ilustrácia z atlasu 4 x 4. Nevyžaduje externý hosting.
+    // Každý obrázok má rovnakú veľkosť a bezpečné okraje, nezobrazuje text.
+    const stlpec = index % 4;
+    const riadok = Math.floor(index / 4);
+    // Jediný lokálny atlas s presne schválenými obrázkami z konverzácie.
+    // Ak sa atlas ešte nenahral na Netlify, zobrazí sa SVG záloha.
+    image.style.backgroundImage =
+      'url("/dopytai-remesla-ostre.jpg"),url("/remesla-ikony.svg")';
+    image.style.backgroundSize = '400% 400%, 400% 400%';
+    image.style.backgroundPosition =
+      (stlpec * 100 / 3) + '% ' + (riadok * 100 / 3) + '%,' +
+      (stlpec * 100 / 3) + '% ' + (riadok * 100 / 3) + '%';
+    image.style.backgroundRepeat = 'no-repeat,no-repeat';
+    image.setAttribute('aria-hidden', 'true');
+    const content = document.createElement('div');
+    content.className = 'home-trade-content';
+    const h = document.createElement('h3'); h.textContent = nazov;
+    const p = document.createElement('p'); p.textContent = popis;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    const popisTlacidla = {
+      voda: 'vodoinštalácie', kurenie: 'kúrenie', klima: 'klimatizáciu',
+      murarske: 'murárske práce', fasady: 'fasádu', maliarske: 'maľovanie',
+      obklady: 'obklady', podlahy: 'podlahy', okna: 'okná a dvere',
+      tesarske: 'tesárske práce', izolacie: 'hydroizolácie',
+      zamkova: 'zámkovú dlažbu', ploty: 'plot alebo bránu',
+      zemne: 'zemné práce', kupelne: 'rekonštrukciu kúpeľne',
+      beton: 'betonárske práce'
+    };
+    btn.textContent = 'Zadať dopyt na ' + popisTlacidla[id] + ' →';
+    btn.addEventListener('click', () => otvorRemeslo(id));
+    content.append(h,p,btn);
+    card.append(image,content);
+    grid.appendChild(card);
+  });
+}
+function prepniGenerickePolia(remeslo) {
+  const cfg = NOVE_REMESLA_MAPA[remeslo];
+  const box = $('genericTradeFields');
+  box.style.display = cfg ? 'block' : 'none';
+  if (!cfg) { $('genericArea').required=false; return; }
+  $('genericArea').value = '';
+  const typ = $('genericWorkType');
+  typ.replaceChildren();
+  cfg.typy.forEach(nazov => {
+    const option = document.createElement('option');
+    option.textContent = nazov;
+    option.value = nazov;
+    typ.appendChild(option);
+  });
+  aktualizujGenericCenu();
+}
+vykresliNoveRemesla();
+$('genericWorkType').addEventListener('change', () => { $('genericArea').value=''; aktualizujGenericCenu(); });
+$('genericArea').addEventListener('input', aktualizujGenericCenu);
+
 function prepniRemeslo() {
   const jeSadrokarton = $('remeslo').value === 'sadrokarton';
+  const jeElektro = $('remeslo').value === 'elektro';
+  const noveRemeslo = NOVE_REMESLA_MAPA[$('remeslo').value];
+  prepniGenerickePolia($('remeslo').value);
   document.querySelector('.how-it-works .step-card h3').textContent =
-  jeSadrokarton
+  noveRemeslo ? 'Opíšte požadované práce' : jeElektro ? 'Opíšte požadovanú elektroinštaláciu' : jeSadrokarton
     ? 'Opíšte svoje sadrokartónové práce'
     : 'Opíšte svoju strechu';
+  document.querySelectorAll('.how-it-works .step-card')[1].querySelector('p').textContent =
+    noveRemeslo
+      ? 'Orientačnú cenu práce získate až po odoslaní dopytu.'
+      : jeElektro
+        ? 'Orientačné rozpätie sa zobrazí zdarma až po odoslaní dopytu.'
+        : 'Po odoslaní uvidíte orientačné cenové rozpätie.';
   const hero = document.querySelector('.roof-hero');
 
-hero.querySelector('h1').innerHTML = jeSadrokarton
+hero.querySelector('h1').innerHTML = noveRemeslo ? esc(noveRemeslo.nazov) : jeElektro ? 'Elektroinštalácie' : jeSadrokarton
   ? 'Sadrokartónové <span>práce</span><br>rýchlo a jednoducho'
   : 'Nová <span>strecha</span> začína<br>dobrým plánom';
 
-hero.querySelector('.roof-hero-content > p').textContent = jeSadrokarton
+hero.querySelector('.roof-hero-copy > p').textContent = noveRemeslo ? noveRemeslo.popis + '. Vyberte si typ prác a opíšte, čo potrebujete.' : jeElektro ? 'Nájdite spoľahlivého elektrikára vo vašom kraji. Odhad ceny závisí od rozsahu prác.' : jeSadrokarton
   ? 'Zadajte dopyt na priečky, podhľady, predsadené steny alebo iné sadrokartónové práce a získajte cenový odhad.'
   : 'Zistite orientačnú cenu a nájdite firmu na realizáciu.';
 
@@ -1708,29 +2014,65 @@ hero.querySelector('.roof-hero-sub').textContent =
   'Zadanie dopytu je zdarma a nezáväzné.';
   document.querySelector('.roof-hero')
   ?.classList.toggle('sdk-hero', jeSadrokarton);
-  $('sdkHeroButton').style.display =
-  jeSadrokarton ? 'block' : 'none';
-  hero.querySelector('.roof-hero-content .estimate-cta').style.display =
-  jeSadrokarton ? 'none' : 'block';
+  hero.classList.toggle('elektro-hero', jeElektro);
+  hero.classList.toggle('generic-hero', Boolean(noveRemeslo));
+  // Jednotny dvojstlpcovy vizual pre kazde remeslo; funkcionalita formularov bez zmeny.
+  hero.classList.add('unified-trade-hero');
+  hero.querySelector('.elektro-features').setAttribute('aria-hidden','true');
+  const hlavnyObrazok = hero.querySelector('.elektro-image');
+  if (noveRemeslo) {
+    const poradie = NOVE_REMESLA.findIndex(([id]) => id === noveRemeslo.id);
+    const poziciaX = (poradie % 4) * 100 / 3;
+    const poziciaY = Math.floor(poradie / 4) * 100 / 3;
+    hlavnyObrazok.style.backgroundImage =
+      'url("/dopytai-remesla-ostre.jpg"),url("/remesla-ikony.svg")';
+    hlavnyObrazok.style.backgroundSize = '400% 400%,400% 400%';
+    hlavnyObrazok.style.backgroundPosition =
+      poziciaX + '% ' + poziciaY + '%,' + poziciaX + '% ' + poziciaY + '%';
+    hlavnyObrazok.style.backgroundRepeat = 'no-repeat,no-repeat';
+    hlavnyObrazok.setAttribute('aria-label','Fotografia remesla: ' + noveRemeslo.nazov);
+  } else {
+    hlavnyObrazok.style.backgroundImage = '';
+    hlavnyObrazok.style.backgroundSize = '';
+    hlavnyObrazok.style.backgroundPosition = '';
+    hlavnyObrazok.style.backgroundRepeat = '';
+    hlavnyObrazok.setAttribute(
+      'aria-label',
+      jeSadrokarton ? 'Sadrokartonarske prace v interieri' :
+      jeElektro ? 'Elektrikar pri elektroinstalacnom rozvadzaci' :
+      'Rodinny dom s kvalitnou strechou'
+    );
+  }
+  // Iba SDK pouziva samostatne tlacidlo na pozadi, elektro ma svoje CTA v lavom stlpci.
+  $('sdkHeroButton').style.display = 'none';
+  const heroCta = hero.querySelector('.roof-hero-content .estimate-cta');
+  heroCta.style.display = 'inline-flex';
+  heroCta.textContent = 'Zistiť orientačnú cenu zdarma →';
     document.querySelector('.form-heading').textContent =
-    jeSadrokarton
-      ? 'Povedzte nám viac o vašich sadrokartónových prácach'
+    noveRemeslo ? 'Povedzte nám viac: ' + noveRemeslo.nazov : jeElektro ? 'Povedzte nám viac o elektroinštalačných prácach'
+      : jeSadrokarton ? 'Povedzte nám viac o vašich sadrokartónových prácach'
       : 'Povedzte nám viac o vašej streche';
 
-  $('desc').placeholder = jeSadrokarton
-    ? 'Napr. podhľady v rodinnom dome, dvojité opláštenie, izolácia...'
+  $('desc').placeholder = noveRemeslo ? 'Opíšte, čo potrebujete, približný rozsah a ďalšie požiadavky...' : jeElektro
+    ? 'Napr. kompletná elektroinštalácia novostavby, požadovaný počet zásuviek, projekt...'
+    : jeSadrokarton ? 'Napr. podhľady v rodinnom dome, dvojité opláštenie, izolácia...'
     : 'Napr. novostavba bungalovu, väzníkový krov...';
 
+  $('elektroFields').style.display = jeElektro ? 'block' : 'none';
   $('sadrokartonFields').style.display =
     jeSadrokarton ? 'block' : 'none';
 
   ['type', 'area', 'cover', 'truss'].forEach(id => {
     $(id).closest('.field').style.display =
-      jeSadrokarton ? 'none' : 'block';
+      (jeSadrokarton || jeElektro || noveRemeslo) ? 'none' : 'block';
   });
 
-  $('area').required = !jeSadrokarton;
+  $('area').required = !(jeSadrokarton || jeElektro || noveRemeslo);
   $('sdkArea').required = jeSadrokarton;
+  $('submitBtn').textContent = 'Vytvoriť dopyt a vypočítať odhad';
+  // Odosielanie novych remesiel len v povolenom prostredi.
+  $('submitBtn').disabled = Boolean((noveRemeslo || jeElektro) && !REMESLA_POVOLENE);
+  aktualizujElektroOdhad();
 }
 
 $('remeslo').addEventListener('change', prepniRemeslo);
@@ -2310,14 +2652,14 @@ const ownUnlockedIds = new Set(
       <b>${esc(lead.typ_prace||'Dopyt')}</b><br>
       📍 ${esc(lead.lokalita||'')}<br>
     
-💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
+💰 Odhad: ${renderEstimate(lead)}<br>
 <small style="color:#66778d;display:block;margin-top:5px">
 Nezáväzný odhad. Konečnú cenu určí realizačná firma podľa skutočného rozsahu prác.
 </small>
 
 <div style="margin-top:10px;line-height:1.7">
 <b>📋 Detaily zákazky</b><br>
-${String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
+${String(lead.typ_prace || '') === 'Elektroinštalácie' ? renderElektroDetails(lead) : NOVE_REMESLA.some(([, name]) => name === lead.typ_prace) ? renderGenericTradeDetails(lead) : String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
   ? `
     📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedená')}<br>
     🔨 Typ práce: ${esc((lead.popis || '').match(/Typ sadrokartónu:\s*([^\n]*)/)?.[1]?.trim() || 'neuvedený')}<br>
@@ -2335,8 +2677,8 @@ ${String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
 }
 📍 Kraj: ${esc(lead.region || 'neuvedený')}<br>
 📍 Okres: ${esc(lead.okres || 'neuvedený')}<br>
-📅 Termín: ${esc(((lead.popis||'').match(/Termín:\s*([^]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim()) || 'neuvedený')}<br>
-📝 Popis: ${esc((lead.popis||'').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
+📅 Termín: ${renderLeadTerm(lead)}<br>
+
 </div>
  <button type="button" onclick="showLeadPhotos(${company.id}, ${lead.id}, this)" style="margin-top:10px;padding:10px;border:1px solid #1687f8;border-radius:10px;background:white;color:#1687f8;font-weight:700;cursor:pointer">
   📷 Zobraziť fotografie
@@ -2388,18 +2730,18 @@ purchasedBox.innerHTML = activePurchasedLeads.map(lead => `
   <div class="card" style="margin-top:12px">
     <b>${esc(lead.typ_prace||'Dopyt')}</b><br>
     📍 ${esc(lead.lokalita||'')}<br>
-    💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
+    💰 Odhad: ${renderEstimate(lead)}<br>
     <div style="margin-top:10px;line-height:1.7">
   <b>📋 Detaily zákazky</b><br>
  
-${String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
+${String(lead.typ_prace || '') === 'Elektroinštalácie' ? `${renderElektroDetails(lead)}📍 Kraj: ${esc(lead.region || 'neuvedený')}<br>📍 Okres: ${esc(lead.okres || 'neuvedený')}<br>📅 Termín: ${renderLeadTerm(lead)}` : NOVE_REMESLA.some(([, name]) => name === lead.typ_prace) ? `${renderGenericTradeDetails(lead)}📍 Kraj: ${esc(lead.region || 'neuvedený')}<br>📍 Okres: ${esc(lead.okres || 'neuvedený')}<br>📅 Termín: ${renderLeadTerm(lead)}` : String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
   ? `
     📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([\d,.]+\s*m(?:²|2))/i)?.[1] || 'neuvedená')}<br>
     🔨 Typ sadrokartónu: ${esc((lead.popis || '').match(/Typ sadrokartónu:\s*([\s\S]*?)(?=\s*(?:Konkrétna práca:|Kraj:|Okres:|Termín:|Odhad:|Fotografie vybrané:|$))/i)?.[1]?.trim() || 'neuvedený')}<br>
     📍 Kraj: ${esc(lead.region || 'neuvedený')}<br>
     📍 Okres: ${esc(lead.okres || 'neuvedený')}<br>
-    📅 Termín: ${esc((lead.popis || '').match(/Termín:\s*([\s\S]*?)(?=\s*(?:Odhad:|Fotografie vybrané:|$))/i)?.[1]?.trim() || 'neuvedený')}<br>
-    📝 Popis: ${esc((lead.popis || '').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
+    📅 Termín: ${renderLeadTerm(lead)}<br>
+    
   `
   : `
     📐 Plocha: ${esc((lead.popis || '').match(/Plocha:\s*([^\n]*?)(?=\s*Krytina:|$)/)?.[1]?.trim() || 'neuvedená')}<br>
@@ -2407,8 +2749,8 @@ ${String(lead.typ_prace || '').toLowerCase().includes('sadrokart')
     🔨 Krov: ${esc((lead.popis || '').match(/Krov:\s*([^\n]*?)(?=\s*Kraj:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
     📍 Kraj: ${esc(lead.region || 'neuvedený')}<br>
     📍 Okres: ${esc(lead.okres || 'neuvedený')}<br>
-    📅 Termín: ${esc((lead.popis || '').match(/Termín:\s*([^\n]*?)(?=\s*Odhad:|\s*E-mail:|$)/)?.[1]?.trim() || 'neuvedený')}<br>
-    📝 Popis: ${esc((lead.popis || '').split('Plocha:')[0].trim() || 'Bez doplňujúceho popisu')}
+    📅 Termín: ${renderLeadTerm(lead)}<br>
+    
   `}
 
 </div>
@@ -2444,7 +2786,7 @@ completedBox.querySelector('.completed-list').innerHTML = completedPurchasedLead
     <div class="card" style="margin-top:12px">
       <b>${esc(lead.typ_prace || 'Dopyt')}</b><br>
       📍 ${esc(lead.lokalita || '')}<br>
-     💰 Odhad: ${esc(((lead.popis||'').match(/Odhad:\s*([^\n]*)/)?.[1]?.trim()) || (Number(lead.odhad_ceny||0).toLocaleString('sk-SK')+' €'))}<br>
+     💰 Odhad: ${renderEstimate(lead)}<br>
       <div style="margin-top:10px">
         🔓 <b>Kontakt zákazníka</b><br>
         👤 ${esc(lead.meno || '')}<br>
@@ -2795,7 +3137,11 @@ $('companyRegisterBtn').addEventListener('click',()=>{ $('companyPortal').style.
   }
   const btn=$('registerCompanySubmit');btn.disabled=true;btn.textContent='Vytváram účet...';
   try{
-    const authResponse=await fetch(AUTH_URL+'/signup?redirect_to='+encodeURIComponent(window.location.origin+'/'),{
+    // Jeden spolocny navrat po potvrdeni pre VSETKY firemne remesla.
+    // Supabase Authentication > URL Configuration musi mat tuto adresu v Redirect URLs.
+    const signupReturnUrl = new URL('/', window.location.origin);
+    signupReturnUrl.searchParams.set('registracia', 'potvrdena');
+    const authResponse=await fetch(AUTH_URL+'/signup?redirect_to='+encodeURIComponent(signupReturnUrl.toString()),{
       method:'POST',headers:{apikey:API_KEY,'Content-Type':'application/json'},
       body:JSON.stringify({email,password,data:{
       company_name:name,phone,region,okres,typ_prace:work,ico,dic,
@@ -3476,8 +3822,23 @@ async function updateLeadState(select){
 
 if(accessToken) showPanel(); else showLogin();
 
+// Rovnake overenie prostredia plati pre tlacidlo aj skutocne odoslanie.
 $('form').addEventListener('submit',async e=>{
   e.preventDefault();
+  const noveRemeslo = NOVE_REMESLA_MAPA[$('remeslo').value];
+  // Okres musi byt vybraty pri kazdom remesle; nikdy neposlat prazdny okres.
+  const vybranyKraj = $('leadRegion').value;
+  const vybranyOkres = $('leadOkres').value;
+  if (!vybranyKraj || !vybranyOkres ||
+      !(okresyPodlaKraja[vybranyKraj] || []).includes(vybranyOkres)) {
+    $('result').innerHTML = '<div class="error">Vyberte kraj a okres realizácie zákazky.</div>';
+    $('leadOkres').focus();
+    return;
+  }
+  if ((noveRemeslo || $('remeslo').value === 'elektro') && !REMESLA_POVOLENE) {
+    $('result').innerHTML = '<div class="error">Toto remeslo nie je v tomto prostredí povolené na odoslanie.</div>';
+    return;
+  }
 
   const btn=$('submitBtn');
   btn.disabled=true;
@@ -3490,22 +3851,27 @@ $('form').addEventListener('submit',async e=>{
   const cover=$('cover').value;
   const truss=$('truss').value;
 
-   const est = $('remeslo').value === 'sadrokarton'
-    ? calcSdkEstimate(
-        Number($('sdkArea').value),
-        $('sdkType').value
-      )
-    : calcEstimate(area, type, cover, truss);
-    if (!est) {
+   const est = noveRemeslo
+    ? vypocitajCenuRemesla2026(noveRemeslo.id, $('genericWorkType').selectedIndex, $('genericArea').value)
+    : $('remeslo').value === 'elektro'
+      ? calcElektroEstimate(
+          $('elektroType').value, $('elektroObjekt').value,
+          $('elektroArea').value, $('elektroRozsah').value
+        )
+      : $('remeslo').value === 'sadrokarton'
+        ? calcSdkEstimate(Number($('sdkArea').value), $('sdkType').value)
+        : calcEstimate(area, type, cover, truss);
+    if (!est || est.valid === false) {
     $('result').innerHTML =
-      '<div class="error">Pre tento typ prác zatiaľ nevieme vypočítať orientačnú cenu. Vyberte konkrétny typ sadrokartónových prác.</div>';
+      '<div class="error">' + esc(est?.message || 'Pre tento typ prác zatiaľ nevieme vypočítať orientačnú cenu.') + '</div>';
     btn.disabled = false;
     btn.textContent = 'Vytvoriť dopyt a vypočítať odhad';
     return;
   }
  const cenaIndividualna =
-  $('remeslo').value === 'sadrokarton' &&
-  $('sdkType').value === 'Iné';
+  (noveRemeslo && est.individual === true) ||
+  ($('remeslo').value === 'elektro' && est.individual === true) ||
+  ($('remeslo').value === 'sadrokarton' && $('sdkType').value === 'Iné');
 
 const price = cenaIndividualna
   ? 'Individuálne podľa rozsahu prác'
@@ -3521,20 +3887,21 @@ const price = cenaIndividualna
 }
 
 const jeSdk = $('remeslo').value === 'sadrokarton';
-
-if (cenaIndividualna && !$('desc').value.trim()) {
-  $('result').innerHTML =
-    '<div class="error">Pri iných sadrokartónových prácach opíšte, čo potrebujete.</div>';
-
-  btn.disabled = false;
-  btn.textContent = 'Vytvoriť dopyt a vypočítať odhad';
-  return;
-}
-
+const jeElektro = $('remeslo').value === 'elektro';
 const details = [
     $('desc').value.trim() || 'Bez doplňujúceho popisu',
 
-    ...(jeSdk ? [
+    ...(noveRemeslo ? [
+      'Druh práce: ' + $('genericWorkType').value,
+      ...(est.individual
+        ? ['Rozsah: Individuálne podľa zadania']
+        : ['Rozsah: ' + est.mnozstvo + ' ' + est.jednotka])
+    ] : jeElektro ? [
+      'Typ elektroinštalácie: ' + $('elektroType').value,
+      'Objekt: ' + $('elektroObjekt').value,
+      'Plocha objektu: ' + (($('elektroType').value === 'Kompletná elektroinštalácia' || $('elektroType').value === 'Čiastočná elektroinštalácia') ? Number($('elektroArea').value) + ' m²' : 'neuvedená'),
+      'Rozsah opravy: ' + ($('elektroType').value === 'Oprava alebo porucha' ? $('elektroRozsah').selectedOptions[0].textContent : 'neuvedený')
+    ] : jeSdk ? [
       'Plocha: ' + Number($('sdkArea').value) + ' m²',
       'Typ sadrokartónu: ' + $('sdkType').value,
 ...($('sdkType').value === 'Iné' ? [
@@ -3557,12 +3924,12 @@ const details = [
     meno:$('name').value.trim(),
     telefon:$('phone').value.trim(),
     email:$('email').value.trim(),
-        typ_prace: $('remeslo').value === 'sadrokarton' ? 'Sadrokartón' : type,
+        typ_prace: noveRemeslo ? noveRemeslo.nazov : jeElektro ? 'Elektroinštalácie' : jeSdk ? 'Sadrokartón' : type,
     lokalita:$('city').value.trim(),
     region:$('leadRegion').value,
     okres:$('leadOkres').value,
     popis:details,
-    odhad_ceny:est.mid
+    odhad_ceny: cenaIndividualna ? 0 : est.mid
   };
 
   try{
@@ -3763,7 +4130,7 @@ if(!updateRes.ok){
         : '⚠️ Dopyt bol uložený, ale potvrdenie e-mailu sa nepodarilo odoslať.'
       ) + '</b><br><br>' +
      (cenaIndividualna
-  ? 'Cena: <span class="price">' + price + '</span><br><br>'
+  ? 'Orientačný odhad: <span class="price">' + price + '</span><br><br>'
   : 'Orientačný odhad: <span class="price">' + price + '</span><br><br>') +
       '<span class="muted">' +
       (emailRequested
@@ -3843,6 +4210,9 @@ $('homeRoofBtn').addEventListener('click', () => {
 $('homeSdkBtn').addEventListener('click', () => {
   otvorRemeslo('sadrokarton');
 });
+$('homeElektroBtn').addEventListener('click', () => {
+  otvorRemeslo('elektro');
+});
 
 $('homeRegisterBtn').addEventListener('click', () => {
   $('homeLanding').style.display = 'none';
@@ -3863,39 +4233,42 @@ $('openCompany').addEventListener('click', () => {
 document.querySelector('.top .brand')
   .addEventListener('click', zobrazHlavnuStranku);
 
-/* Uvodna stranka a navrat po potvrdeni registracie firmy. */
+/* Navrat po potvrdeni registracie firmy – rovnaky pre vsetky remesla. */
 const homeParams = new URLSearchParams(window.location.search);
+const confirmationParams = new URLSearchParams(window.location.hash.substring(1));
+const jePotvrdenieFirmy =
+  homeParams.get('registracia') === 'potvrdena' ||
+  confirmationParams.get('type') === 'signup';
 
 const hasLoginSession = Boolean(
   localStorage.getItem('dopytai_access_token') ||
   localStorage.getItem('dopytai_company_token')
 );
 
-const confirmationParams = new URLSearchParams(
-  window.location.hash.substring(1)
-);
+if (jePotvrdenieFirmy) {
+  $('homeLanding').style.display = 'none';
+  $('customer').style.display = 'none';
+  $('admin').classList.remove('show');
+  $('companyRegister').style.display = 'none';
+  $('companyDashboard').style.display = 'none';
+  $('companyPasswordReset').style.display = 'none';
+  $('companyPortal').style.display = 'block';
+  $('companyConfirmationMessage').style.display = 'block';
 
-const potvrdenaRegistracia =
-  confirmationParams.get('type') === 'signup';
-
-if (
-  potvrdenaRegistracia ||
-  (
-    !hasLoginSession &&
-    homeParams.get('admin') !== '1' &&
-    homeParams.get('payment') !== 'success' &&
-    !recoveryAccessToken
-  )
+  // Supabase moze poslat access_token vo fragmente URL.
+  // Neukladame ho do lokalneho uloziska ani do URL historie.
+  // Prihlasenie nech vykona pouzivatel cez normalny firemny formular.
+  const cleanedUrl = new URL(window.location.href);
+  cleanedUrl.searchParams.delete('registracia');
+  window.history.replaceState(null, '', cleanedUrl.pathname + cleanedUrl.search);
+  window.scrollTo({ top: 0, behavior: 'auto' });
+} else if (
+  !hasLoginSession &&
+  homeParams.get('admin') !== '1' &&
+  homeParams.get('payment') !== 'success' &&
+  !recoveryAccessToken
 ) {
   zobrazHlavnuStranku();
-}
-
-if (potvrdenaRegistracia) {
-  window.history.replaceState(
-    null,
-    '',
-    window.location.pathname + window.location.search
-  );
 }
 
 /* DopytAI – ovladanie mobilneho menu */

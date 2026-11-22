@@ -155,8 +155,12 @@ if (![25, 50, 100, 200].includes(amount)) {
     params.append("line_items[0][quantity]", "1");
 
          
-const baseUrl = stripeKey.startsWith("sk_test_")
-  ? "https://rozsirenie-remesiel--sparkly-choux-e2b050.netlify.app"
+// Tento subor v PR #9 ma JEDNU TEST navratovu adresu.
+// Podmienka na BRANCH sa nepouziva: pri Deploy Preview nemusi mat
+// ocakavanu hodnotu, co predtym vracalo pouzivatela na staru vetvu.
+// Bezpecnost prostredia (TEST Supabase + sk_test_) je overena vyssie.
+const baseUrl = paymentEnv === "test"
+  ? "https://deploy-preview-9--sparkly-choux-e2b050.netlify.app"
   : "https://dopytai24.sk";
 
     params.append(

@@ -118,21 +118,39 @@ exports.handler = async (event) => {
     link.searchParams.set("token", token);
 
 const isSdk = lead.typ_prace === "Sadrokartón";
+const isElektro = lead.typ_prace === "Elektroinštalácie";
+const isRoof = ["Nová strecha", "Rekonštrukcia strechy", "Oprava / zatekanie"].includes(lead.typ_prace);
 
-const work = escapeHtml(lead.typ_prace || "Strecha");
+const work = escapeHtml(lead.typ_prace || "Stavebné práce");
 
 const workTitle = isSdk
   ? "Váš dopyt na sadrokartónové práce"
-  : "Váš dopyt na strechu";
+  : isElektro
+    ? "Váš dopyt na elektroinštalácie"
+    : isRoof
+      ? "Váš dopyt na strechu"
+      : "Váš dopyt: " + work;
 
 const priceNote = isSdk
   ? "Konečná cena závisí od rozsahu prác, konštrukcie a použitých materiálov."
-  : "Konečná cena závisí od stavu strechy, materiálu a rozsahu prác.";
+  : isRoof
+    ? "Konečná cena závisí od stavu strechy, materiálu a rozsahu prác."
+    : "Konečná cena závisí od rozsahu prác, použitých materiálov a podmienok realizácie.";
     const location = escapeHtml(lead.lokalita || "-");
     const description = String(lead.popis || "");
-    const area = escapeHtml(
-      (description.match(/Plocha:\s*([\d.,]+)\s*m²/i) || [])[1] || "-"
-    );
+    const detailValue = (key) => {
+      const match = description.match(new RegExp("(?:^|\\n)" + key + ":\\s*([^\\r\\n]*)"));
+      return match?.[1]?.trim() || "";
+    };
+    const areaValue = (description.match(/(?:Plocha objektu|Plocha):\s*([\d.,]+)\s*m²/i) || [])[1];
+    const area = areaValue ? escapeHtml(areaValue) + " m²" : "Neuvedená";
+    // Nové remeslá majú Druh práce + Rozsah, nie strešnú Plochu.
+    const workDetails = !isRoof && !isSdk && !isElektro
+      ? `<p><b>Druh práce:</b> ${escapeHtml(detailValue("Druh práce") || "Neuvedený")}</p>
+         <p><b>Rozsah:</b> ${escapeHtml(detailValue("Rozsah") || "Individuálne podľa zadania")}</p>`
+      : isElektro && !areaValue
+        ? `<p><b>Rozsah opravy:</b> ${escapeHtml(detailValue("Rozsah opravy") || "Podľa zadania")}</p>`
+        : `<p><b>Plocha:</b> ${area}</p>`;
     const estimate =
       (description.match(/Odhad:\s*([^\n]*)/) || [])[1]?.trim() ||
       "Odhad sa pripravuje";
@@ -173,7 +191,7 @@ const priceNote = isSdk
 
             <h3>Váš dopyt</h3>
             <p><b>Typ práce:</b> ${work}</p>
-            <p><b>Plocha:</b> ${area} m²</p>
+            ${workDetails}
             <p><b>Lokalita:</b> ${location}</p>
 
             <div style="margin-top:26px;padding:22px;
@@ -215,7 +233,7 @@ const priceNote = isSdk
         body: JSON.stringify({
           from: "DopytAI <info@dopytai24.sk>",
           to: [lead.email],
-          subject: `DopytAI – potvrďte svoj dopyt na ${isSdk ? "sadrokartón" : "strechu"}`,
+          subject: `DopytAI – potvrďte svoj dopyt: ${lead.typ_prace || "stavebné práce"}`,
           html
         })
       });
