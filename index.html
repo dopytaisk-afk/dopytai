@@ -1817,7 +1817,7 @@ function aktualizujPopisPlochy() {
 $('type').addEventListener('change', aktualizujPopisPlochy);
 aktualizujPopisPlochy();
 function renderLeadTerm(lead) {
-  const match = String(lead.popis || '').match(/(?:^|\\n)Termín:[ \\t]*([^\\r\\n]*)/);
+  const match = String(lead.popis || '').match(/(?:^|\n)Termín:[ \t]*([^\r\n]*)/);
   return esc(match?.[1]?.trim() || 'neuvedený');
 }
 function renderGenericTradeDetails(lead) {
