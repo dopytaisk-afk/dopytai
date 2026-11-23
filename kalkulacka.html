@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="sk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DopytAI – Cenové ponuky (TEST)</title>
+<style>
+:root{font-family:Arial,sans-serif;color:#10294b;background:#f4f9fe}*{box-sizing:border-box}
+body{margin:0}header{background:#fff;border-bottom:1px solid #dce8f5;padding:18px max(18px,calc((100% - 1050px)/2));display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-size:26px;font-weight:900}.brand span{color:#087cf0}
+main{max-width:1050px;margin:32px auto;padding:0 18px 40px}h1{font-size:32px;margin:0 0 8px}h2{font-size:20px;margin-top:0}
+.card{background:#fff;border:1px solid #dce8f5;border-radius:18px;padding:24px;margin:20px 0;box-shadow:0 4px 18px #10294b0a}
+.note{background:#eaf4ff;border-radius:9px;padding:14px;color:#315f8f}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+label{display:flex;flex-direction:column;gap:7px;font-weight:700;font-size:14px}
+input,textarea,select{font:inherit;padding:11px;border:1px solid #bfd3e9;border-radius:9px;width:100%;color:#10294b;background:#fff}
+textarea{min-height:80px;resize:vertical}.wide{grid-column:1/-1}
+button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;border-radius:9px;background:#fff;color:#087cf0;padding:11px 16px}
+.primary{background:#087cf0;color:#fff}.danger{color:#a22}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}
+.scroller{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:740px}th,td{padding:8px 5px;border-bottom:1px solid #e6edf5;text-align:left}th{font-size:13px;color:#5c7893}td input,td select{padding:9px 6px;font-size:14px}
+.money{text-align:right;white-space:nowrap}.summary{max-width:380px;margin:20px 0 0 auto}.summary div{display:flex;justify-content:space-between;gap:20px;padding:9px 0}.summary .total{font-size:22px;font-weight:800;border-top:2px solid #dae6f2}
+.muted{color:#60748b;font-size:13px}#printed{display:none}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.card{padding:16px}h1{font-size:26px}}
+@media print{@page{size:A4;margin:16mm}body{background:#fff;color:#111}header,main{display:none!important}#printed{display:block!important;padding:0;font-size:11pt}#printed h1{font-size:24pt}#printed table{min-width:0;font-size:9pt}#printed th,#printed td{border-bottom:1px solid #ddd}#printed .end{text-align:right;font-size:16pt;font-weight:bold;margin-top:22px}#printed .details{white-space:pre-wrap}}
+</style></head><body>
+<header><div class="brand">⌂ Dopyt<span>AI</span></div><div class="muted">Kalkulačka cenových ponúk – samostatný TEST</div></header>
+<main><h1>Nová cenová ponuka</h1><p>Vypočítajte cenu práce a materiálu, potom pripravte zákazníkovi ponuku vo formáte PDF.</p>
+<div class="note">Vývojový prototyp. Zatiaľ bez ukladania na server, prihlasovania, fakturácie alebo predplatného. Vyplnené údaje zostávajú iba v aktuálnej stránke.</div>
+<section class="card"><h2>Údaje ponuky</h2><div class="grid">
+<label>Firma<input id="company" placeholder="Názov vašej firmy"></label>
+<label>IČO<input id="ico" placeholder="12345678"></label>
+<label>Kontakt firmy<input id="contact" placeholder="Adresa, telefón, e-mail"></label>
+<label>Zákazník<input id="customer" placeholder="Meno alebo názov firmy"></label>
+<label>Miesto realizácie<input id="place" placeholder="Obec / adresa"></label>
+<label>Číslo ponuky<input id="offerNo" value="PON-001"></label>
+<label>Dátum<input id="date" type="date"></label>
+<label>Platnosť do<input id="until" type="date"></label>
+<label class="wide">Predmet ponuky<textarea id="subject" placeholder="Napr. montáž sadrokartónového podhľadu"></textarea></label>
+</div></section>
+<section class="card"><h2>Práca a materiál</h2><div class="scroller"><table><thead><tr><th>Typ</th><th>Položka</th><th>Množstvo</th><th>Jednotka</th><th>€/jedn.</th><th>Spolu</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
+<div class="actions"><button id="addWork" type="button">+ Pridať prácu</button><button id="addMat" type="button">+ Pridať materiál</button></div>
+<div class="grid" style="margin-top:22px"><label>DPH<select id="vat"><option value="0">Bez DPH</option><option value="23">23 %</option><option value="19">19 %</option><option value="5">5 %</option></select></label><label>Zľava (%)<input id="discount" type="number" min="0" max="100" step=".1" value="0"></label></div>
+<p class="muted">Sadzba DPH je voliteľná. Vyberte ju podľa svojho daňového režimu a konkrétnej práce.</p>
+<div class="summary"><div><span>Práca</span><strong id="workSum">0 €</strong></div><div><span>Materiál</span><strong id="matSum">0 €</strong></div><div><span>Zľava</span><strong id="discountSum">0 €</strong></div><div><span>DPH</span><strong id="vatSum">0 €</strong></div><div class="total"><span>Celkom</span><strong id="grandSum">0 €</strong></div></div>
+</section>
+<section class="card"><h2>Poznámky</h2><label>Podmienky ponuky<textarea id="terms">Cena sa vzťahuje na uvedený rozsah. Zmeny prác budú odsúhlasené so zákazníkom.</textarea></label>
+<div class="actions"><button class="primary" id="print" type="button">Tlačiť / uložiť ako PDF</button><button id="clear" type="button">Nová ponuka</button></div>
+<p class="muted">V dialógu tlače vyberte „Uložiť ako PDF“. Skutočné generovanie PDF na serveri pridáme v ďalšej fáze.</p></section></main>
+<div id="printed"></div>
+<script>
+(function(){
+'use strict';
+const el=id=>document.getElementById(id);
+const euro=n=>new Intl.NumberFormat('sk-SK',{style:'currency',currency:'EUR'}).format(n);
+const n=v=>{const x=Number(String(v).replace(',','.'));return Number.isFinite(x)&&x>=0?x:0};
+const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const date=new Date();el('date').value=[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
+function add(type,name='',qty=1,unit='m²',price=0){
+const row=document.createElement('tr');
+row.innerHTML='<td><select class="type"><option>Práca</option><option>Materiál</option></select></td><td><input class="name" aria-label="Položka"></td><td><input class="qty" type="number" min="0" step="any" aria-label="Množstvo"></td><td><input class="unit" aria-label="Jednotka"></td><td><input class="price" type="number" min="0" step=".01" aria-label="Cena"></td><td class="money amount"></td><td><button class="danger remove" type="button" aria-label="Odstrániť položku">×</button></td>';
+row.querySelector('.type').value=type;row.querySelector('.name').value=name;row.querySelector('.qty').value=qty;row.querySelector('.unit').value=unit;row.querySelector('.price').value=price;
+row.addEventListener('input',render);row.addEventListener('change',render);row.querySelector('.remove').onclick=()=>{row.remove();render()};
+el('lines').appendChild(row);render();
+}
+function calc(){
+let work=0,mat=0;
+const rows=[...el('lines').querySelectorAll('tr')].map(tr=>{const type=tr.querySelector('.type').value,name=tr.querySelector('.name').value,qty=n(tr.querySelector('.qty').value),unit=tr.querySelector('.unit').value,price=n(tr.querySelector('.price').value),sum=Math.round(qty*price*100)/100;tr.querySelector('.amount').textContent=euro(sum);if(type==='Práca')work+=sum;else mat+=sum;return{type,name,qty,unit,price,sum}});
+const discount=(work+mat)*Math.min(100,n(el('discount').value))/100,base=work+mat-discount,vat=base*n(el('vat').value)/100;
+return{rows,work,mat,discount,vat,total:base+vat};
+}
+function render(){const v=calc();[['workSum',v.work],['matSum',v.mat],['discountSum',v.discount],['vatSum',v.vat],['grandSum',v.total]].forEach(([id,val])=>el(id).textContent=euro(val))}
+function print(){const v=calc();if(!v.rows.some(r=>r.name.trim())){alert('Zadajte aspoň jednu položku.');return}
+const f=id=>safe(el(id).value);
+el('printed').innerHTML='<h1>Cenová ponuka</h1><div class="details"><strong>'+f('company')+'</strong><br>IČO: '+f('ico')+'<br>'+f('contact')+'</div><p>Číslo: '+f('offerNo')+' | Dátum: '+f('date')+' | Platnosť do: '+f('until')+'</p><hr><p><strong>Zákazník:</strong> '+f('customer')+'<br><strong>Miesto:</strong> '+f('place')+'</p><p class="details"><strong>Predmet:</strong> '+f('subject')+'</p><table><thead><tr><th>Typ</th><th>Položka</th><th>Množstvo</th><th>MJ</th><th>Jedn. cena</th><th>Spolu</th></tr></thead><tbody>'+v.rows.map(r=>'<tr><td>'+safe(r.type)+'</td><td>'+safe(r.name)+'</td><td>'+r.qty+'</td><td>'+safe(r.unit)+'</td><td>'+euro(r.price)+'</td><td>'+euro(r.sum)+'</td></tr>').join('')+'</tbody></table><p style="text-align:right">Práca: '+euro(v.work)+'<br>Materiál: '+euro(v.mat)+'<br>Zľava: '+euro(v.discount)+'<br>DPH: '+euro(v.vat)+'</p><p class="end">Celkom: '+euro(v.total)+'</p><h2>Poznámky</h2><p class="details">'+f('terms')+'</p><p>Vytvorené pomocou DopytAI.</p>';
+window.print();
+}
+el('addWork').onclick=()=>add('Práca');el('addMat').onclick=()=>add('Materiál','','1','ks');
+el('vat').onchange=render;el('discount').oninput=render;el('print').onclick=print;
+el('clear').onclick=()=>{if(confirm('Naozaj začať novú ponuku?'))location.reload()};
+add('Práca','Montáž sadrokartónu',100,'m²',18);add('Materiál','Sadrokartónová doska',100,'m²',6);
+})();
+</script></body></html>
