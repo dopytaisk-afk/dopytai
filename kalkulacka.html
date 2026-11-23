@@ -86,25 +86,48 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 .offer-dialog p{line-height:1.5;margin:0;color:#45627d}
 .offer-dialog .actions{justify-content:flex-end;margin-top:24px}
 .offer-dialog button{min-width:105px}
+
+/* Jednoduchy sprievodca tvorbou ponuky */
+.steps{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 10px}
+.steps a{flex:1;min-width:140px;background:#fff;border:1px solid #cbdff5;border-radius:12px;padding:12px;color:#092448;text-decoration:none;font-weight:800;text-align:center}
+.steps a:hover{border-color:#087cf0;color:#087cf0}
+.step-number{display:inline-flex;align-items:center;justify-content:center;background:#087cf0;color:#fff;border-radius:50%;width:24px;height:24px;margin-right:6px;font-size:13px}
+.optional{border:1px solid #dbe8f5;border-radius:12px;padding:12px;margin:15px 0;background:#f9fcff}
+.optional summary{font-weight:750;cursor:pointer;color:#0b4584}
+.optional[open] summary{margin-bottom:15px}
+.step-heading{display:flex;align-items:center;gap:8px}
+@media(max-width:650px){.steps a{min-width:100%;text-align:left}}
 </style></head><body>
 <header><a class="brand" href="/" aria-label="DopytAI – úvod"><span class="mark" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span></span><span>Dopyt<span class="ai">AI</span></span></a><div class="muted">Kalkulačka cenových ponúk – samostatný TEST</div></header>
 <dialog class="offer-dialog" id="offerConfirmDialog" aria-labelledby="offerDialogTitle" aria-describedby="offerDialogText"><h2 id="offerDialogTitle">Uložiť cenovú ponuku?</h2><p id="offerDialogText">Ponuka sa uloží do testovacieho účtu firmy.</p><div class="actions"><button id="offerDialogCancel" type="button">Zrušiť</button><button id="offerDialogAccept" class="primary" type="button">Uložiť ponuku</button></div></dialog>
-<main><h1>Nová cenová ponuka</h1><p>Vypočítajte cenu práce a materiálu, potom pripravte zákazníkovi ponuku vo formáte PDF.</p>
+<main><h1>Cenová ponuka za pár krokov</h1><p>Vyplňte zákazníka, pridajte práce a materiál, potom ponuku uložte alebo vytlačte.</p>
+<nav class="steps" aria-label="Postup tvorby ponuky"><a href="#step1"><span class="step-number">1</span> Zákazník</a><a href="#step2"><span class="step-number">2</span> Položky a cena</a><a href="#step3"><span class="step-number">3</span> Uložiť / PDF</a></nav>
 <div class="note">TEST verzia: firemný cenník sa ukladá do TEST Supabase. Cenové ponuky možno uložiť iba s prihláseným TEST firemným účtom. PDF sa pripravuje v prehliadači; vlastné logo zatiaľ nie je uložené na serveri. Bez predplatného.</div>
-<section class="card"><h2>Údaje ponuky</h2><div class="logo-picker" style="margin-bottom:18px"><label>Logo firmy (PNG, JPG, WebP – max. 2 MB)<input id="logo" type="file" accept="image/png,image/jpeg,image/webp"></label><img id="logoPreview" class="logo-preview" alt="Náhľad loga" hidden></div><p class="muted" id="logoStatus">Logo sa použije iba v tejto ponuke a neodosiela sa na server.</p><div class="grid">
+<section class="card" id="step1"><h2 class="step-heading"><span class="step-number">1</span> Zákazník a zákazka</h2>
+<div class="grid">
+<label>Zákazník<input id="customer" placeholder="Meno alebo názov zákazníka"></label>
+<label>Miesto realizácie<input id="place" placeholder="Obec / adresa"></label>
+<label class="wide">Predmet ponuky<textarea id="subject" placeholder="Napr. montáž sadrokartónového podhľadu"></textarea></label>
+</div>
+<details class="optional" id="companyDetails"><summary>Údaje mojej firmy a logo (načítajú sa automaticky)</summary>
+<p class="muted" id="companyFillStatus">Firemné údaje sa načítajú po prihlásení TEST firmy. Pri ponuke ich možno ručne upraviť.</p>
+<div class="logo-picker" style="margin-bottom:14px"><label>Logo firmy (PNG, JPG, WebP – max. 2 MB)<input id="logo" type="file" accept="image/png,image/jpeg,image/webp"></label><img id="logoPreview" class="logo-preview" alt="Náhľad loga" hidden></div>
+<p class="muted" id="logoStatus">Logo sa použije iba v tejto ponuke a neodosiela sa na server.</p>
+<div class="grid">
 <label>Firma<input id="company" placeholder="Názov vašej firmy"></label>
 <label>IČO<input id="ico" placeholder="12345678"></label>
-<label>Kontakt firmy<input id="contact" placeholder="Adresa, telefón, e-mail"></label>
-<label>Zákazník<input id="customer" placeholder="Meno alebo názov firmy"></label>
-<label>Miesto realizácie<input id="place" placeholder="Obec / adresa"></label>
+<label class="wide">Kontakt firmy<input id="contact" placeholder="Adresa, telefón, e-mail"></label>
+</div>
+</details>
+<details class="optional"><summary>Číslo a dátumy ponuky</summary><div class="grid">
 <label>Číslo ponuky<input id="offerNo" value="PON-001"></label>
 <label>Dátum<input id="date" type="date"></label>
 <label>Platnosť do<input id="until" type="date"></label>
-<label class="wide">Predmet ponuky<textarea id="subject" placeholder="Napr. montáž sadrokartónového podhľadu"></textarea></label>
-</div></section>
+</div></details>
+</section>
 
-<section class="card" id="pricelistSection">
-<div class="pricelist-head"><h2>Vlastný firemný cenník</h2><span class="muted">Testovacia verzia</span></div>
+<details class="card" id="pricelistSection"><summary style="cursor:pointer;font-size:18px;font-weight:800">Vlastný firemný cenník – voliteľné nastavenie</summary>
+
 <p>Uložte si často používané práce a materiály. Potom ich jedným kliknutím pridáte do cenovej ponuky.</p>
 <p class="note">Po prihlásení sa položky automaticky načítajú z TEST Supabase. Bez prihlásenia zostávajú v tomto prehliadači.</p>
 <form id="priceForm" class="pricelist-grid">
@@ -116,18 +139,18 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 </form>
 <div class="pricelist-items" id="priceItems" aria-live="polite"></div>
 <div id="testCloudPanel" class="note" style="margin-top:18px;border:1px solid #b8d8f4"><strong>Firemný cenník – TEST</strong><p id="testCloudStatus" aria-live="polite">Overujem účet…</p><div class="actions"><button id="testCloudConnect" type="button">Overiť prihlásenie</button><button id="testCloudLoad" type="button" disabled>Obnoviť cenník</button></div><p class="muted">Miestne položky sa neimportujú automaticky, aby nevznikli duplicity.</p></div>
-</section>
-<section class="card"><h2>Práca, materiál a doprava</h2><div class="scroller"><table><thead><tr><th>Typ</th><th>Položka</th><th>Množstvo</th><th>Jednotka</th><th>€/jedn.</th><th>Spolu</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
+</details>
+<section class="card" id="step2"><h2 class="step-heading"><span class="step-number">2</span> Práca, materiál a doprava</h2><p class="muted">Pridajte položky ručne alebo ich vyberte z firemného cenníka vyššie.</p><div class="scroller"><table><thead><tr><th>Typ</th><th>Položka</th><th>Množstvo</th><th>Jednotka</th><th>€/jedn.</th><th>Spolu</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
 <div class="actions"><button id="addWork" type="button">+ Pridať prácu</button><button id="addMat" type="button">+ Pridať materiál</button><button id="addTransport" type="button">+ Pridať dopravu</button></div>
 <div class="grid" style="margin-top:22px"><label>DPH<select id="vat"><option value="0">Bez DPH</option><option value="23">23 %</option><option value="19">19 %</option><option value="5">5 %</option></select></label><label>Zľava (%)<input id="discount" type="number" min="0" max="100" step=".1" value="0"></label></div>
 <p class="muted">Sadzba DPH je voliteľná. Vyberte ju podľa svojho daňového režimu a konkrétnej práce.</p>
 <div class="summary"><div><span>Práca</span><strong id="workSum">0 €</strong></div><div><span>Materiál</span><strong id="matSum">0 €</strong></div><div><span>Doprava</span><strong id="transportSum">0 €</strong></div><div><span>Zľava</span><strong id="discountSum">0 €</strong></div><div><span>DPH</span><strong id="vatSum">0 €</strong></div><div class="total"><span>Celkom</span><strong id="grandSum">0 €</strong></div></div>
 </section>
-<section class="card"><h2>Poznámky</h2><label>Podmienky ponuky<textarea id="terms">Cena sa vzťahuje na uvedený rozsah. Zmeny prác budú odsúhlasené so zákazníkom.</textarea></label>
+<section class="card" id="step3"><h2 class="step-heading"><span class="step-number">3</span> Uložiť alebo vytvoriť PDF</h2><details class="optional"><summary>Podmienky a poznámky (voliteľné)</summary><label>Podmienky ponuky<textarea id="terms">Cena sa vzťahuje na uvedený rozsah. Zmeny prác budú odsúhlasené so zákazníkom.</textarea></label></details>
 <div class="grid" style="margin-top:18px"><label>Stav cenovej ponuky<select id="offerState"><option value="rozpracovana">Rozpracovaná</option><option value="dokoncena">Dokončená</option></select></label><div><strong id="editingOfferInfo">Nová ponuka – ešte neuložená</strong></div></div>
 <div class="actions"><button class="primary" id="saveOffer" type="button">Uložiť ponuku do TEST</button><button id="print" type="button">Tlačiť / uložiť ako PDF</button><button id="clear" type="button">Nová ponuka</button></div>
 <p id="offerSaveMessage" class="note" role="status">Ponuky sú dostupné po prihlásení do TEST firemného účtu.</p>
-<div style="margin-top:22px"><h2>Uložené cenové ponuky (TEST)</h2><button id="reloadOffers" type="button">Obnoviť zoznam ponúk</button><div class="pricelist-items" id="offerList"></div></div>
+<details class="optional" id="savedOffersSection"><summary>Moje uložené cenové ponuky (TEST)</summary><button id="reloadOffers" type="button">Obnoviť zoznam ponúk</button><div class="pricelist-items" id="offerList"></div></details>
 <p class="muted">V dialógu tlače vyberte „Uložiť ako PDF“. Skutočné generovanie PDF na serveri pridáme v ďalšej fáze.</p></section></main>
 <div id="printed"></div>
 <script>
@@ -166,6 +189,20 @@ async function loadTestPrices(){
  setPriceMode('cloud');renderPrices();
  testStatus('TEST firma ID '+testFirmId+' – načítaných '+priceBook.length+' položiek. Cenník sa automaticky ukladá do Supabase.');
 }
+async function fillCompanyFromTest(){
+ if(!testFirmId||!testToken)return;
+ try{
+  const rows=await testRequest('/firmy?select=n%C3%A1zov,ico,telefon,email,fakturacna_ulica,fakturacne_psc,fakturacne_mesto&id=eq.'+encodeURIComponent(testFirmId)+'&limit=1');
+  if(!Array.isArray(rows)||rows.length!==1)throw Error('Firemné údaje nie sú dostupné');
+  const firm=rows[0];
+  const name=firm['názov']||'',address=[firm.fakturacna_ulica,[firm.fakturacne_psc,firm.fakturacne_mesto].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+  const contact=[address,firm.telefon,firm.email].filter(Boolean).join(' | ');
+  if(!el('company').value.trim())el('company').value=name;
+  if(!el('ico').value.trim())el('ico').value=firm.ico||'';
+  if(!el('contact').value.trim())el('contact').value=contact;
+  el('companyFillStatus').textContent='Údaje firmy boli doplnené z TEST účtu. Môžete ich ručne upraviť pre túto ponuku. Pozor: momentálne sa neukladajú do záznamu ponuky.';
+ }catch(err){el('companyFillStatus').textContent='Načítanie firemných údajov zlyhalo: '+err.message+'. Môžete ich vyplniť ručne.'}
+}
 async function connectTest(){
  if(priceBusy)return;
  testFirmId=null;testToken=null;setPriceMode('loading');
@@ -180,6 +217,7 @@ async function connectTest(){
   const firms=await firmRes.json();if(!Array.isArray(firms)||firms.length!==1)throw Error('Nenájdená presne jedna TEST firma.');
   testFirmId=firms[0].id;testToken=token;
   await loadTestPrices();
+  await fillCompanyFromTest();
   offerAvailability();await listSavedOffers();
  }catch(err){testFirmId=null;testToken=null;setPriceMode('error');priceBook=[];renderPrices();testStatus('Chyba TEST spojenia: '+err.message+' Zápis dočasne zablokovaný.')}
 }
