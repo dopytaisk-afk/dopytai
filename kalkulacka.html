@@ -336,7 +336,7 @@ function writeOfferFields(q){
 }
 async function openSavedOffer(id){
  if(!offerAvailability())return;
- if(!confirm('Otvoriť ponuku? Aktuálne neuložené údaje vo formulári sa nahradia.'))return;
+ if(!await confirmOfferAction('Otvoriť cenovú ponuku?','Aktuálne neuložené údaje vo formulári sa nahradia údajmi z vybranej ponuky.','Otvoriť ponuku'))return;
  try{
   const rows=await testRequest('/kalkulacka_ponuky?select=*&id=eq.'+encodeURIComponent(id)+'&firma_id=eq.'+encodeURIComponent(testFirmId)+'&limit=1');
   if(!Array.isArray(rows)||rows.length!==1)throw Error('Ponuka nie je dostupná.');
@@ -353,22 +353,35 @@ async function openSavedOffer(id){
   document.querySelector('main').scrollIntoView({behavior:'smooth',block:'start'});
  }catch(err){offerStatus('Otvorenie ponuky zlyhalo: '+err.message)}
 }
-function confirmOfferSave(isVersion){
+function confirmOfferAction(title,message,actionLabel){
  return new Promise(resolve=>{
   const d=el('offerConfirmDialog');
-  el('offerDialogTitle').textContent=isVersion?'Uložiť novú verziu ponuky?':'Uložiť cenovú ponuku?';
-  el('offerDialogText').textContent=isVersion?'Vytvorí sa nová verzia v TEST Supabase. Pôvodná ponuka zostane zachovaná.':'Cenová ponuka sa bezpečne uloží do TEST Supabase pod prihlásenú firmu.';
+  if(d.open){resolve(false);return}
+  el('offerDialogTitle').textContent=title;
+  el('offerDialogText').textContent=message;
+  el('offerDialogAccept').textContent=actionLabel;
   let completed=false;
-  const finish=answer=>{if(completed)return;completed=true;d.close();resolve(answer)};
+  const cleanup=()=>{
+   el('offerDialogAccept').removeEventListener('click',accept);
+   el('offerDialogCancel').removeEventListener('click',cancel);
+   d.removeEventListener('cancel',onCancel);
+   d.removeEventListener('close',onClose);
+  };
+  const finish=answer=>{if(completed)return;completed=true;cleanup();d.close();resolve(answer)};
   const accept=()=>finish(true),cancel=()=>finish(false),onCancel=e=>{e.preventDefault();finish(false)};
-  const cleanup=()=>{el('offerDialogAccept').removeEventListener('click',accept);el('offerDialogCancel').removeEventListener('click',cancel);d.removeEventListener('cancel',onCancel);d.removeEventListener('close',onClose)};
-  const onClose=()=>{cleanup();if(!completed){completed=true;resolve(false)}};
+  const onClose=()=>{if(!completed){completed=true;cleanup();resolve(false)}};
   el('offerDialogAccept').addEventListener('click',accept);
   el('offerDialogCancel').addEventListener('click',cancel);
-  d.addEventListener('cancel',onCancel);
-  d.addEventListener('close',onClose);
-  try{d.showModal()}catch(e){cleanup();resolve(false)}
+  d.addEventListener('cancel',onCancel);d.addEventListener('close',onClose);
+  try{d.showModal()}catch(e){completed=true;cleanup();resolve(false)}
  });
+}
+function confirmOfferSave(isVersion){
+ return confirmOfferAction(
+  isVersion?'Uložiť novú verziu ponuky?':'Uložiť cenovú ponuku?',
+  isVersion?'Vytvorí sa nová verzia v TEST Supabase. Pôvodná ponuka zostane zachovaná.':'Cenová ponuka sa uloží do TEST Supabase pod prihlásenú firmu.',
+  'Uložiť ponuku'
+ );
 }
 async function saveOfferToTest(){
  if(!offerAvailability())return;
