@@ -417,6 +417,29 @@
   color: #405a77;
 }
 
+.home-trade-picker {
+  display: flex;
+  gap: 8px;
+  max-width: 440px;
+  margin: 0 auto 24px;
+}
+
+.home-trade-picker select {
+  min-width: 0;
+  padding: 10px;
+}
+
+.home-trade-picker button {
+  width: auto;
+  padding: 10px 12px;
+  white-space: nowrap;
+}
+
+.home-trades,
+.home-trade-card {
+  scroll-margin-top: 88px;
+}
+
 .home-trades-grid {
   display: grid;
   grid-template-columns: repeat(2,minmax(0,1fr));
@@ -979,7 +1002,7 @@
       <h1>Nájdite spoľahlivú firmu<br>pre stavebné práce</h1>
       <p>
         Strechy, sadrokartón, elektroinštalácie a ďalšie remeslá na jednom mieste.
-        Zistite orientačnú cenu prác zdarma a nájdite firmu vo svojom regióne.
+        Nájdite firmu vo svojom regióne. Pri vybraných prácach získate orientačný odhad zdarma.
       </p>
       <a href="#homeTrades" class="home-primary-btn">
         Vybrať remeslo
@@ -996,8 +1019,15 @@
     <h2>Vyberte si remeslo</h2>
     <p>Zvoľte typ prác a zadajte nezáväzný dopyt. Pri vybraných prácach získate orientačný odhad.</p>
 
+    <form id="homeTradePicker" class="home-trade-picker">
+      <select id="homeTradeSelect" aria-label="Rýchly výber remesla" required>
+        <option value="" selected disabled>Rýchly výber remesla</option>
+      </select>
+      <button class="btn" type="submit">Prejsť na kartu</button>
+    </form>
+
     <div class="home-trades-grid">
-      <article class="home-trade-card">
+      <article class="home-trade-card" id="home-trade-strechy">
         <div class="home-trade-image home-roof-image"></div>
         <div class="home-trade-content">
           <h3>Strechy</h3>
@@ -1008,7 +1038,7 @@
         </div>
       </article>
 
-      <article class="home-trade-card">
+      <article class="home-trade-card" id="home-trade-sadrokarton">
         <div class="home-trade-image home-sdk-image"></div>
         <div class="home-trade-content">
           <h3>Sadrokartón</h3>
@@ -1018,7 +1048,7 @@
           </button>
         </div>
       </article>
-      <article class="home-trade-card">
+      <article class="home-trade-card" id="home-trade-elektro">
         <div class="home-trade-image home-elektro-image" aria-hidden="true"></div>
         <div class="home-trade-content">
           <h3>Elektroinštalácie</h3>
@@ -1076,8 +1106,8 @@
         </svg>
       </span>
       <div>
-        <strong>3. Získate orientačnú cenu</strong>
-        <p>Okamžite uvidíte odhad ceny vašej realizácie.</p>
+        <strong>3. Orientačný odhad ceny</strong>
+        <p>Pri vybraných prácach uvidíte orientačnú cenu hneď po odoslaní dopytu.</p>
       </div>
     </div>
 
@@ -1927,6 +1957,7 @@ function vykresliNoveRemesla() {
     firmaSelect.appendChild(companyOption);
     const card = document.createElement('article');
     card.className = 'home-trade-card';
+    card.id = 'home-trade-' + id;
     const image = document.createElement('div');
     image.className = 'home-trade-image';
     // Vlastná jednotná SVG ilustrácia z atlasu 4 x 4. Nevyžaduje externý hosting.
@@ -1958,7 +1989,7 @@ function vykresliNoveRemesla() {
       zemne: 'zemné práce', kupelne: 'rekonštrukciu kúpeľne',
       beton: 'betonárske práce'
     };
-    btn.textContent = 'Zadať dopyt na ' + popisTlacidla[id] + ' →';
+    btn.textContent = 'Zadať dopyt na ' + popisTlacidla[id] + '\u00a0→';
     btn.addEventListener('click', () => otvorRemeslo(id));
     content.append(h,p,btn);
     card.append(image,content);
@@ -4202,6 +4233,26 @@ function otvorRemeslo(remeslo) {
     block: 'start'
   });
 }
+
+const homeTradePicker = $('homeTradePicker');
+const homeTradeSelect = $('homeTradeSelect');
+document.querySelectorAll('#homeTrades .home-trade-card').forEach(card => {
+  homeTradeSelect.add(new Option(card.querySelector('h3').textContent, card.id));
+});
+
+homeTradePicker.addEventListener('submit', event => {
+  event.preventDefault();
+  const card = $(homeTradeSelect.value);
+  if (!card) return;
+
+  const heading = card.querySelector('h3');
+  heading.tabIndex = -1;
+  heading.focus({ preventScroll: true });
+  card.scrollIntoView({
+    block: 'start',
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+  });
+});
 
 $('homeRoofBtn').addEventListener('click', () => {
   otvorRemeslo('strechy');
