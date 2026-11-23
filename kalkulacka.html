@@ -106,6 +106,13 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <div class="actions wide"><button class="primary" id="savePrice" type="submit">+ Uložiť do cenníka</button><button id="cancelPriceEdit" type="button" hidden>Zrušiť úpravu</button></div>
 </form>
 <div class="pricelist-items" id="priceItems" aria-live="polite"></div>
+<div id="testCloudPanel" class="note" style="margin-top:18px;border:1px solid #b8d8f4">
+  <strong>TEST Supabase – firemný cenník</strong>
+  <p id="testCloudStatus">Overujem testovacie prihlásenie…</p>
+  <div class="actions"><button id="testCloudConnect" type="button">Overiť prihlásenie</button><button id="testCloudLoad" type="button" disabled>Načítať položky z TEST</button></div>
+  <div id="testCloudEntries" class="pricelist-items"></div>
+  <p class="muted">Uloženie položky do TEST sa zobrazí pri lokálnych položkách až po overení prihlásenia. Miestny cenník sa automaticky neprepisuje.</p>
+</div>
 </section>
 <section class="card"><h2>Práca, materiál a doprava</h2><div class="scroller"><table><thead><tr><th>Typ</th><th>Položka</th><th>Množstvo</th><th>Jednotka</th><th>€/jedn.</th><th>Spolu</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
 <div class="actions"><button id="addWork" type="button">+ Pridať prácu</button><button id="addMat" type="button">+ Pridať materiál</button><button id="addTransport" type="button">+ Pridať dopravu</button></div>
@@ -127,6 +134,81 @@ const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'
 let logoData="";
 
 const PRICE_KEY='dopytai_ponuky_cennik_v1';
+
+const TEST_HOST='deploy-preview-11--sparkly-choux-e2b050.netlify.app';
+const TEST_REST='https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1';
+const TEST_AUTH='https://pwtvquyefpucjufvwnxp.supabase.co/auth/v1';
+const TEST_KEY='sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-';
+let testFirmId=null,testToken=null;
+function testAllowed(){return location.hostname===TEST_HOST}
+function testStatus(text){el('testCloudStatus').textContent=text}
+function testHeaders(json=false){
+ const headers={'apikey':TEST_KEY,'Authorization':'Bearer '+testToken};
+ if(json)headers['Content-Type']='application/json';
+ return headers;
+}
+async function testRequest(path,options={}){
+ if(!testAllowed()||!testToken||!testFirmId)throw Error('TEST spojenie nie je potvrdené');
+ const response=await fetch(TEST_REST+path,{...options,headers:{...testHeaders(!!options.body),...(options.headers||{})}});
+ if(!response.ok){
+   const detail=await response.text();
+   throw Error('TEST Supabase HTTP '+response.status+': '+detail.slice(0,180));
+ }
+ if(response.status===204)return null;
+ const body=await response.text();return body?JSON.parse(body):null;
+}
+async function connectTest(){
+ testFirmId=null;testToken=null;el('testCloudLoad').disabled=true;renderPrices();
+ if(!testAllowed()){testStatus('Blokované: toto spojenie funguje len v Deploy Preview #11.');return}
+ const token=localStorage.getItem('dopytai_company_token');
+ if(!token){testStatus('Nie ste prihlásený v TEST. Otvorte hlavnú stránku tohto náhľadu, prihláste TEST firmu a vráťte sa sem.');return}
+ try{
+   const verify=await fetch(TEST_AUTH+'/user',{headers:{'apikey':TEST_KEY,'Authorization':'Bearer '+token}});
+   if(!verify.ok)throw Error('TEST prihlásenie vypršalo alebo patrí inému projektu.');
+   const user=await verify.json();
+   if(!user.id)throw Error('Nepodarilo sa overiť používateľa.');
+   const url=TEST_REST+'/firmy?select=id&auth_user_id=eq.'+encodeURIComponent(user.id)+'&limit=2';
+   const firmResponse=await fetch(url,{headers:{'apikey':TEST_KEY,'Authorization':'Bearer '+token}});
+   if(!firmResponse.ok)throw Error('TEST firma nie je dostupná: HTTP '+firmResponse.status);
+   const firms=await firmResponse.json();
+   if(!Array.isArray(firms)||firms.length!==1)throw Error('Pre tento účet nebola nájdená presne jedna TEST firma.');
+   testToken=token;testFirmId=firms[0].id;
+   el('testCloudLoad').disabled=false;
+   testStatus('TEST prihlásenie overené. Firma ID '+testFirmId+'. Môžete uložiť alebo načítať testovacie položky.');
+   renderPrices();
+ }catch(err){testStatus(err.message||'Chyba spojenia s TEST');}
+}
+async function savePriceTest(item){
+ if(!testAllowed()||!testFirmId||!testToken){testStatus('Najprv overte prihlásenie.');return}
+ if(!confirm('Uložiť túto jednu položku do TEST databázy pre vašu firmu?'))return;
+ try{
+   await testRequest('/kalkulacka_cennik',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({firma_id:testFirmId,typ:item.type,nazov:item.name,jednotka:item.unit,cena:item.price})});
+   testStatus('Položka „'+item.name+'“ bola uložená do TEST.');await loadTestPrices();
+ }catch(err){testStatus('Ukladanie zlyhalo: '+err.message)}
+}
+async function loadTestPrices(){
+ if(!testFirmId||!testToken){testStatus('Najprv overte prihlásenie.');return}
+ try{
+   const list=await testRequest('/kalkulacka_cennik?select=id,typ,nazov,jednotka,cena&firma_id=eq.'+encodeURIComponent(testFirmId)+'&order=id.asc&limit=300');
+   const area=el('testCloudEntries');area.replaceChildren();
+   if(!Array.isArray(list))throw Error('Neočakávaná odpoveď TEST servera.');
+   if(!list.length){const p=document.createElement('p');p.textContent='V TEST zatiaľ nie sú uložené položky.';area.append(p)}
+   for(const row of list){
+     const p=document.createElement('div');p.className='pricelist-entry';
+     const info=document.createElement('div');const strong=document.createElement('strong');strong.textContent=row.nazov;
+     const small=document.createElement('small');small.textContent=row.typ+' · '+euro(Number(row.cena))+' / '+row.jednotka;
+     info.append(strong,small);
+     const addBtn=document.createElement('button');addBtn.type='button';addBtn.textContent='Do ponuky';
+     addBtn.addEventListener('click',()=>add(row.typ,row.nazov,1,row.jednotka,Number(row.cena)));
+     p.append(info,addBtn);area.append(p);
+   }
+   testStatus('Načítaných '+list.length+' položiek z TEST pre firmu ID '+testFirmId+'.');
+ }catch(err){testStatus('Načítanie zlyhalo: '+err.message)}
+}
+el('testCloudConnect').addEventListener('click',connectTest);
+el('testCloudLoad').addEventListener('click',loadTestPrices);
+if(testAllowed())connectTest();else testStatus('TEST prístup je vypnutý mimo Deploy Preview #11.');
+
 let priceBook=[];
 let editingPriceId=null;
 function loadPrices(){
@@ -169,6 +251,7 @@ function renderPrices(){
    if(editingPriceId===item.id)resetPriceEditor();
    renderPrices();
   });
+  if(testFirmId&&testAllowed()){const cloudBtn=document.createElement('button');cloudBtn.type='button';cloudBtn.textContent='Uložiť do TEST';cloudBtn.addEventListener('click',()=>savePriceTest(item));actions.append(cloudBtn)}
   actions.append(addBtn,editBtn,delBtn);box.append(desc,actions);area.appendChild(box);
  }
 }
