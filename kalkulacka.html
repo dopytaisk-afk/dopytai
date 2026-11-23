@@ -99,7 +99,7 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <p>Uložte si často používané práce a materiály. Potom ich jedným kliknutím pridáte do cenovej ponuky.</p>
 <p class="note">Cenník sa zatiaľ ukladá iba v tomto prehliadači na tomto zariadení. Môže sa stratiť po vymazaní dát prehliadača; zatiaľ nie je prepojený s účtom firmy.</p>
 <form id="priceForm" class="pricelist-grid">
-<label>Typ<select id="priceType"><option>Práca</option><option>Materiál</option></select></label>
+<label>Typ<select id="priceType"><option>Práca</option><option>Materiál</option><option>Doprava</option></select></label>
 <label>Názov položky<input id="priceName" maxlength="160" placeholder="Napr. Montáž SDK podhľadu" required></label>
 <label>Jednotka<input id="priceUnit" maxlength="12" value="m²" required></label>
 <label>Cena / jednotka (€)<input id="priceValue" type="number" min="0" max="100000000" step=".01" required placeholder="18"></label>
@@ -107,11 +107,11 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 </form>
 <div class="pricelist-items" id="priceItems" aria-live="polite"></div>
 </section>
-<section class="card"><h2>Práca a materiál</h2><div class="scroller"><table><thead><tr><th>Typ</th><th>Položka</th><th>Množstvo</th><th>Jednotka</th><th>€/jedn.</th><th>Spolu</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
-<div class="actions"><button id="addWork" type="button">+ Pridať prácu</button><button id="addMat" type="button">+ Pridať materiál</button></div>
+<section class="card"><h2>Práca, materiál a doprava</h2><div class="scroller"><table><thead><tr><th>Typ</th><th>Položka</th><th>Množstvo</th><th>Jednotka</th><th>€/jedn.</th><th>Spolu</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
+<div class="actions"><button id="addWork" type="button">+ Pridať prácu</button><button id="addMat" type="button">+ Pridať materiál</button><button id="addTransport" type="button">+ Pridať dopravu</button></div>
 <div class="grid" style="margin-top:22px"><label>DPH<select id="vat"><option value="0">Bez DPH</option><option value="23">23 %</option><option value="19">19 %</option><option value="5">5 %</option></select></label><label>Zľava (%)<input id="discount" type="number" min="0" max="100" step=".1" value="0"></label></div>
 <p class="muted">Sadzba DPH je voliteľná. Vyberte ju podľa svojho daňového režimu a konkrétnej práce.</p>
-<div class="summary"><div><span>Práca</span><strong id="workSum">0 €</strong></div><div><span>Materiál</span><strong id="matSum">0 €</strong></div><div><span>Zľava</span><strong id="discountSum">0 €</strong></div><div><span>DPH</span><strong id="vatSum">0 €</strong></div><div class="total"><span>Celkom</span><strong id="grandSum">0 €</strong></div></div>
+<div class="summary"><div><span>Práca</span><strong id="workSum">0 €</strong></div><div><span>Materiál</span><strong id="matSum">0 €</strong></div><div><span>Doprava</span><strong id="transportSum">0 €</strong></div><div><span>Zľava</span><strong id="discountSum">0 €</strong></div><div><span>DPH</span><strong id="vatSum">0 €</strong></div><div class="total"><span>Celkom</span><strong id="grandSum">0 €</strong></div></div>
 </section>
 <section class="card"><h2>Poznámky</h2><label>Podmienky ponuky<textarea id="terms">Cena sa vzťahuje na uvedený rozsah. Zmeny prác budú odsúhlasené so zákazníkom.</textarea></label>
 <div class="actions"><button class="primary" id="print" type="button">Tlačiť / uložiť ako PDF</button><button id="clear" type="button">Nová ponuka</button></div>
@@ -132,7 +132,7 @@ let editingPriceId=null;
 function loadPrices(){
  try{
   const raw=JSON.parse(localStorage.getItem(PRICE_KEY)||'[]');
-  if(Array.isArray(raw))priceBook=raw.filter(p=>p&&typeof p.name==='string'&&['Práca','Materiál'].includes(p.type)&&typeof p.unit==='string'&&Number.isFinite(p.price)&&p.price>=0&&p.price<=100000000&&typeof p.id==='string').slice(0,300);
+  if(Array.isArray(raw))priceBook=raw.filter(p=>p&&typeof p.name==='string'&&['Práca','Materiál','Doprava'].includes(p.type)&&typeof p.unit==='string'&&Number.isFinite(p.price)&&p.price>=0&&p.price<=100000000&&typeof p.id==='string').slice(0,300);
  }catch(err){priceBook=[];el('priceItems').textContent='Uložený cenník sa nepodarilo načítať.'}
 }
 function persistPrices(){
@@ -176,7 +176,7 @@ el('priceForm').addEventListener('submit',event=>{
  event.preventDefault();
  const name=el('priceName').value.trim(),unit=el('priceUnit').value.trim(),type=el('priceType').value;
  const price=Number(el('priceValue').value);
- if(!name||!unit||!['Práca','Materiál'].includes(type)||!Number.isFinite(price)||price<0||price>100000000){alert('Skontrolujte názov, jednotku a cenu položky.');return}
+ if(!name||!unit||!['Práca','Materiál','Doprava'].includes(type)||!Number.isFinite(price)||price<0||price>100000000){alert('Skontrolujte názov, jednotku a cenu položky.');return}
  const next={id:editingPriceId||('p'+Date.now()+'_'+Math.random().toString(36).slice(2,9)),type,name,unit,price:Math.round(price*100)/100};
  const previous=priceBook.slice();
  if(editingPriceId){priceBook=priceBook.map(p=>p.id===editingPriceId?next:p)}
@@ -190,18 +190,18 @@ loadPrices();renderPrices();
 const date=new Date();el('date').value=[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
 function add(type,name='',qty=1,unit='m²',price=0){
 const row=document.createElement('tr');
-row.innerHTML='<td><select class="type"><option>Práca</option><option>Materiál</option></select></td><td><input class="name" aria-label="Položka"></td><td><input class="qty" type="number" min="0" step="any" aria-label="Množstvo"></td><td><input class="unit" aria-label="Jednotka"></td><td><input class="price" type="number" min="0" step=".01" aria-label="Cena"></td><td class="money amount"></td><td><button class="danger remove" type="button" aria-label="Odstrániť položku">×</button></td>';
+row.innerHTML='<td><select class="type"><option>Práca</option><option>Materiál</option><option>Doprava</option></select></td><td><input class="name" aria-label="Položka"></td><td><input class="qty" type="number" min="0" step="any" aria-label="Množstvo"></td><td><input class="unit" aria-label="Jednotka"></td><td><input class="price" type="number" min="0" step=".01" aria-label="Cena"></td><td class="money amount"></td><td><button class="danger remove" type="button" aria-label="Odstrániť položku">×</button></td>';
 row.querySelector('.type').value=type;row.querySelector('.name').value=name;row.querySelector('.qty').value=qty;row.querySelector('.unit').value=unit;row.querySelector('.price').value=price;
 row.addEventListener('input',render);row.addEventListener('change',render);row.querySelector('.remove').onclick=()=>{row.remove();render()};
 el('lines').appendChild(row);render();
 }
 function calc(){
-let work=0,mat=0;
-const rows=[...el('lines').querySelectorAll('tr')].map(tr=>{const type=tr.querySelector('.type').value,name=tr.querySelector('.name').value,qty=n(tr.querySelector('.qty').value),unit=tr.querySelector('.unit').value,price=n(tr.querySelector('.price').value),sum=Math.round(qty*price*100)/100;tr.querySelector('.amount').textContent=euro(sum);if(type==='Práca')work+=sum;else mat+=sum;return{type,name,qty,unit,price,sum}});
-const discount=(work+mat)*Math.min(100,n(el('discount').value))/100,base=work+mat-discount,vat=base*n(el('vat').value)/100;
-return{rows,work,mat,discount,vat,total:base+vat};
+let work=0,mat=0,transport=0;
+const rows=[...el('lines').querySelectorAll('tr')].map(tr=>{const type=tr.querySelector('.type').value,name=tr.querySelector('.name').value,qty=n(tr.querySelector('.qty').value),unit=tr.querySelector('.unit').value,price=n(tr.querySelector('.price').value),sum=Math.round(qty*price*100)/100;tr.querySelector('.amount').textContent=euro(sum);if(type==='Práca')work+=sum;else if(type==='Materiál')mat+=sum;else transport+=sum;return{type,name,qty,unit,price,sum}});
+const discount=(work+mat+transport)*Math.min(100,n(el('discount').value))/100,base=work+mat+transport-discount,vat=base*n(el('vat').value)/100;
+return{rows,work,mat,transport,discount,vat,total:base+vat};
 }
-function render(){const v=calc();[['workSum',v.work],['matSum',v.mat],['discountSum',v.discount],['vatSum',v.vat],['grandSum',v.total]].forEach(([id,val])=>el(id).textContent=euro(val))}
+function render(){const v=calc();[['workSum',v.work],['matSum',v.mat],['transportSum',v.transport],['discountSum',v.discount],['vatSum',v.vat],['grandSum',v.total]].forEach(([id,val])=>el(id).textContent=euro(val))}
 function dateSK(iso){if(!iso)return '—';const parts=iso.split('-');return parts.length===3?parts[2]+'. '+parts[1]+'. '+parts[0]:safe(iso)}
 function print(){
  const v=calc();
@@ -218,7 +218,7 @@ function print(){
  +'<h2 class="offer-section">Položkový rozpočet</h2><table><thead><tr><th style="width:5%">Č.</th><th style="width:12%">Typ</th><th style="width:27%">Položka</th><th style="width:12%">Množstvo</th><th style="width:10%">MJ</th><th class="money" style="width:17%">Jedn. cena</th><th class="money" style="width:17%">Spolu</th></tr></thead><tbody>'
  +v.rows.map((r,i)=>'<tr><td>'+(i+1)+'.</td><td>'+safe(r.type)+'</td><td>'+safe(r.name)+'</td><td>'+r.qty+'</td><td>'+safe(r.unit)+'</td><td class="money">'+euro(r.price)+'</td><td class="money">'+euro(r.sum)+'</td></tr>').join('')
  +'</tbody></table>'
- +'<div class="offer-totals">'+row('Práca',euro(v.work))+row('Materiál',euro(v.mat))+row('Zľava',euro(v.discount))+row('DPH ('+safe(el('vat').value)+' %)',euro(v.vat))+'<div class="offer-grand"><span>Celkom</span><span>'+euro(v.total)+'</span></div></div>'
+ +'<div class="offer-totals">'+row('Práca',euro(v.work))+row('Materiál',euro(v.mat))+row('Doprava',euro(v.transport))+row('Zľava',euro(v.discount))+row('DPH ('+safe(el('vat').value)+' %)',euro(v.vat))+'<div class="offer-grand"><span>Celkom</span><span>'+euro(v.total)+'</span></div></div>'
  +'<h2 class="offer-section">Poznámky a podmienky</h2><p class="offer-description">'+show('terms')+'</p><div class="offer-footer">Cenová ponuka bola vytvorená pomocou DopytAI.</div>';
  // Počkáme na vložené logo pred vyvolaním tlače
  const image=el('printed').querySelector('img');
@@ -236,7 +236,7 @@ el('logo').addEventListener('change',event=>{
  reader.readAsDataURL(file);
 });
 
-el('addWork').onclick=()=>add('Práca');el('addMat').onclick=()=>add('Materiál','','1','ks');
+el('addWork').onclick=()=>add('Práca');el('addMat').onclick=()=>add('Materiál','','1','ks');el('addTransport').onclick=()=>add('Doprava','Doprava na stavbu',1,'km',0);
 el('vat').onchange=render;el('discount').oninput=render;el('print').onclick=print;
 el('clear').onclick=()=>{if(confirm('Naozaj začať novú ponuku?'))location.reload()};
 add('Práca','Montáž sadrokartónu',100,'m²',18);add('Materiál','Sadrokartónová doska',100,'m²',6);
