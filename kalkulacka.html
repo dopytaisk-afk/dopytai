@@ -86,6 +86,14 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 .offer-dialog p{line-height:1.5;margin:0;color:#45627d}
 .offer-dialog .actions{justify-content:flex-end;margin-top:24px}
 .offer-dialog button{min-width:105px}
+.quick-pick{padding:15px;border-radius:12px;background:#eaf4ff;margin:12px 0 16px}
+.quick-pick>label{margin-bottom:7px;font-weight:800}
+.quick-pick-row{display:flex;gap:8px;align-items:stretch}
+.quick-pick-row select{flex:1;min-width:0}
+.quick-pick-row button{flex-shrink:0}
+.quick-pick .muted{margin:7px 0 0}
+@media(max-width:650px){.quick-pick-row{flex-direction:column}.quick-pick-row button{width:100%}}
+
 
 /* Jednoduchy sprievodca tvorbou ponuky */
 .steps{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 10px}
@@ -102,7 +110,7 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <dialog class="offer-dialog" id="offerConfirmDialog" aria-labelledby="offerDialogTitle" aria-describedby="offerDialogText"><h2 id="offerDialogTitle">Uložiť cenovú ponuku?</h2><p id="offerDialogText">Ponuka sa uloží do testovacieho účtu firmy.</p><div class="actions"><button id="offerDialogCancel" type="button">Zrušiť</button><button id="offerDialogAccept" class="primary" type="button">Uložiť ponuku</button></div></dialog>
 <main><h1>Cenová ponuka za pár krokov</h1><p>Vyplňte zákazníka, pridajte práce a materiál, potom ponuku uložte alebo vytlačte.</p>
 <nav class="steps" aria-label="Postup tvorby ponuky"><a href="#step1"><span class="step-number">1</span> Zákazník</a><a href="#step2"><span class="step-number">2</span> Položky a cena</a><a href="#step3"><span class="step-number">3</span> Uložiť / PDF</a></nav>
-<div class="note">TEST verzia: firemný cenník sa ukladá do TEST Supabase. Cenové ponuky možno uložiť iba s prihláseným TEST firemným účtom. PDF sa pripravuje v prehliadači; vlastné logo zatiaľ nie je uložené na serveri. Bez predplatného.</div>
+<div class="note">TEST verzia · Cenník a ponuky sa ukladajú pod prihlásenú TEST firmu. PDF vytvoríte cez tlač v prehliadači; logo sa na server neukladá.</div>
 <section class="card" id="step1"><h2 class="step-heading"><span class="step-number">1</span> Zákazník a zákazka</h2>
 <div class="grid">
 <label>Zákazník<input id="customer" placeholder="Meno alebo názov zákazníka"></label>
@@ -140,10 +148,12 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <div class="pricelist-items" id="priceItems" aria-live="polite"></div>
 <div id="testCloudPanel" class="note" style="margin-top:18px;border:1px solid #b8d8f4"><strong>Firemný cenník – TEST</strong><p id="testCloudStatus" aria-live="polite">Overujem účet…</p><div class="actions"><button id="testCloudConnect" type="button">Overiť prihlásenie</button><button id="testCloudLoad" type="button" disabled>Obnoviť cenník</button></div><p class="muted">Miestne položky sa neimportujú automaticky, aby nevznikli duplicity.</p></div>
 </details>
-<section class="card" id="step2"><h2 class="step-heading"><span class="step-number">2</span> Práca, materiál a doprava</h2><p class="muted">Pridajte položky ručne alebo ich vyberte z firemného cenníka vyššie.</p><div class="scroller"><table><thead><tr><th>Typ</th><th>Položka</th><th>Množstvo</th><th>Jednotka</th><th>€/jedn.</th><th>Spolu</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
+<section class="card" id="step2"><h2 class="step-heading"><span class="step-number">2</span> Práca, materiál a doprava</h2><p class="muted">Vyberte uloženú položku alebo vytvorte novú. Množstvo a cenu môžete vždy upraviť.</p>
+<div class="quick-pick"><label for="quickPricePick">Rýchlo pridať z môjho cenníka</label><div class="quick-pick-row"><select id="quickPricePick" aria-label="Vybrať položku z firemného cenníka"><option value="">Vyberte uloženú položku…</option></select><button type="button" id="quickPriceAdd">+ Pridať do ponuky</button></div><p class="muted" id="quickPriceHint">Načítavam firemný cenník…</p></div>
+<p class="muted" id="emptyLineHint">Rozpočet je prázdny. Začnite výberom z cenníka alebo kliknite na „+ Pridať prácu“.</p><div class="scroller"><table><thead><tr><th>Typ</th><th>Položka</th><th>Množstvo</th><th>Jednotka</th><th>€/jedn.</th><th>Spolu</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
 <div class="actions"><button id="addWork" type="button">+ Pridať prácu</button><button id="addMat" type="button">+ Pridať materiál</button><button id="addTransport" type="button">+ Pridať dopravu</button></div>
-<div class="grid" style="margin-top:22px"><label>DPH<select id="vat"><option value="0">Bez DPH</option><option value="23">23 %</option><option value="19">19 %</option><option value="5">5 %</option></select></label><label>Zľava (%)<input id="discount" type="number" min="0" max="100" step=".1" value="0"></label></div>
-<p class="muted">Sadzba DPH je voliteľná. Vyberte ju podľa svojho daňového režimu a konkrétnej práce.</p>
+<details class="optional"><summary>DPH a zľava (voliteľné)</summary><div class="grid" style="margin-top:10px"><label>DPH<select id="vat"><option value="0">Bez DPH</option><option value="23">23 %</option><option value="19">19 %</option><option value="5">5 %</option></select></label><label>Zľava (%)<input id="discount" type="number" min="0" max="100" step=".1" value="0"></label></div>
+<p class="muted">Sadzba DPH je voliteľná. Vyberte ju podľa svojho daňového režimu a konkrétnej práce.</p></details>
 <div class="summary"><div><span>Práca</span><strong id="workSum">0 €</strong></div><div><span>Materiál</span><strong id="matSum">0 €</strong></div><div><span>Doprava</span><strong id="transportSum">0 €</strong></div><div><span>Zľava</span><strong id="discountSum">0 €</strong></div><div><span>DPH</span><strong id="vatSum">0 €</strong></div><div class="total"><span>Celkom</span><strong id="grandSum">0 €</strong></div></div>
 </section>
 <section class="card" id="step3"><h2 class="step-heading"><span class="step-number">3</span> Uložiť alebo vytvoriť PDF</h2><details class="optional"><summary>Podmienky a poznámky (voliteľné)</summary><label>Podmienky ponuky<textarea id="terms">Cena sa vzťahuje na uvedený rozsah. Zmeny prác budú odsúhlasené so zákazníkom.</textarea></label></details>
@@ -230,8 +240,36 @@ function editPrice(item){
  el('priceType').value=item.type;el('priceName').value=item.name;el('priceUnit').value=item.unit;el('priceValue').value=item.price;
  el('savePrice').textContent='Uložiť zmeny';el('cancelPriceEdit').hidden=false;el('priceName').focus();
 }
+function renderQuickPrices(){
+ const select=el('quickPricePick'),previous=select.value;
+ select.replaceChildren();
+ const placeholder=document.createElement('option');
+ placeholder.value='';placeholder.textContent='Vyberte uloženú položku…';select.append(placeholder);
+ for(const item of priceBook){
+  const option=document.createElement('option');
+  option.value=item.id;
+  option.textContent=item.name+' · '+item.type+' · '+euro(item.price)+' / '+item.unit;
+  select.append(option);
+ }
+ if(priceBook.some(p=>p.id===previous))select.value=previous;
+ const available=['cloud','local'].includes(priceMode)&&priceBook.length>0;
+ select.disabled=!available;el('quickPriceAdd').disabled=!available;
+ el('quickPriceHint').textContent=priceMode==='loading'?'Overujem firemný cenník…'
+  :priceMode==='error'?'Cenník sa nepodarilo načítať. Skúste znovu overiť prihlásenie.'
+  :available?'Jedným kliknutím pridáte položku do rozpočtu. Množstvo sa nastaví na 1.'
+  :'Cenník je zatiaľ prázdny. Použite tlačidlá Pridať prácu/materiál/dopravu alebo si otvorte voliteľný firemný cenník.';
+}
+el('quickPriceAdd').addEventListener('click',()=>{
+ const id=el('quickPricePick').value;
+ const selected=priceBook.find(p=>p.id===id);
+ if(!selected){el('quickPricePick').focus();return}
+ add(selected.type,selected.name,1,selected.unit,selected.price);
+ el('quickPricePick').value='';
+ const last=el('lines').lastElementChild;
+ if(last)last.querySelector('.qty').focus();
+});
 function renderPrices(){
- const area=el('priceItems');area.replaceChildren();
+ const area=el('priceItems');area.replaceChildren();renderQuickPrices();
  if(priceMode==='loading'||priceMode==='error')return;
  if(!priceBook.length){const p=document.createElement('p');p.className='muted';p.textContent='Zatiaľ nemáte položky v cenníku.';area.append(p);return}
  for(const item of priceBook){
@@ -302,7 +340,7 @@ const rows=[...el('lines').querySelectorAll('tr')].map(tr=>{const type=tr.queryS
 const discount=(work+mat+transport)*Math.min(100,n(el('discount').value))/100,base=work+mat+transport-discount,vat=base*n(el('vat').value)/100;
 return{rows,work,mat,transport,discount,vat,total:base+vat};
 }
-function render(){const v=calc();[['workSum',v.work],['matSum',v.mat],['transportSum',v.transport],['discountSum',v.discount],['vatSum',v.vat],['grandSum',v.total]].forEach(([id,val])=>el(id).textContent=euro(val))}
+function render(){el('emptyLineHint').hidden=el('lines').children.length>0;const v=calc();[['workSum',v.work],['matSum',v.mat],['transportSum',v.transport],['discountSum',v.discount],['vatSum',v.vat],['grandSum',v.total]].forEach(([id,val])=>el(id).textContent=euro(val))}
 function dateSK(iso){if(!iso)return '—';const parts=iso.split('-');return parts.length===3?parts[2]+'. '+parts[1]+'. '+parts[0]:safe(iso)}
 function print(){
  const v=calc();
@@ -470,7 +508,8 @@ el('logo').addEventListener('change',event=>{
 el('addWork').onclick=()=>add('Práca');el('addMat').onclick=()=>add('Materiál','','1','ks');el('addTransport').onclick=()=>add('Doprava','Doprava na stavbu',1,'km',0);
 el('vat').onchange=render;el('discount').oninput=render;el('print').onclick=print;
 el('clear').onclick=()=>{if(confirm('Naozaj začať novú ponuku?')){location.reload()}};
-add('Práca','Montáž sadrokartónu',100,'m²',18);add('Materiál','Sadrokartónová doska',100,'m²',6);
+render();
+renderQuickPrices();
 offerAvailability();
 })();
 </script></body></html>
