@@ -1136,9 +1136,14 @@
       <h2>Ste realizačná firma?</h2>
       <p>Získavajte nové zákazky vo vašom regióne cez DopytAI.</p>
     </div>
-    <button type="button" id="homeRegisterBtn">
-      Registrovať firmu →
-    </button>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px">
+      <a class="test-calculator-link" id="homeCalculatorTestLink" href="/kalkulacka.html" style="display:none;align-items:center;justify-content:center;background:#087cf0;color:#fff;text-decoration:none;border-radius:12px;padding:14px 18px;font-weight:850;min-height:48px">
+        🧮 Kalkulačka cenových ponúk (TEST)
+      </a>
+      <button type="button" id="homeRegisterBtn">
+        Registrovať firmu →
+      </button>
+    </div>
   </section>
 
 </section>
@@ -1459,6 +1464,7 @@
   <div class="card">
     <h2>Firemný panel</h2>
     <p>Vitajte v DopytAI.</p>
+    <a class="test-calculator-link" id="dashboardCalculatorTestLink" href="/kalkulacka.html" style="display:none;background:#087cf0;color:#fff;text-decoration:none;text-align:center;padding:14px 18px;border-radius:12px;font-weight:850;margin:14px 0;min-height:48px;align-items:center;justify-content:center">🧮 Otvoriť kalkulačku cenových ponúk (TEST)</a>
     <p><strong>💳 Kredit:</strong> <span id="companyCredit">0</span> </p>
     <button class="btn" id="topUpCreditBtn" type="button" style="margin-top:10px">💳 Dobiť kredit</button>
     <div id="creditPackages" style="display:none;margin-top:12px">
@@ -1581,6 +1587,15 @@ const REMESLA_POVOLENE = (
 );
 
 const $=id=>document.getElementById(id);
+
+// Kalkulacka je dostupna iba na izolovanom TEST Preview #11 s TEST databazou.
+if (window.location.hostname === 'deploy-preview-11--sparkly-choux-e2b050.netlify.app'
+    && API_URL === 'https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1') {
+  document.querySelectorAll('.test-calculator-link').forEach(link => {
+    link.style.display = 'flex';
+  });
+}
+
   
 const okresyPodlaKraja = {
   'Bratislavský kraj': [
