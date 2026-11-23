@@ -918,6 +918,9 @@
   }
 }
 
+/* Testovacia kalkulacka v hornej navigacii */
+.main-nav #navCalculatorTestLink{color:#087cf0;font-weight:850}
+.main-nav #navCalculatorTestLink:hover{text-decoration:underline}
 </style><link rel="stylesheet" href="/elektro-style.css"></head><body>
 
 <!-- HORNE MENU DOPYTAI -->
@@ -964,6 +967,8 @@
                 .scrollIntoView({behavior:'smooth'})">
         Pre firmy
       </button>
+
+      <a class="test-calculator-link" id="navCalculatorTestLink" href="/kalkulacka.html" style="display:none">Kalkulačka (TEST)</a>
 
       <a href="mailto:info@dopytai24.sk">Kontakt</a>
     </nav>
@@ -1136,14 +1141,9 @@
       <h2>Ste realizačná firma?</h2>
       <p>Získavajte nové zákazky vo vašom regióne cez DopytAI.</p>
     </div>
-    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px">
-      <a class="test-calculator-link" id="homeCalculatorTestLink" href="/kalkulacka.html" style="display:none;align-items:center;justify-content:center;background:#087cf0;color:#fff;text-decoration:none;border-radius:12px;padding:14px 18px;font-weight:850;min-height:48px">
-        🧮 Kalkulačka cenových ponúk (TEST)
-      </a>
-      <button type="button" id="homeRegisterBtn">
-        Registrovať firmu →
-      </button>
-    </div>
+    <button type="button" id="homeRegisterBtn">
+      Registrovať firmu →
+    </button>
   </section>
 
 </section>
@@ -1592,7 +1592,7 @@ const $=id=>document.getElementById(id);
 if (window.location.hostname === 'deploy-preview-11--sparkly-choux-e2b050.netlify.app'
     && API_URL === 'https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1') {
   document.querySelectorAll('.test-calculator-link').forEach(link => {
-    link.style.display = 'flex';
+    link.style.display = link.id === 'navCalculatorTestLink' ? 'inline-flex' : 'flex';
   });
 }
 
