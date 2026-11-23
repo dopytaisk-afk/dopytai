@@ -1571,11 +1571,12 @@ const API_KEY = ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.ho
   : 'sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-';
 
 // Povolit nove remesla iba na overenej ostrej domene s produkcnym Supabase
-// alebo na izolovanom testovacom nahľade PR #9 s TEST Supabase.
+// alebo na povolenych izolovanych testovacich nahladoch PR #9 a PR #11 s TEST Supabase.
 const REMESLA_POVOLENE = (
   (['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname) &&
    API_URL === 'https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1') ||
-  (window.location.hostname === 'deploy-preview-9--sparkly-choux-e2b050.netlify.app' &&
+  (['deploy-preview-9--sparkly-choux-e2b050.netlify.app',
+    'deploy-preview-11--sparkly-choux-e2b050.netlify.app'].includes(window.location.hostname) &&
    API_URL === 'https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1')
 );
 
