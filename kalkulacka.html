@@ -207,7 +207,7 @@ async function loadTestPrices(){
 }
 el('testCloudConnect').addEventListener('click',connectTest);
 el('testCloudLoad').addEventListener('click',loadTestPrices);
-if(testAllowed())connectTest();else testStatus('TEST prístup je vypnutý mimo Deploy Preview #11.');
+
 
 let priceBook=[];
 let editingPriceId=null;
@@ -270,6 +270,7 @@ el('priceForm').addEventListener('submit',event=>{
 });
 el('cancelPriceEdit').addEventListener('click',resetPriceEditor);
 loadPrices();renderPrices();
+if(testAllowed())connectTest();else testStatus('TEST prístup je vypnutý mimo Deploy Preview #11.');
 const date=new Date();el('date').value=[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
 function add(type,name='',qty=1,unit='m²',price=0){
 const row=document.createElement('tr');
