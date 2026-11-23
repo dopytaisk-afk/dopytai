@@ -97,7 +97,7 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <section class="card" id="pricelistSection">
 <div class="pricelist-head"><h2>Vlastný firemný cenník</h2><span class="muted">Testovacia verzia</span></div>
 <p>Uložte si často používané práce a materiály. Potom ich jedným kliknutím pridáte do cenovej ponuky.</p>
-<p class="note">Cenník sa zatiaľ ukladá iba v tomto prehliadači na tomto zariadení. Môže sa stratiť po vymazaní dát prehliadača; zatiaľ nie je prepojený s účtom firmy.</p>
+<p class="note">Po prihlásení sa položky automaticky načítajú z TEST Supabase. Bez prihlásenia zostávajú v tomto prehliadači.</p>
 <form id="priceForm" class="pricelist-grid">
 <label>Typ<select id="priceType"><option>Práca</option><option>Materiál</option><option>Doprava</option></select></label>
 <label>Názov položky<input id="priceName" maxlength="160" placeholder="Napr. Montáž SDK podhľadu" required></label>
@@ -106,13 +106,7 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <div class="actions wide"><button class="primary" id="savePrice" type="submit">+ Uložiť do cenníka</button><button id="cancelPriceEdit" type="button" hidden>Zrušiť úpravu</button></div>
 </form>
 <div class="pricelist-items" id="priceItems" aria-live="polite"></div>
-<div id="testCloudPanel" class="note" style="margin-top:18px;border:1px solid #b8d8f4">
-  <strong>TEST Supabase – firemný cenník</strong>
-  <p id="testCloudStatus">Overujem testovacie prihlásenie…</p>
-  <div class="actions"><button id="testCloudConnect" type="button">Overiť prihlásenie</button><button id="testCloudLoad" type="button" disabled>Načítať položky z TEST</button></div>
-  <div id="testCloudEntries" class="pricelist-items"></div>
-  <p class="muted">Uloženie položky do TEST sa zobrazí pri lokálnych položkách až po overení prihlásenia. Miestny cenník sa automaticky neprepisuje.</p>
-</div>
+<div id="testCloudPanel" class="note" style="margin-top:18px;border:1px solid #b8d8f4"><strong>Firemný cenník – TEST</strong><p id="testCloudStatus" aria-live="polite">Overujem účet…</p><div class="actions"><button id="testCloudConnect" type="button">Overiť prihlásenie</button><button id="testCloudLoad" type="button" disabled>Obnoviť cenník</button></div><p class="muted">Miestne položky sa neimportujú automaticky, aby nevznikli duplicity.</p></div>
 </section>
 <section class="card"><h2>Práca, materiál a doprava</h2><div class="scroller"><table><thead><tr><th>Typ</th><th>Položka</th><th>Množstvo</th><th>Jednotka</th><th>€/jedn.</th><th>Spolu</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
 <div class="actions"><button id="addWork" type="button">+ Pridať prácu</button><button id="addMat" type="button">+ Pridať materiál</button><button id="addTransport" type="button">+ Pridať dopravu</button></div>
@@ -133,144 +127,116 @@ const n=v=>{const x=Number(String(v).replace(',','.'));return Number.isFinite(x)
 const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let logoData="";
 
-const PRICE_KEY='dopytai_ponuky_cennik_v1';
 
+const PRICE_KEY='dopytai_ponuky_cennik_v1';
 const TEST_HOST='deploy-preview-11--sparkly-choux-e2b050.netlify.app';
 const TEST_REST='https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1';
 const TEST_AUTH='https://pwtvquyefpucjufvwnxp.supabase.co/auth/v1';
 const TEST_KEY='sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-';
-let testFirmId=null,testToken=null;
-function testAllowed(){return location.hostname===TEST_HOST}
-function testStatus(text){el('testCloudStatus').textContent=text}
-function testHeaders(json=false){
- const headers={'apikey':TEST_KEY,'Authorization':'Bearer '+testToken};
- if(json)headers['Content-Type']='application/json';
- return headers;
-}
+let testFirmId=null,testToken=null,priceBook=[],editingPriceId=null,priceBusy=false,priceMode='loading';
+const testAllowed=()=>location.hostname===TEST_HOST;
+function testStatus(message){el('testCloudStatus').textContent=message}
+function setPriceMode(mode){priceMode=mode;const disabled=priceBusy||mode==='loading'||mode==='error';el('savePrice').disabled=disabled;el('testCloudLoad').disabled=priceBusy||mode!=='cloud';}
+function readLocal(){try{const a=JSON.parse(localStorage.getItem(PRICE_KEY)||'[]');return Array.isArray(a)?a.filter(p=>p&&typeof p.id==='string'&&typeof p.name==='string'&&typeof p.unit==='string'&&['Práca','Materiál','Doprava'].includes(p.type)&&Number.isFinite(p.price)).slice(0,300):[]}catch(e){return []}}
+function storeLocal(){try{localStorage.setItem(PRICE_KEY,JSON.stringify(priceBook));return true}catch(e){alert('Lokálny cenník sa nepodarilo uložiť.');return false}}
 async function testRequest(path,options={}){
- if(!testAllowed()||!testToken||!testFirmId)throw Error('TEST spojenie nie je potvrdené');
- const response=await fetch(TEST_REST+path,{...options,headers:{...testHeaders(!!options.body),...(options.headers||{})}});
- if(!response.ok){
-   const detail=await response.text();
-   throw Error('TEST Supabase HTTP '+response.status+': '+detail.slice(0,180));
- }
- if(response.status===204)return null;
- const body=await response.text();return body?JSON.parse(body):null;
-}
-async function connectTest(){
- testFirmId=null;testToken=null;el('testCloudLoad').disabled=true;renderPrices();
- if(!testAllowed()){testStatus('Blokované: toto spojenie funguje len v Deploy Preview #11.');return}
- const token=localStorage.getItem('dopytai_company_token');
- if(!token){testStatus('Nie ste prihlásený v TEST. Otvorte hlavnú stránku tohto náhľadu, prihláste TEST firmu a vráťte sa sem.');return}
- try{
-   const verify=await fetch(TEST_AUTH+'/user',{headers:{'apikey':TEST_KEY,'Authorization':'Bearer '+token}});
-   if(!verify.ok)throw Error('TEST prihlásenie vypršalo alebo patrí inému projektu.');
-   const user=await verify.json();
-   if(!user.id)throw Error('Nepodarilo sa overiť používateľa.');
-   const url=TEST_REST+'/firmy?select=id&auth_user_id=eq.'+encodeURIComponent(user.id)+'&limit=2';
-   const firmResponse=await fetch(url,{headers:{'apikey':TEST_KEY,'Authorization':'Bearer '+token}});
-   if(!firmResponse.ok)throw Error('TEST firma nie je dostupná: HTTP '+firmResponse.status);
-   const firms=await firmResponse.json();
-   if(!Array.isArray(firms)||firms.length!==1)throw Error('Pre tento účet nebola nájdená presne jedna TEST firma.');
-   testToken=token;testFirmId=firms[0].id;
-   el('testCloudLoad').disabled=false;
-   testStatus('TEST prihlásenie overené. Firma ID '+testFirmId+'. Môžete uložiť alebo načítať testovacie položky.');
-   renderPrices();
- }catch(err){testStatus(err.message||'Chyba spojenia s TEST');}
-}
-async function savePriceTest(item){
- if(!testAllowed()||!testFirmId||!testToken){testStatus('Najprv overte prihlásenie.');return}
- if(!confirm('Uložiť túto jednu položku do TEST databázy pre vašu firmu?'))return;
- try{
-   await testRequest('/kalkulacka_cennik',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({firma_id:testFirmId,typ:item.type,nazov:item.name,jednotka:item.unit,cena:item.price})});
-   testStatus('Položka „'+item.name+'“ bola uložená do TEST.');await loadTestPrices();
- }catch(err){testStatus('Ukladanie zlyhalo: '+err.message)}
+ if(!testAllowed()||!testFirmId||!testToken)throw Error('Neoverené TEST spojenie');
+ const headers={apikey:TEST_KEY,Authorization:'Bearer '+testToken,...(options.body?{'Content-Type':'application/json'}:{})};
+ const res=await fetch(TEST_REST+path,{...options,headers:{...headers,...(options.headers||{})}});
+ if(!res.ok){const body=await res.text();throw Error('HTTP '+res.status+': '+body.slice(0,160))}
+ if(res.status===204)return null;const body=await res.text();return body?JSON.parse(body):null;
 }
 async function loadTestPrices(){
- if(!testFirmId||!testToken){testStatus('Najprv overte prihlásenie.');return}
+ if(!testFirmId||!testToken)return;
+ const rows=await testRequest('/kalkulacka_cennik?select=id,typ,nazov,jednotka,cena&firma_id=eq.'+encodeURIComponent(testFirmId)+'&order=id.asc&limit=301');
+ if(!Array.isArray(rows)||rows.length>300)throw Error('Cenník má neplatný počet položiek');
+ priceBook=rows.map(p=>({id:'db_'+p.id,dbId:p.id,type:p.typ,name:p.nazov,unit:p.jednotka,price:Number(p.cena)}));
+ setPriceMode('cloud');renderPrices();
+ testStatus('TEST firma ID '+testFirmId+' – načítaných '+priceBook.length+' položiek. Cenník sa automaticky ukladá do Supabase.');
+}
+async function connectTest(){
+ if(priceBusy)return;
+ testFirmId=null;testToken=null;setPriceMode('loading');
+ const token=testAllowed()?localStorage.getItem('dopytai_company_token'):null;
+ if(!token){priceBook=readLocal();setPriceMode('local');renderPrices();testStatus('Neprihlásený TEST účet – používate miestny cenník.');return}
  try{
-   const list=await testRequest('/kalkulacka_cennik?select=id,typ,nazov,jednotka,cena&firma_id=eq.'+encodeURIComponent(testFirmId)+'&order=id.asc&limit=300');
-   const area=el('testCloudEntries');area.replaceChildren();
-   if(!Array.isArray(list))throw Error('Neočakávaná odpoveď TEST servera.');
-   if(!list.length){const p=document.createElement('p');p.textContent='V TEST zatiaľ nie sú uložené položky.';area.append(p)}
-   for(const row of list){
-     const p=document.createElement('div');p.className='pricelist-entry';
-     const info=document.createElement('div');const strong=document.createElement('strong');strong.textContent=row.nazov;
-     const small=document.createElement('small');small.textContent=row.typ+' · '+euro(Number(row.cena))+' / '+row.jednotka;
-     info.append(strong,small);
-     const addBtn=document.createElement('button');addBtn.type='button';addBtn.textContent='Do ponuky';
-     addBtn.addEventListener('click',()=>add(row.typ,row.nazov,1,row.jednotka,Number(row.cena)));
-     p.append(info,addBtn);area.append(p);
-   }
-   testStatus('Načítaných '+list.length+' položiek z TEST pre firmu ID '+testFirmId+'.');
- }catch(err){testStatus('Načítanie zlyhalo: '+err.message)}
-}
-el('testCloudConnect').addEventListener('click',connectTest);
-el('testCloudLoad').addEventListener('click',loadTestPrices);
-
-
-let priceBook=[];
-let editingPriceId=null;
-function loadPrices(){
- try{
-  const raw=JSON.parse(localStorage.getItem(PRICE_KEY)||'[]');
-  if(Array.isArray(raw))priceBook=raw.filter(p=>p&&typeof p.name==='string'&&['Práca','Materiál','Doprava'].includes(p.type)&&typeof p.unit==='string'&&Number.isFinite(p.price)&&p.price>=0&&p.price<=100000000&&typeof p.id==='string').slice(0,300);
- }catch(err){priceBook=[];el('priceItems').textContent='Uložený cenník sa nepodarilo načítať.'}
-}
-function persistPrices(){
- try{localStorage.setItem(PRICE_KEY,JSON.stringify(priceBook));return true}
- catch(err){alert('Cenník sa nepodarilo uložiť do tohto prehliadača. Skontrolujte dostupné úložisko.');return false}
-}
-function editPrice(item){
- editingPriceId=item.id;
- el('priceType').value=item.type;el('priceName').value=item.name;el('priceUnit').value=item.unit;el('priceValue').value=item.price;
- el('savePrice').textContent='Uložiť zmeny';el('cancelPriceEdit').hidden=false;
- el('priceName').focus();
+  const res=await fetch(TEST_AUTH+'/user',{headers:{apikey:TEST_KEY,Authorization:'Bearer '+token}});
+  if(!res.ok)throw Error('TEST prihlásenie vypršalo; prihláste sa znova.');
+  const user=await res.json();if(!user.id)throw Error('TEST používateľ sa nepodaril overiť.');
+  const firmRes=await fetch(TEST_REST+'/firmy?select=id&auth_user_id=eq.'+encodeURIComponent(user.id)+'&limit=2',{headers:{apikey:TEST_KEY,Authorization:'Bearer '+token}});
+  if(!firmRes.ok)throw Error('Firma sa nepodarila overiť (HTTP '+firmRes.status+').');
+  const firms=await firmRes.json();if(!Array.isArray(firms)||firms.length!==1)throw Error('Nenájdená presne jedna TEST firma.');
+  testFirmId=firms[0].id;testToken=token;
+  await loadTestPrices();
+ }catch(err){testFirmId=null;testToken=null;setPriceMode('error');priceBook=[];renderPrices();testStatus('Chyba TEST spojenia: '+err.message+' Zápis dočasne zablokovaný.')}
 }
 function resetPriceEditor(){
  editingPriceId=null;el('priceForm').reset();el('priceUnit').value='m²';
  el('savePrice').textContent='+ Uložiť do cenníka';el('cancelPriceEdit').hidden=true;
 }
+function editPrice(item){
+ editingPriceId=item.id;
+ el('priceType').value=item.type;el('priceName').value=item.name;el('priceUnit').value=item.unit;el('priceValue').value=item.price;
+ el('savePrice').textContent='Uložiť zmeny';el('cancelPriceEdit').hidden=false;el('priceName').focus();
+}
 function renderPrices(){
  const area=el('priceItems');area.replaceChildren();
- if(!priceBook.length){const p=document.createElement('p');p.className='muted';p.textContent='Zatiaľ nemáte uložené položky. Pridajte prvú položku vyššie.';area.appendChild(p);return}
+ if(priceMode==='loading'||priceMode==='error')return;
+ if(!priceBook.length){const p=document.createElement('p');p.className='muted';p.textContent='Zatiaľ nemáte položky v cenníku.';area.append(p);return}
  for(const item of priceBook){
   const box=document.createElement('div');box.className='pricelist-entry';
   const desc=document.createElement('div'),title=document.createElement('strong'),sub=document.createElement('small');
-  title.textContent=item.name;sub.textContent=item.type+' · '+euro(item.price)+' / '+item.unit;
-  desc.append(title,sub);
+  title.textContent=item.name;sub.textContent=item.type+' · '+euro(item.price)+' / '+item.unit;desc.append(title,sub);
   const actions=document.createElement('div');actions.className='entry-actions';
   const addBtn=document.createElement('button');addBtn.type='button';addBtn.textContent='Do ponuky';
-  addBtn.addEventListener('click',()=>{add(item.type,item.name,1,item.unit,item.price);el('lines').lastElementChild.querySelector('.qty').focus()});
-  const editBtn=document.createElement('button');editBtn.type='button';editBtn.textContent='Upraviť';editBtn.addEventListener('click',()=>editPrice(item));
+  addBtn.onclick=()=>{add(item.type,item.name,1,item.unit,item.price);el('lines').lastElementChild.querySelector('.qty').focus()};
+  const editBtn=document.createElement('button');editBtn.type='button';editBtn.textContent='Upraviť';editBtn.onclick=()=>editPrice(item);
   const delBtn=document.createElement('button');delBtn.type='button';delBtn.className='danger';delBtn.textContent='Zmazať';
-  delBtn.addEventListener('click',()=>{
-   if(!confirm('Odstrániť z cenníka: '+item.name+'?'))return;
-   const previous=priceBook;priceBook=priceBook.filter(p=>p.id!==item.id);
-   if(!persistPrices())priceBook=previous;
-   if(editingPriceId===item.id)resetPriceEditor();
-   renderPrices();
-  });
-  if(testFirmId&&testAllowed()){const cloudBtn=document.createElement('button');cloudBtn.type='button';cloudBtn.textContent='Uložiť do TEST';cloudBtn.addEventListener('click',()=>savePriceTest(item));actions.append(cloudBtn)}
-  actions.append(addBtn,editBtn,delBtn);box.append(desc,actions);area.appendChild(box);
+  delBtn.onclick=async()=>{
+   if(priceBusy||!confirm('Zmazať z cenníka: '+item.name+'?'))return;
+   if(priceMode==='cloud'){
+    priceBusy=true;setPriceMode('cloud');
+    try{
+     await testRequest('/kalkulacka_cennik?id=eq.'+encodeURIComponent(item.dbId)+'&firma_id=eq.'+encodeURIComponent(testFirmId),{method:'DELETE'});
+     if(editingPriceId===item.id)resetPriceEditor();await loadTestPrices();
+    }catch(err){testStatus('Mazanie zlyhalo: '+err.message)}
+    finally{priceBusy=false;setPriceMode(priceMode)}
+   }else if(priceMode==='local'){
+    const prev=priceBook;priceBook=priceBook.filter(p=>p.id!==item.id);
+    if(!storeLocal())priceBook=prev;
+    if(editingPriceId===item.id)resetPriceEditor();renderPrices();
+   }
+  };
+  actions.append(addBtn,editBtn,delBtn);box.append(desc,actions);area.append(box);
  }
 }
-el('priceForm').addEventListener('submit',event=>{
- event.preventDefault();
- const name=el('priceName').value.trim(),unit=el('priceUnit').value.trim(),type=el('priceType').value;
- const price=Number(el('priceValue').value);
- if(!name||!unit||!['Práca','Materiál','Doprava'].includes(type)||!Number.isFinite(price)||price<0||price>100000000){alert('Skontrolujte názov, jednotku a cenu položky.');return}
- const next={id:editingPriceId||('p'+Date.now()+'_'+Math.random().toString(36).slice(2,9)),type,name,unit,price:Math.round(price*100)/100};
- const previous=priceBook.slice();
- if(editingPriceId){priceBook=priceBook.map(p=>p.id===editingPriceId?next:p)}
- else if(priceBook.length>=300){alert('Pre testovaciu verziu je limit 300 položiek.');return}
- else priceBook.push(next);
- if(!persistPrices()){priceBook=previous;return}
- resetPriceEditor();renderPrices();
+el('priceForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(priceBusy||!['cloud','local'].includes(priceMode))return;
+ const type=el('priceType').value,name=el('priceName').value.trim(),unit=el('priceUnit').value.trim(),price=Number(el('priceValue').value);
+ if(!name||!unit||!['Práca','Materiál','Doprava'].includes(type)||!Number.isFinite(price)||price<0||price>100000000){alert('Skontrolujte názov, typ, jednotku a cenu.');return}
+ const p={type,name,unit,price:Math.round(price*100)/100};
+ if(priceMode==='cloud'){
+  priceBusy=true;setPriceMode('cloud');
+  try{
+   const existing=priceBook.find(x=>x.id===editingPriceId);
+   if(!existing&&priceBook.length>=300)throw Error('Limit 300 položiek');
+   const data={typ:p.type,nazov:p.name,jednotka:p.unit,cena:p.price};
+   if(existing)await testRequest('/kalkulacka_cennik?id=eq.'+encodeURIComponent(existing.dbId)+'&firma_id=eq.'+encodeURIComponent(testFirmId),{method:'PATCH',body:JSON.stringify(data)});
+   else await testRequest('/kalkulacka_cennik',{method:'POST',body:JSON.stringify({...data,firma_id:testFirmId})});
+   resetPriceEditor();await loadTestPrices();
+  }catch(err){testStatus('Ukladanie zlyhalo: '+err.message)}
+  finally{priceBusy=false;setPriceMode(priceMode)}
+ }else{
+  const prev=priceBook.slice();
+  if(editingPriceId)priceBook=priceBook.map(x=>x.id===editingPriceId?{...p,id:x.id}:x);
+  else{if(priceBook.length>=300){alert('Limit 300 položiek');return}priceBook.push({...p,id:'p'+Date.now()+'_'+Math.random().toString(36).slice(2,8)})}
+  if(!storeLocal())priceBook=prev;else resetPriceEditor();renderPrices();
+ }
 });
-el('cancelPriceEdit').addEventListener('click',resetPriceEditor);
-loadPrices();renderPrices();
-if(testAllowed())connectTest();else testStatus('TEST prístup je vypnutý mimo Deploy Preview #11.');
+el('cancelPriceEdit').onclick=resetPriceEditor;
+el('testCloudConnect').onclick=connectTest;
+el('testCloudLoad').onclick=async()=>{if(priceMode==='cloud'){try{await loadTestPrices()}catch(err){testStatus('Načítanie zlyhalo: '+err.message)}}};
+connectTest();
 const date=new Date();el('date').value=[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
 function add(type,name='',qty=1,unit='m²',price=0){
 const row=document.createElement('tr');
