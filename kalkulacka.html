@@ -50,6 +50,25 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
   #printed .offer-footer{border-top:1px solid #c8d8ea;margin-top:35px;padding-top:12px;color:#5e7792;font-size:8pt}
   #printed .offer-details{white-space:pre-wrap;overflow-wrap:anywhere}
 }
+
+@media print{
+#printed,#printed *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+#printed{color:#102e52;font-family:Arial,sans-serif;font-size:9.5pt}
+#printed .offer-heading{border-bottom:4px solid #b5df23;margin-bottom:16px;padding-bottom:17px}
+#printed .offer-name{color:#102e52;font-size:19pt;font-weight:900}
+#printed .offer-title h1{color:#102e52;font-size:23pt;font-weight:900}
+#printed .offer-title p{background:#f2f6fa;border-bottom:1px solid #dce4ed;margin:0;padding:7px 9px;text-align:left;font-size:9pt}
+#printed .offer-title p:first-of-type{border-radius:8px 8px 0 0}
+#printed .offer-title p:last-of-type{border-radius:0 0 8px 8px;border-bottom:0}
+#printed .offer-panel{background:#f2f6fa!important;border-left:5px solid #b5df23;padding:13px}
+#printed .offer-section{font-weight:800;color:#102e52}
+#printed thead th{background:#102e52!important;color:white!important}
+#printed tbody tr:nth-child(even){background:#f2f6fa!important}
+#printed th,#printed td{padding:8px 6px}
+#printed .offer-totals{background:#f2f6fa;padding:9px;border-radius:8px}
+#printed .offer-totals .offer-grand{background:#102e52!important;color:#fff!important;border-left:8px solid #b5df23;font-size:15pt}
+#printed .offer-footer{color:#5a728a}
+}
 </style></head><body>
 <header><div class="brand">⌂ Dopyt<span>AI</span></div><div class="muted">Kalkulačka cenových ponúk – samostatný TEST</div></header>
 <main><h1>Nová cenová ponuka</h1><p>Vypočítajte cenu práce a materiálu, potom pripravte zákazníkovi ponuku vo formáte PDF.</p>
@@ -111,8 +130,8 @@ function print(){
  +'<div class="offer-title"><h1>Cenová ponuka</h1><p><strong>Číslo:</strong> '+show('offerNo')+'</p><p><strong>Dátum:</strong> '+dateSK(el('date').value)+'</p><p><strong>Platnosť do:</strong> '+dateSK(el('until').value)+'</p></div></div>'
  +'<div class="offer-columns"><div class="offer-panel"><div class="offer-label">Odberateľ</div><strong>'+show('customer')+'</strong></div><div class="offer-panel"><div class="offer-label">Miesto realizácie</div><strong>'+show('place')+'</strong></div></div>'
  +'<h2 class="offer-section">Predmet ponuky</h2><p class="offer-description">'+show('subject')+'</p>'
- +'<h2 class="offer-section">Položkový rozpočet</h2><table><thead><tr><th style="width:12%">Typ</th><th style="width:32%">Položka</th><th style="width:12%">Množstvo</th><th style="width:10%">MJ</th><th class="money" style="width:17%">Jedn. cena</th><th class="money" style="width:17%">Spolu</th></tr></thead><tbody>'
- +v.rows.map(r=>'<tr><td>'+safe(r.type)+'</td><td>'+safe(r.name)+'</td><td>'+r.qty+'</td><td>'+safe(r.unit)+'</td><td class="money">'+euro(r.price)+'</td><td class="money">'+euro(r.sum)+'</td></tr>').join('')
+ +'<h2 class="offer-section">Položkový rozpočet</h2><table><thead><tr><th style="width:5%">Č.</th><th style="width:12%">Typ</th><th style="width:27%">Položka</th><th style="width:12%">Množstvo</th><th style="width:10%">MJ</th><th class="money" style="width:17%">Jedn. cena</th><th class="money" style="width:17%">Spolu</th></tr></thead><tbody>'
+ +v.rows.map((r,i)=>'<tr><td>'+(i+1)+'.</td><td>'+safe(r.type)+'</td><td>'+safe(r.name)+'</td><td>'+r.qty+'</td><td>'+safe(r.unit)+'</td><td class="money">'+euro(r.price)+'</td><td class="money">'+euro(r.sum)+'</td></tr>').join('')
  +'</tbody></table>'
  +'<div class="offer-totals">'+row('Práca',euro(v.work))+row('Materiál',euro(v.mat))+row('Zľava',euro(v.discount))+row('DPH ('+safe(el('vat').value)+' %)',euro(v.vat))+'<div class="offer-grand"><span>Celkom</span><span>'+euro(v.total)+'</span></div></div>'
  +'<h2 class="offer-section">Poznámky a podmienky</h2><p class="offer-description">'+show('terms')+'</p><div class="offer-footer">Cenová ponuka bola vytvorená pomocou DopytAI.</div>';
