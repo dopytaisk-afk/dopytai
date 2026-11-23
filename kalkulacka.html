@@ -78,8 +78,17 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 .pricelist-entry strong{display:block;overflow-wrap:anywhere}.pricelist-entry small{color:#5c7893}
 .pricelist-entry button{padding:8px 11px}
 @media(max-width:720px){.pricelist-grid{grid-template-columns:1fr 1fr}.pricelist-grid label:nth-child(2){grid-column:1/-1;grid-row:1}.pricelist-entry{align-items:flex-start;flex-direction:column}.pricelist-entry .entry-actions{align-self:flex-end}}
+
+/* Potvrdzovacie okno v dizajne DopytAI */
+.offer-dialog{width:min(440px,calc(100% - 32px));max-width:440px;border:1px solid #c8dff5;border-radius:16px;padding:24px;background:#fff;color:#10294b;box-shadow:0 18px 65px #0924483d}
+.offer-dialog::backdrop{background:rgba(9,36,72,.52)}
+.offer-dialog h2{font-size:21px;margin:0 0 10px;color:#092448}
+.offer-dialog p{line-height:1.5;margin:0;color:#45627d}
+.offer-dialog .actions{justify-content:flex-end;margin-top:24px}
+.offer-dialog button{min-width:105px}
 </style></head><body>
 <header><a class="brand" href="/" aria-label="DopytAI – úvod"><span class="mark" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span></span><span>Dopyt<span class="ai">AI</span></span></a><div class="muted">Kalkulačka cenových ponúk – samostatný TEST</div></header>
+<dialog class="offer-dialog" id="offerConfirmDialog" aria-labelledby="offerDialogTitle" aria-describedby="offerDialogText"><h2 id="offerDialogTitle">Uložiť cenovú ponuku?</h2><p id="offerDialogText">Ponuka sa uloží do testovacieho účtu firmy.</p><div class="actions"><button id="offerDialogCancel" type="button">Zrušiť</button><button id="offerDialogAccept" class="primary" type="button">Uložiť ponuku</button></div></dialog>
 <main><h1>Nová cenová ponuka</h1><p>Vypočítajte cenu práce a materiálu, potom pripravte zákazníkovi ponuku vo formáte PDF.</p>
 <div class="note">TEST verzia: firemný cenník sa ukladá do TEST Supabase. Cenové ponuky možno uložiť iba s prihláseným TEST firemným účtom. PDF sa pripravuje v prehliadači; vlastné logo zatiaľ nie je uložené na serveri. Bez predplatného.</div>
 <section class="card"><h2>Údaje ponuky</h2><div class="logo-picker" style="margin-bottom:18px"><label>Logo firmy (PNG, JPG, WebP – max. 2 MB)<input id="logo" type="file" accept="image/png,image/jpeg,image/webp"></label><img id="logoPreview" class="logo-preview" alt="Náhľad loga" hidden></div><p class="muted" id="logoStatus">Logo sa použije iba v tejto ponuke a neodosiela sa na server.</p><div class="grid">
@@ -344,11 +353,28 @@ async function openSavedOffer(id){
   document.querySelector('main').scrollIntoView({behavior:'smooth',block:'start'});
  }catch(err){offerStatus('Otvorenie ponuky zlyhalo: '+err.message)}
 }
+function confirmOfferSave(isVersion){
+ return new Promise(resolve=>{
+  const d=el('offerConfirmDialog');
+  el('offerDialogTitle').textContent=isVersion?'Uložiť novú verziu ponuky?':'Uložiť cenovú ponuku?';
+  el('offerDialogText').textContent=isVersion?'Vytvorí sa nová verzia v TEST Supabase. Pôvodná ponuka zostane zachovaná.':'Cenová ponuka sa bezpečne uloží do TEST Supabase pod prihlásenú firmu.';
+  let completed=false;
+  const finish=answer=>{if(completed)return;completed=true;d.close();resolve(answer)};
+  const accept=()=>finish(true),cancel=()=>finish(false),onCancel=e=>{e.preventDefault();finish(false)};
+  const cleanup=()=>{el('offerDialogAccept').removeEventListener('click',accept);el('offerDialogCancel').removeEventListener('click',cancel);d.removeEventListener('cancel',onCancel);d.removeEventListener('close',onClose)};
+  const onClose=()=>{cleanup();if(!completed){completed=true;resolve(false)}};
+  el('offerDialogAccept').addEventListener('click',accept);
+  el('offerDialogCancel').addEventListener('click',cancel);
+  d.addEventListener('cancel',onCancel);
+  d.addEventListener('close',onClose);
+  try{d.showModal()}catch(e){cleanup();resolve(false)}
+ });
+}
 async function saveOfferToTest(){
  if(!offerAvailability())return;
  let rows,details;
  try{rows=linesForDb();details=offerDetails();if(!details.cislo_ponuky||!details.datum_vystavenia)throw Error('Vyplňte číslo ponuky a dátum.');}catch(err){offerStatus(err.message);return}
- if(!confirm(currentOfferId?'Uložiť upravenú ponuku ako NOVÚ verziu? Pôvodná ponuka zostane zachovaná.':'Uložiť novú cenovú ponuku do TEST Supabase?'))return;
+ if(!await confirmOfferSave(Boolean(currentOfferId)))return;
  offerBusy=true;offerAvailability();
  let newOfferId=null;
  try{
