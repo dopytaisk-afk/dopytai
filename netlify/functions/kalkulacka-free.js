@@ -111,7 +111,7 @@ async function makePdf(q){
  const paragraph=s=>{for(const line of wrap(s,C,10)){ensure(15);text(line,L,y);y-=14}y-=10};
  const dateSK=s=>s?s.split("-").reverse().join(". "):"—";
  let left=y;
- if(q.logo){const img=await pdf.embedJpg(Buffer.from(q.logo.split(",")[1],"base64"));if(img.width>420||img.height>220)throw Error("Logo má neplatné rozmery");const d=img.scale(Math.min(1,112/img.width,57/img.height));page.drawImage(img,{x:L,y:left-d.height,width:d.width,height:d.height});left-=d.height+10}
+ if(q.logo){const img=await pdf.embedJpg(Uint8Array.from(Buffer.from(q.logo.split(",")[1],"base64")));if(img.width>420||img.height>220)throw Error("Logo má neplatné rozmery");const d=img.scale(Math.min(1,112/img.width,57/img.height));page.drawImage(img,{x:L,y:left-d.height,width:d.width,height:d.height});left-=d.height+10}
  text("DODÁVATEĽ",L,left,8,muted);left-=15;
  left=lines(wrap(q.company,245,17),L,left,17);
  if(q.ico)left=lines(wrap("IČO: "+q.ico,245),L,left);
