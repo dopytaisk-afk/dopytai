@@ -10,7 +10,7 @@ const json=(statusCode,data)=>({statusCode,headers:{"content-type":"application/
 const hash=(text,key)=>crypto.createHmac("sha256",key).update(text).digest("hex");
 const trim=(v,max=160)=>typeof v==="string"?v.trim().slice(0,max):"";
 const esc=(s)=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const euro=(num)=>Number(num).toLocaleString("sk-SK",{minimumFractionDigits:2,maximumFractionDigits:2})+" EUR";
+const euro=(num)=>Number(num).toLocaleString("sk-SK",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
 const date=(s)=>/^\d{4}-\d{2}-\d{2}$/.test(s||"")?s:"";
 const validEmail=(raw)=>{const s=trim(raw,254).toLowerCase();return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)?s:""};
 function parseQuote(value){
@@ -92,8 +92,8 @@ async function makePdf(q){
  const W=595.28,H=841.89,L=43,R=W-L,C=R-L;
  let page=pdf.addPage([W,H]),y=H-43;
  const width=(s,z)=>font.widthOfTextAtSize(String(s),z);
- const text=(s,x,t,z=10,color=navy)=>page.drawText(String(s),{x,y:t-z,size:z,font,color});
- const right=(s,x,t,z=10,color=navy)=>text(s,x-width(s,z),t,z,color);
+ const text=(s,x,t,z=10,color=navy,strong=false)=>{const opts={x,y:t-z,size:z,font,color};page.drawText(String(s),opts);if(strong)page.drawText(String(s),{...opts,x:x+0.32})};
+ const right=(s,x,t,z=10,color=navy,strong=false)=>text(s,x-width(s,z)-(strong?0.32:0),t,z,color,strong);
  const rect=(x,t,w,h,color)=>page.drawRectangle({x,y:t-h,width:w,height:h,color});
  const wrap=(s,w,z=10)=>{
   const out=[];for(const para of String(s||"—").split(/\r?\n/)){let line="";
@@ -107,7 +107,7 @@ async function makePdf(q){
  const footer=()=>{rect(L,48,C,1,pale);text("Cenová ponuka bola vytvorená pomocou DopytAI.",L,39,8,muted);right(String(pdf.getPageCount()),R,39,8,muted)};
  const next=()=>{footer();page=pdf.addPage([W,H]);y=H-43};
  const ensure=h=>{if(y-h<65)next()};
- const section=s=>{ensure(30);text(s,L,y,12);y-=23};
+ const section=s=>{ensure(30);text(s,L,y,12,navy,true);y-=23};
  const paragraph=s=>{for(const line of wrap(s,C,10)){ensure(15);text(line,L,y);y-=14}y-=10};
  const dateSK=s=>s?s.split("-").reverse().join(". "):"—";
  let left=y;
@@ -116,7 +116,7 @@ async function makePdf(q){
  left=lines(wrap(q.company,245,17),L,left,17);
  if(q.ico)left=lines(wrap("IČO: "+q.ico,245),L,left);
  if(q.contact)left=lines(wrap(q.contact,245),L,left);
- const mx=R-218;right("Cenová ponuka",R,y,23);let mt=y-37;
+ const mx=R-218;right("Cenová ponuka",R,y,23,navy,true);let mt=y-37;
  for(const [k,v] of [["Číslo",q.offerNo||"—"],["Dátum",dateSK(q.date)],["Platnosť do",dateSK(q.until)]]){
   const a=wrap(v,130,9),h=Math.max(24,a.length*13+10);rect(mx,mt,218,h-1,pale);text(k,mx+9,mt-6,9,muted);lines(a,mx+82,mt-6,9);mt-=h;
  }
@@ -144,7 +144,7 @@ async function makePdf(q){
  const tax=Math.round(discounted*q.vat)/100,final=discounted+tax;
  const tx=R-278;rect(tx,y,278,173,pale);
  for(const [k,v] of [["Práca",totals.Práca],["Materiál",totals.Materiál],["Doprava",totals.Doprava],["Zľava ("+q.discount+" %)",subtotal-discounted],["DPH ("+q.vat+" %)",tax]]){text(k,tx+12,y-8,10);right(euro(v),R-12,y-8,10);y-=25}
- rect(tx,y,278,48,navy);rect(tx,y,6,48,lime);text("Celkom",tx+15,y-15,13,white);right(euro(final),R-12,y-14,14,white);y-=70;
+ rect(tx,y,278,48,navy);rect(tx,y,6,48,lime);text("Celkom",tx+15,y-15,13,white,true);right(euro(final),R-12,y-14,14,white,true);y-=70;
  section("Poznámky a podmienky");paragraph(q.terms);footer();
  return Buffer.from(await pdf.save()).toString("base64");
 }
@@ -181,7 +181,10 @@ exports.handler=async event=>{
   try{
    const ch=await db(cfg,"kalkulacka_free_challenges?select=quote_payload,claimed_at,expires_at&token_hash=eq."+hash(token,cfg.secret)+"&id=eq."+encodeURIComponent(id)+"&limit=1");
    if(ch.length!==1||ch[0].claimed_at||Date.parse(ch[0].expires_at)<Date.now())return json(410,{error:"Odkaz už bol použitý alebo jeho platnosť vypršala."});
-   const pdf=await makePdf(parseQuote(ch[0].quote_payload));
+   const quote=parseQuote(ch[0].quote_payload);
+   // Stable reference for anonymous PDFs only; saved company numbering remains untouched.
+   if(!quote.offerNo)quote.offerNo="PDF-"+(quote.date||new Date().toISOString().slice(0,10)).replace(/-/g,"")+"-"+id.replace(/-/g,"").slice(0,16).toUpperCase();
+   const pdf=await makePdf(quote);
    const result=await db(cfg,"rpc/kalkulacka_claim_free_pdf",{method:"POST",body:JSON.stringify({p_challenge_id:id,p_token_hash:hash(token,cfg.secret)})});
    if(!result)return json(409,{error:"Odkaz už bol použitý alebo boli vyčerpané 3 bezplatné PDF na tento e-mail. Ďalšie ponuky získate po registrácii a predplatnom."});
    return json(200,{ok:true,pdf,filename:"DopytAI-cenova-ponuka.pdf"});
