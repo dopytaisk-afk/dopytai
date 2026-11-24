@@ -32,9 +32,25 @@ function parseQuote(value){
  return fields;
 }
 function config(event){
- const hostname=String(event.headers?.host||"").split(":")[0].toLowerCase();
- if(hostname!==HOST||process.env.CONTEXT!=="deploy-preview"){
-  return {error:"Táto funkcia je povolená iba v testovacom náhľade PR #11."};
+ // Netlify Functions may receive an internal Host header; do not use it as a deploy identity.
+ // Check trusted deployment metadata when present, and require preview-scoped secrets and TEST DB below.
+ const context=process.env.CONTEXT;
+ const branch=process.env.BRANCH;
+ const review=process.env.REVIEW_ID;
+ const prime=process.env.DEPLOY_PRIME_URL;
+ if(context && context!=="deploy-preview"){
+  return {error:"Server nebeží v Netlify Deploy Preview. Produkcia nemá prístup k bezplatnému PDF."};
+ }
+ if(review && String(review)!=="11"){
+  return {error:"Toto je iný testovací PR, nie PR #11."};
+ }
+ if(branch && branch!=="feature/kalkulacka-ponuk"){
+  return {error:"Táto funkcia patrí testovacej vetve kalkulačky."};
+ }
+ if(prime){
+  let primeHost="";
+  try{primeHost=new URL(prime).hostname.toLowerCase()}catch(_){}
+  if(primeHost!==HOST)return {error:"Netlify nezodpovedá testovaciemu náhľadu PR #11."};
  }
  const url=String(process.env.SUPABASE_URL||"").replace(/\/$/,"");
  if(url!==TEST_SUPABASE){
