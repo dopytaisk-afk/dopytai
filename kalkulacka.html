@@ -165,7 +165,7 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <details class="optional" id="companyDetails"><summary>Údaje mojej firmy a logo (načítajú sa automaticky)</summary>
 <p class="muted" id="companyFillStatus">Firemné údaje sa načítajú po prihlásení TEST firmy. Pri ponuke ich možno ručne upraviť.</p>
 <div class="logo-picker" style="margin-bottom:14px"><label>Logo firmy (PNG, JPG, WebP – max. 2 MB)<input id="logo" type="file" accept="image/png,image/jpeg,image/webp"></label><img id="logoPreview" class="logo-preview" alt="Náhľad loga" hidden></div>
-<p class="muted" id="logoStatus">Logo sa použije iba v tejto ponuke a neodosiela sa na server.</p>
+<p class="muted" id="logoStatus">Logo sa použije iba v tejto ponuke. Pri overení e-mailu sa dočasne uloží spolu s ponukou.</p>
 <div class="grid">
 <label>Firma<input id="company" placeholder="Názov vašej firmy"></label>
 <label>IČO<input id="ico" placeholder="12345678"></label>
@@ -557,7 +557,7 @@ function resetOfferEditor(){
 }
 el('logo').addEventListener('change',event=>{
  const file=event.target.files&&event.target.files[0];
- if(!file){logoData='';el('logoPreview').hidden=true;el('logoStatus').textContent='Logo sa použije iba v tejto ponuke a neodosiela sa na server.';return}
+ if(!file){logoData='';el('logoPreview').hidden=true;el('logoStatus').textContent='Logo sa použije iba v tejto ponuke. Pri overení e-mailu sa dočasne uloží spolu s ponukou.';return}
  if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>2*1024*1024){
    alert('Použite obrázok PNG, JPG alebo WebP do 2 MB.');event.target.value='';logoData='';el('logoPreview').hidden=true;return;
  }
@@ -630,6 +630,16 @@ el('reviewEditItems').onclick=()=>gotoWizard(2,{validate:false});
 
 el('addWork').onclick=()=>add('Práca');el('addMat').onclick=()=>add('Materiál','','1','ks');el('addTransport').onclick=()=>add('Doprava','Doprava na stavbu',1,'km',0);
 const ANON_FREE_GATE_TEST=true;
+async function compactQuoteLogo(){
+ if(!logoData)return "";
+ const img=new Image();img.src=logoData;await img.decode();
+ const scale=Math.min(1,420/img.width,220/img.height);
+ const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
+ const ctx=canvas.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);
+ const data=canvas.toDataURL("image/jpeg",0.8);
+ if(data.length>80000)throw Error("Logo je príliš zložité. Použite menší obrázok.");
+ return data;
+}
 function anonQuote(){
  const rows=calc().rows;
  if(rows.length<1||rows.some(r=>!r.name.trim()||!r.unit.trim()||r.qty<=0||r.price<0))throw Error('Pridajte platné položky do ponuky.');
@@ -637,7 +647,7 @@ function anonQuote(){
  if(!get('customer'))throw Error('Vyplňte meno zákazníka.');
  if(!get('company')){el('companyDetails').open=true;gotoWizard(1,{validate:false});el('company').focus();throw Error('Doplňte názov vašej firmy v prvom kroku.')}
  return {company:get('company'),ico:get('ico'),contact:get('contact'),customer:get('customer'),
- place:get('place'),subject:get('subject'),terms:get('terms'),date:get('date'),until:get('until'),
+ place:get('place'),subject:get('subject'),terms:get('terms'),date:get('date'),until:get('until'),offerNo:get('offerNo'),
  vat:Number(get('vat')),discount:Number(get('discount')),rows:rows.map(({type,name,qty,unit,price})=>({type,name,qty,unit,price}))};
 }
 function openAnonymousPdfDialog(){
@@ -652,7 +662,7 @@ el('anonFreeForm').addEventListener('submit',async e=>{
  try{
   const r=await fetch('/.netlify/functions/kalkulacka-free',{
    method:'POST',headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({action:'request',email:el('anonFreeEmail').value.trim(),quote:anonQuote()})
+   body:JSON.stringify({action:'request',email:el('anonFreeEmail').value.trim(),quote:{...anonQuote(),logo:await compactQuoteLogo()}})
   });
   const data=await r.json();if(!r.ok||!data.ok)throw Error(data.error||'Nepodarilo sa odoslať e-mail.');
   message.textContent=data.message||'Overovací odkaz bol odoslaný. Otvorte e-mail a stiahnite si PDF.';

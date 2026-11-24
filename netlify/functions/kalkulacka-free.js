@@ -29,6 +29,12 @@ function parseQuote(value){
  if(fields.discount<0||fields.discount>100||![0,5,10,19,20,23].includes(fields.vat))throw Error("Neplatná DPH alebo zľava");
  if(!fields.customer||!fields.company)throw Error("Vyplňte zákazníka aj dodávateľa");
  if(JSON.stringify(fields).length>35000)throw Error("Ponuka je príliš veľká");
+ if(value.logo){
+  if(typeof value.logo!=="string"||value.logo.length>80000||!/^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(value.logo))throw Error("Neplatné logo");
+  const bytes=Buffer.from(value.logo.split(",")[1],"base64");
+  if(bytes[0]!==255||bytes[1]!==216)throw Error("Neplatné logo");
+  fields.logo=value.logo;
+ }
  return fields;
 }
 function config(event){
@@ -82,44 +88,70 @@ async function db(cfg,endpoint,options={}){
 async function makePdf(q){
  const pdf=await PDFDocument.create();pdf.registerFontkit(fontkit);
  const font=await pdf.embedFont(fs.readFileSync(path.join(__dirname,"Roboto-Regular.ttf")),{subset:true});
- const dark=rgb(.08,.18,.31),blue=rgb(.03,.49,.94),soft=rgb(.42,.49,.57);
- let page=pdf.addPage([595.28,841.89]),y=794;
- const text=(val,x,yy,size=10,color=dark)=>page.drawText(String(val),{x,y:yy,size,font,color});
- const wrap=(str,maxWidth,size=10)=>{
-  const words=String(str||"").replace(/\s+/g," ").split(" "),out=[];let line="";
-  for(const word of words){let candidate=line?line+" "+word:word;
-   if(font.widthOfTextAtSize(candidate,size)<=maxWidth){line=candidate;continue}
-   if(line)out.push(line);
-   line=word;
-   while(font.widthOfTextAtSize(line,size)>maxWidth&&line.length>1){let n=line.length-1;while(n>1&&font.widthOfTextAtSize(line.slice(0,n),size)>maxWidth)n--;out.push(line.slice(0,n));line=line.slice(n)}
-  }if(line)out.push(line);return out.slice(0,40);
+ const navy=rgb(16/255,46/255,82/255),lime=rgb(181/255,223/255,35/255),pale=rgb(242/255,246/255,250/255),muted=rgb(.35,.45,.55),white=rgb(1,1,1);
+ const W=595.28,H=841.89,L=43,R=W-L,C=R-L;
+ let page=pdf.addPage([W,H]),y=H-43;
+ const width=(s,z)=>font.widthOfTextAtSize(String(s),z);
+ const text=(s,x,t,z=10,color=navy)=>page.drawText(String(s),{x,y:t-z,size:z,font,color});
+ const right=(s,x,t,z=10,color=navy)=>text(s,x-width(s,z),t,z,color);
+ const rect=(x,t,w,h,color)=>page.drawRectangle({x,y:t-h,width:w,height:h,color});
+ const wrap=(s,w,z=10)=>{
+  const out=[];for(const para of String(s||"—").split(/\r?\n/)){let line="";
+   for(const word of para.split(/\s+/)){let v=line?line+" "+word:word;
+    if(width(v,z)<=w){line=v;continue}if(line)out.push(line);line=word;
+    while(width(line,z)>w&&line.length>1){let n=line.length-1;while(n>1&&width(line.slice(0,n),z)>w)n--;out.push(line.slice(0,n));line=line.slice(n)}
+   }out.push(line);
+  }return out;
  };
- const nextPage=()=>{page=pdf.addPage([595.28,841.89]);y=795};
- const paragraph=(value,size=10,before=0)=>{y-=before;for(const line of wrap(value,490,size)){if(y<75)nextPage();text(line,48,y,size);y-=size+6}};
- text("DopytAI",48,y,23,blue);text("CENOVÁ PONUKA",295,y,21,dark);y-=36;
- paragraph("Dodávateľ: "+q.company,11);if(q.ico)paragraph("IČO: "+q.ico);if(q.contact)paragraph("Kontakt: "+q.contact);
- y-=12;paragraph("Zákazník: "+q.customer);paragraph("Miesto: "+(q.place||"—"));paragraph("Predmet: "+(q.subject||"—"));paragraph("Dátum: "+(q.date||"—")+"    Platnosť do: "+(q.until||"—"));y-=10;
- page.drawLine({start:{x:48,y},end:{x:548,y},thickness:1,color:blue});y-=25;
+ const lines=(a,x,t,z=10,color=navy)=>{for(const s of a){text(s,x,t,z,color);t-=z+4}return t};
+ const footer=()=>{rect(L,48,C,1,pale);text("Cenová ponuka bola vytvorená pomocou DopytAI.",L,39,8,muted);right(String(pdf.getPageCount()),R,39,8,muted)};
+ const next=()=>{footer();page=pdf.addPage([W,H]);y=H-43};
+ const ensure=h=>{if(y-h<65)next()};
+ const section=s=>{ensure(30);text(s,L,y,12);y-=23};
+ const paragraph=s=>{for(const line of wrap(s,C,10)){ensure(15);text(line,L,y);y-=14}y-=10};
+ const dateSK=s=>s?s.split("-").reverse().join(". "):"—";
+ let left=y;
+ if(q.logo){const img=await pdf.embedJpg(Buffer.from(q.logo.split(",")[1],"base64"));if(img.width>420||img.height>220)throw Error("Logo má neplatné rozmery");const d=img.scale(Math.min(1,112/img.width,57/img.height));page.drawImage(img,{x:L,y:left-d.height,width:d.width,height:d.height});left-=d.height+10}
+ text("DODÁVATEĽ",L,left,8,muted);left-=15;
+ left=lines(wrap(q.company,245,17),L,left,17);
+ if(q.ico)left=lines(wrap("IČO: "+q.ico,245),L,left);
+ if(q.contact)left=lines(wrap(q.contact,245),L,left);
+ const mx=R-218;right("Cenová ponuka",R,y,23);let mt=y-37;
+ for(const [k,v] of [["Číslo",q.offerNo||"—"],["Dátum",dateSK(q.date)],["Platnosť do",dateSK(q.until)]]){
+  const a=wrap(v,130,9),h=Math.max(24,a.length*13+10);rect(mx,mt,218,h-1,pale);text(k,mx+9,mt-6,9,muted);lines(a,mx+82,mt-6,9);mt-=h;
+ }
+ y=Math.min(left,mt)-12;rect(L,y,C,4,lime);y-=24;
+ const pw=(C-14)/2,a=wrap(q.customer,pw-24,11),b=wrap(q.place,pw-24,11),ph=Math.max(67,34+Math.max(a.length,b.length)*15);
+ ensure(ph+15);
+ for(const [x,k,v] of [[L,"ODBERATEĽ",a],[L+pw+14,"MIESTO REALIZÁCIE",b]]){rect(x,y,pw,ph,pale);rect(x,y,4,ph,lime);text(k,x+12,y-11,8,muted);lines(v,x+12,y-28,11)}
+ y-=ph+22;section("Predmet ponuky");paragraph(q.subject);section("Položkový rozpočet");
+ const cols=[25,65,151,62,43,82,C-428],xs=[L];for(const w of cols)xs.push(xs[xs.length-1]+w);
+ const header=()=>{rect(L,y,C,27,navy);["Č.","Typ","Položka","Množstvo","MJ","Jedn. cena","Spolu"].forEach((s,i)=>i>=5?right(s,xs[i+1]-6,y-8,8,white):text(s,xs[i]+5,y-8,8,white));y-=27};
+ ensure(55);header();
  const totals={Práca:0,Materiál:0,Doprava:0};
  for(const [i,row] of q.rows.entries()){
   const total=Math.round(row.qty*row.price*100)/100;totals[row.type]+=total;
-  paragraph((i+1)+". "+row.type+" – "+row.name,11,4);
-  paragraph(row.qty+" "+row.unit+" × "+euro(row.price)+" = "+euro(total),10);
+  const cells=[String(i+1),row.type,row.name,String(row.qty),row.unit,euro(row.price),euro(total)].map((s,k)=>wrap(s,cols[k]-10,8.5));
+  const h=Math.max(27,Math.max(...cells.map(a=>a.length))*12.5+12);
+  if(y-h<65){next();header()}
+  if(i%2===1)rect(L,y,C,h,pale);
+  cells.forEach((a,k)=>a.forEach((s,n)=>k>=5?right(s,xs[k+1]-5,y-6-n*12.5,8.5):text(s,xs[k]+5,y-6-n*12.5,8.5)));
+  y-=h;rect(L,y,C,.5,pale);
  }
- y-=15;const subtotal=totals.Práca+totals.Materiál+totals.Doprava;
+ y-=17;ensure(177);
+ const subtotal=totals.Práca+totals.Materiál+totals.Doprava;
  const discounted=Math.round(subtotal*(100-q.discount))/100;
- const tax=Math.round(discounted*q.vat)/100;const final=discounted+tax;
- paragraph("Práca: "+euro(totals.Práca));paragraph("Materiál: "+euro(totals.Materiál));
- paragraph("Doprava: "+euro(totals.Doprava));paragraph("Zľava: "+q.discount+" %");paragraph("DPH: "+q.vat+" %");
- paragraph("CELKOM: "+euro(final),16,12);
- if(q.terms){paragraph("Poznámky:",11,16);paragraph(q.terms,9)}
- paragraph("Vytvorené pomocou DopytAI • bezplatná skúšobná ponuka",8,18);
+ const tax=Math.round(discounted*q.vat)/100,final=discounted+tax;
+ const tx=R-278;rect(tx,y,278,173,pale);
+ for(const [k,v] of [["Práca",totals.Práca],["Materiál",totals.Materiál],["Doprava",totals.Doprava],["Zľava ("+q.discount+" %)",subtotal-discounted],["DPH ("+q.vat+" %)",tax]]){text(k,tx+12,y-8,10);right(euro(v),R-12,y-8,10);y-=25}
+ rect(tx,y,278,48,navy);rect(tx,y,6,48,lime);text("Celkom",tx+15,y-15,13,white);right(euro(final),R-12,y-14,14,white);y-=70;
+ section("Poznámky a podmienky");paragraph(q.terms);footer();
  return Buffer.from(await pdf.save()).toString("base64");
 }
 exports.handler=async event=>{
  if(event.httpMethod!=="POST")return json(405,{error:"Method not allowed"});
  const cfg=config(event);if(cfg.error)return json(503,{error:cfg.error});
- let body;try{if((event.body||"").length>45000)throw Error();body=JSON.parse(event.body||"{}")}catch{return json(400,{error:"Neplatné údaje"})}
+ let body;try{if((event.body||"").length>125000)throw Error();body=JSON.parse(event.body||"{}")}catch{return json(400,{error:"Neplatné údaje"})}
  if(body.action==="request"){
   const email=validEmail(body.email);if(!email)return json(400,{error:"Zadajte platnú e-mailovú adresu"});
   let quote;try{quote=parseQuote(body.quote)}catch(e){return json(400,{error:e.message})}
