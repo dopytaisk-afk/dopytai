@@ -69,7 +69,14 @@ function config(event){
 }
 async function db(cfg,endpoint,options={}){
  const r=await fetch(cfg.url+"/rest/v1/"+endpoint,{...options,headers:{apikey:cfg.key,Authorization:"Bearer "+cfg.key,"Content-Type":"application/json",...(options.headers||{})}});
- if(!r.ok)throw new Error("DB HTTP "+r.status);
+ if(!r.ok){
+  // Log only the database error code, request target and status; never tokens, payloads or key material.
+  let code="unknown";
+  try{const error=await r.json();code=String(error.code||error.error_code||"unknown").slice(0,50)}catch(_){}
+  const target=String(endpoint).split("?")[0];
+  console.error("Anonymous quote Supabase request denied",{target,status:r.status,code});
+  throw new Error("DB HTTP "+r.status+" ("+target+", "+code+")");
+ }
  const txt=await r.text();return txt?JSON.parse(txt):null;
 }
 async function makePdf(q){
