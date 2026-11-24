@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="sk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><title>DopytAI – Overenie cenovej ponuky</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f2f7fd;color:#092448;font-family:Arial,sans-serif}
+header{background:#fff;padding:24px;box-shadow:0 1px 6px #d3e3f5}header a{text-decoration:none;color:#087cf0;font-weight:900;font-size:24px}
+main{max-width:570px;margin:65px auto;padding:30px;background:#fff;border:1px solid #d8e7f8;border-radius:18px}
+h1{font-size:27px}p{line-height:1.6}button{border:0;border-radius:11px;background:#087cf0;color:white;font-weight:800;padding:15px 22px;cursor:pointer;font-size:16px}
+button:disabled{opacity:.55;cursor:default}#status{background:#eef6ff;padding:13px;border-radius:10px}
+</style></head><body><header><a href="/">⌂ DopytAI</a></header>
+<main><h1>Overenie bezplatnej cenovej ponuky</h1>
+<p>Po potvrdení e-mailu si môžete stiahnuť svoje jednorazové bezplatné PDF. Odkaz platí 30 minút.</p>
+<p id="status" role="status">Pripravené na overenie.</p>
+<button id="getPdf">Overiť e-mail a stiahnuť PDF</button>
+<p><a href="/">Späť na DopytAI</a></p></main>
+<script>
+"use strict";
+const status=document.getElementById("status"),button=document.getElementById("getPdf");
+const params=new URLSearchParams(location.search);
+const id=params.get("id"),token=params.get("token");
+if(!/^[0-9a-f-]{36}$/i.test(id||"")||!/^[0-9a-f]{64}$/i.test(token||"")){
+ button.disabled=true;status.textContent="Odkaz je neplatný alebo neúplný.";
+}
+button.addEventListener("click",async()=>{
+ button.disabled=true;status.textContent="Overujem e-mail a pripravujem PDF…";
+ try{
+  const r=await fetch("/.netlify/functions/kalkulacka-free",{
+   method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({action:"redeem",id,token})
+  });
+  const data=await r.json();if(!r.ok||!data.pdf)throw Error(data.error||"Nepodarilo sa vytvoriť PDF.");
+  const raw=atob(data.pdf),bytes=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+  const blob=new Blob([bytes],{type:"application/pdf"}),url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="DopytAI-cenova-ponuka.pdf";document.body.append(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  history.replaceState(null,"",location.pathname);
+  status.textContent="Hotovo. Ponuka PDF bola pripravená na stiahnutie. Bezplatný nárok je využitý.";
+ }catch(e){status.textContent=e.message;button.disabled=false}
+});
+</script></body></html>
