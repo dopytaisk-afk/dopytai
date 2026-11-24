@@ -9,7 +9,7 @@ h1{font-size:27px}p{line-height:1.6}button{border:0;border-radius:11px;backgroun
 button:disabled{opacity:.55;cursor:default}#status{background:#eef6ff;padding:13px;border-radius:10px}
 </style></head><body><header><a href="/">⌂ DopytAI</a></header>
 <main><h1>Overenie bezplatnej cenovej ponuky</h1>
-<p>Po potvrdení e-mailu si môžete stiahnuť svoje jednorazové bezplatné PDF. Odkaz platí 30 minút.</p>
+<p>Po overení e-mailu si stiahnete jednu z 3 bezplatných ponúk PDF. Každý odkaz platí 30 minút a dá sa použiť iba raz.</p>
 <p id="status" role="status">Pripravené na overenie.</p>
 <button id="getPdf">Overiť e-mail a stiahnuť PDF</button>
 <p><a href="/">Späť na DopytAI</a></p></main>
@@ -35,7 +35,7 @@ button.addEventListener("click",async()=>{
   const a=document.createElement("a");a.href=url;a.download="DopytAI-cenova-ponuka.pdf";document.body.append(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),60000);
   history.replaceState(null,"",location.pathname);
-  status.textContent="Hotovo. Ponuka PDF bola pripravená na stiahnutie. Bezplatný nárok je využitý.";
+  status.textContent="Hotovo. Ponuka PDF bola pripravená na stiahnutie. Táto ponuka sa započítala do limitu 3 bezplatných PDF na overený e-mail.";
  }catch(e){status.textContent=e.message;button.disabled=false}
 });
 </script></body></html>

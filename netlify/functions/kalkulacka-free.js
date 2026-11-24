@@ -126,11 +126,11 @@ exports.handler=async event=>{
   const emailHash=hash(email,cfg.secret);const ip=trim(event.headers?.["x-nf-client-connection-ip"]||"",70);
   const ipHash=ip?hash(ip,cfg.secret):null;
   try{
-   const used=await db(cfg,"kalkulacka_free_used?select=email_hash&email_hash=eq."+emailHash+"&limit=1");
-   if(used.length)return json(409,{error:"Na túto adresu už bola bezplatná ponuka využitá. Pokračujte registráciou."});
+   const used=await db(cfg,"kalkulacka_free_used?select=challenge_id&email_hash=eq."+emailHash+"&limit=3");
+   if(used.length>=3)return json(409,{error:"Všetky 3 bezplatné PDF na tento e-mail sú využité. Pre ďalšie ponuky sa zaregistrujte a vyberte predplatné."});
    const from=new Date(Date.now()-24*3600*1000).toISOString();
-   const recent=await db(cfg,"kalkulacka_free_challenges?select=id&email_hash=eq."+emailHash+"&created_at=gte."+encodeURIComponent(from)+"&limit=4");
-   if(recent.length>=3)return json(429,{error:"Dosiahnutý denný limit overovacích e-mailov."});
+   const recent=await db(cfg,"kalkulacka_free_challenges?select=id&email_hash=eq."+emailHash+"&created_at=gte."+encodeURIComponent(from)+"&limit=7");
+   if(recent.length>=6)return json(429,{error:"Dosiahnutý denný limit overovacích e-mailov. Skúste to zajtra."});
    if(ipHash){
     const many=await db(cfg,"kalkulacka_free_challenges?select=id&ip_hash=eq."+ipHash+"&created_at=gte."+encodeURIComponent(from)+"&limit=13");
     if(many.length>=12)return json(429,{error:"Príliš veľa požiadaviek. Skúste to neskôr."});
@@ -138,9 +138,9 @@ exports.handler=async event=>{
    const id=crypto.randomUUID(),token=crypto.randomBytes(32).toString("hex");
    await db(cfg,"kalkulacka_free_challenges",{method:"POST",body:JSON.stringify({id,email_hash:emailHash,ip_hash:ipHash,token_hash:hash(token,cfg.secret),quote_payload:quote,expires_at:new Date(Date.now()+30*60000).toISOString()})});
    const link="https://"+HOST+"/kalkulacka-overenie.html?id="+encodeURIComponent(id)+"&token="+encodeURIComponent(token);
-   const r=await fetch("https://api.resend.com/emails",{method:"POST",headers:{Authorization:"Bearer "+process.env.RESEND_API_KEY,"Content-Type":"application/json"},body:JSON.stringify({from:"DopytAI <info@dopytai24.sk>",to:[email],subject:"DopytAI – overenie bezplatnej cenovej ponuky",html:'<div style="font-family:Arial;padding:24px"><h2>DopytAI – vaša cenová ponuka</h2><p>Overte svoju adresu a stiahnite si jednu bezplatnú ponuku PDF.</p><p><a href="'+esc(link)+'" style="background:#087cf0;color:#fff;padding:14px;text-decoration:none;border-radius:8px">Overiť e-mail a získať PDF</a></p><p>Odkaz je platný 30 minút. Ak ste o ponuku nežiadali, e-mail ignorujte.</p></div>'})});
+   const r=await fetch("https://api.resend.com/emails",{method:"POST",headers:{Authorization:"Bearer "+process.env.RESEND_API_KEY,"Content-Type":"application/json"},body:JSON.stringify({from:"DopytAI <info@dopytai24.sk>",to:[email],subject:"DopytAI – overenie bezplatnej cenovej ponuky",html:'<div style="font-family:Arial;padding:24px"><h2>DopytAI – vaša cenová ponuka</h2><p>Overte e-mail a získajte jednu z troch bezplatných cenových ponúk PDF.</p><p><a href="'+esc(link)+'" style="background:#087cf0;color:#fff;padding:14px;text-decoration:none;border-radius:8px">Overiť e-mail a získať PDF</a></p><p>Odkaz je platný 30 minút. Ak ste o ponuku nežiadali, e-mail ignorujte.</p></div>'})});
    if(!r.ok)return json(502,{error:"Overovací e-mail sa nepodarilo odoslať. Skúste to neskôr."});
-   return json(200,{ok:true,message:"Poslali sme overovací odkaz na váš e-mail."});
+   return json(200,{ok:true,message:"Poslali sme overovací odkaz na váš e-mail. Už využitých PDF: "+used.length+" z 3."});
   }catch(e){console.error("Anonymous quote request failed",e.message);return json(502,{error:"Overovanie sa nepodarilo. Skúste to neskôr."})}
  }
  if(body.action==="redeem"){
@@ -151,7 +151,7 @@ exports.handler=async event=>{
    if(ch.length!==1||ch[0].claimed_at||Date.parse(ch[0].expires_at)<Date.now())return json(410,{error:"Odkaz už bol použitý alebo jeho platnosť vypršala."});
    const pdf=await makePdf(parseQuote(ch[0].quote_payload));
    const result=await db(cfg,"rpc/kalkulacka_claim_free_pdf",{method:"POST",body:JSON.stringify({p_challenge_id:id,p_token_hash:hash(token,cfg.secret)})});
-   if(!result)return json(409,{error:"Bezplatná ponuka už bola využitá. Pre ďalšie ponuky sa zaregistrujte."});
+   if(!result)return json(409,{error:"Odkaz už bol použitý alebo boli vyčerpané 3 bezplatné PDF na tento e-mail. Ďalšie ponuky získate po registrácii a predplatnom."});
    return json(200,{ok:true,pdf,filename:"DopytAI-cenova-ponuka.pdf"});
   }catch(e){console.error("Anonymous quote redemption failed",e.message);return json(502,{error:"PDF sa nepodarilo vytvoriť. Skúste to neskôr."})}
  }

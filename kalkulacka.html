@@ -145,11 +145,11 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <header><a class="brand" href="/" aria-label="DopytAI – úvod"><span class="mark" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span></span><span>Dopyt<span class="ai">AI</span></span></a><div class="muted">Kalkulačka cenových ponúk</div></header>
 <dialog class="offer-dialog" id="offerConfirmDialog" aria-labelledby="offerDialogTitle" aria-describedby="offerDialogText"><h2 id="offerDialogTitle">Uložiť cenovú ponuku?</h2><p id="offerDialogText">Ponuka sa uloží do testovacieho účtu firmy.</p><div class="actions"><button id="offerDialogCancel" type="button">Zrušiť</button><button id="offerDialogAccept" class="primary" type="button">Uložiť ponuku</button></div></dialog>
 <dialog class="offer-dialog" id="anonFreeDialog" aria-labelledby="anonFreeTitle" aria-describedby="anonFreeNote">
-<h2 id="anonFreeTitle">Prvé PDF zadarmo</h2>
-<p id="anonFreeNote">Bez registrácie získate jednu cenovú ponuku PDF na overený e-mail. Pred stiahnutím vám pošleme krátky overovací odkaz.</p>
+<h2 id="anonFreeTitle">3 cenové ponuky zadarmo</h2>
+<p id="anonFreeNote">Bez registrácie získate až 3 cenové ponuky PDF na jeden overený e-mail. Pred každým stiahnutím vám pošleme overovací odkaz.</p>
 <form id="anonFreeForm" style="margin-top:16px">
 <label>E-mail na overenie<input id="anonFreeEmail" type="email" autocomplete="email" required maxlength="254" placeholder="vas@email.sk"></label>
-<p class="muted">Po overení sa využije jeden bezplatný nárok. Pre ďalšie ponuky sa môžete zaregistrovať.</p>
+<p class="muted">Po treťom PDF sa pre ďalšie ponuky zaregistrujete a vyberiete predplatné. Zmena e-mailu môže obísť limit, preto chránime službu aj proti nadmernému používaniu.</p>
 <div class="actions"><button id="anonFreeCancel" type="button">Zrušiť</button><button class="primary" id="anonFreeSend" type="submit">Poslať overovací odkaz</button></div>
 </form><p id="anonFreeMessage" role="status" class="muted"></p>
 </dialog>
@@ -655,7 +655,7 @@ el('anonFreeForm').addEventListener('submit',async e=>{
    body:JSON.stringify({action:'request',email:el('anonFreeEmail').value.trim(),quote:anonQuote()})
   });
   const data=await r.json();if(!r.ok||!data.ok)throw Error(data.error||'Nepodarilo sa odoslať e-mail.');
-  message.textContent='Overovací odkaz bol odoslaný. Otvorte e-mail a stiahnite svoje prvé PDF.';
+  message.textContent=data.message||'Overovací odkaz bol odoslaný. Otvorte e-mail a stiahnite si PDF.';
  }catch(err){message.textContent=err.message}
  finally{send.disabled=false}
 });
