@@ -138,7 +138,7 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 #step2 tbody td:nth-child(7){grid-column:1/-1;grid-row:5;text-align:right}
 #step2 tbody td:nth-child(2):before{content:"Položka"}#step2 tbody td:nth-child(1):before{content:"Typ"}
 #step2 tbody td:nth-child(3):before{content:"Množstvo"}#step2 tbody td:nth-child(4):before{content:"Jednotka"}
-#step2 tbody td:nth-child(5):before{content:"€/jedn."}#step2 tbody td:nth-child(6):before{content:"Spolu";display:block;text-align:right}
+#step2 tbody td:nth-child(5):before{content:"Cena za 1 jednotku (€)"}#step2 tbody td:nth-child(6):before{content:"Spolu";display:block;text-align:right}
 #step2 tbody td:before{display:block;margin-bottom:5px;font-size:12px;font-weight:700;color:#60748b}
 }
 </style></head><body>
@@ -179,7 +179,7 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 </div></details>
 </section>
 
-<section class="card" id="step2" data-wizard-panel="2" hidden><h2 class="step-heading"><span class="step-number">2</span> Práca, materiál a doprava</h2><p class="muted">Vyberte uloženú položku alebo vytvorte novú. Množstvo a cenu môžete vždy upraviť.</p>
+<section class="card" id="step2" data-wizard-panel="2" hidden><h2 class="step-heading"><span class="step-number">2</span> Práca, materiál a doprava</h2><p class="muted">Vyberte uloženú položku alebo vytvorte novú. Množstvo a cenu môžete vždy upraviť. Napríklad pri m² zadáte cenu za 1 m², pri ks cenu za 1 kus.</p>
 <details class="card" id="pricelistSection"><summary style="cursor:pointer;font-size:18px;font-weight:800">Vlastný firemný cenník – voliteľné nastavenie</summary>
 
 <p>Uložte si často používané práce a materiály. Potom ich jedným kliknutím pridáte do cenovej ponuky.</p>
@@ -188,14 +188,14 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <label>Typ<select id="priceType"><option>Práca</option><option>Materiál</option><option>Doprava</option></select></label>
 <label>Názov položky<input id="priceName" maxlength="160" placeholder="Napr. Montáž SDK podhľadu" required></label>
 <label>Jednotka<input id="priceUnit" maxlength="12" value="m²" required></label>
-<label>Cena / jednotka (€)<input id="priceValue" type="number" min="0" max="100000000" step=".01" required placeholder="18"></label>
+<label>Cena za 1 jednotku (€)<input id="priceValue" type="number" min="0" max="100000000" step=".01" required placeholder="18"></label>
 <div class="actions wide"><button class="primary" id="savePrice" type="submit">+ Uložiť do cenníka</button><button id="cancelPriceEdit" type="button" hidden>Zrušiť úpravu</button></div>
 </form>
 <div class="pricelist-items" id="priceItems" aria-live="polite"></div>
 <div id="testCloudPanel" class="note" style="margin-top:18px;border:1px solid #b8d8f4"><strong>Firemný cenník – TEST</strong><p id="testCloudStatus" aria-live="polite">Overujem účet…</p><div class="actions"><button id="testCloudConnect" type="button">Overiť prihlásenie</button><button id="testCloudLoad" type="button" disabled>Obnoviť cenník</button></div><p class="muted">Miestne položky sa neimportujú automaticky, aby nevznikli duplicity.</p></div>
 </details>
 <div class="quick-pick"><label for="quickPricePick">Rýchlo pridať z môjho cenníka</label><div class="quick-pick-row"><select id="quickPricePick" aria-label="Vybrať položku z firemného cenníka"><option value="">Vyberte uloženú položku…</option></select><button type="button" id="quickPriceAdd">+ Pridať do ponuky</button></div><p class="muted" id="quickPriceHint">Načítavam firemný cenník…</p></div>
-<p class="muted" id="emptyLineHint">Rozpočet je prázdny. Začnite výberom z cenníka alebo kliknite na „+ Pridať prácu“.</p><div class="scroller"><table><thead><tr><th>Typ</th><th>Položka</th><th>Množstvo</th><th>Jednotka</th><th>€/jedn.</th><th>Spolu</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
+<p class="muted" id="emptyLineHint">Rozpočet je prázdny. Začnite výberom z cenníka alebo kliknite na „+ Pridať prácu“.</p><div class="scroller"><table><thead><tr><th>Typ</th><th>Položka</th><th>Množstvo</th><th>Jednotka</th><th>Cena za 1 jednotku (€)</th><th>Spolu</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
 <div class="actions"><button id="addWork" type="button">+ Pridať prácu</button><button id="addMat" type="button">+ Pridať materiál</button><button id="addTransport" type="button">+ Pridať dopravu</button></div>
 <details class="optional"><summary>DPH a zľava (voliteľné)</summary><div class="grid" style="margin-top:10px"><label>DPH<select id="vat"><option value="0">Bez DPH</option><option value="23">23 %</option><option value="19">19 %</option><option value="5">5 %</option></select></label><label>Zľava (%)<input id="discount" type="number" min="0" max="100" step=".1" value="0"></label></div>
 <p class="muted">Sadzba DPH je voliteľná. Vyberte ju podľa svojho daňového režimu a konkrétnej práce.</p></details>
