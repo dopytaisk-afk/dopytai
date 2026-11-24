@@ -33,11 +33,22 @@ function parseQuote(value){
 }
 function config(event){
  const hostname=String(event.headers?.host||"").split(":")[0].toLowerCase();
+ if(hostname!==HOST||process.env.CONTEXT!=="deploy-preview"){
+  return {error:"Táto funkcia je povolená iba v testovacom náhľade PR #11."};
+ }
  const url=String(process.env.SUPABASE_URL||"").replace(/\/$/,"");
- if(hostname!==HOST||url!==TEST_SUPABASE||process.env.CONTEXT!=="deploy-preview")return null;
+ if(url!==TEST_SUPABASE){
+  return {error:"TEST konfigurácia: SUPABASE_URL nesmeruje na projekt DopytAI-TEST. PDF nebolo odoslané."};
+ }
  const key=process.env.SUPABASE_SERVICE_ROLE_KEY;
  const secret=process.env.DOPYTAI_KALKULACKA_FREE_SECRET;
- if(!key||!secret||secret.length<32||!process.env.RESEND_API_KEY)return null;
+ const missing=[];
+ if(!key)missing.push("SUPABASE_SERVICE_ROLE_KEY");
+ if(!secret||secret.length<32)missing.push("DOPYTAI_KALKULACKA_FREE_SECRET");
+ if(!process.env.RESEND_API_KEY)missing.push("RESEND_API_KEY");
+ if(missing.length){
+  return {error:"V TEST nasadení chýba nastavenie: "+missing.join(", ")+". Neodosielajte žiadne tajné hodnoty do chatu."};
+ }
  return {url,key,secret};
 }
 async function db(cfg,endpoint,options={}){
@@ -84,7 +95,7 @@ async function makePdf(q){
 }
 exports.handler=async event=>{
  if(event.httpMethod!=="POST")return json(405,{error:"Method not allowed"});
- const cfg=config(event);if(!cfg)return json(503,{error:"Bezplatné overovanie ešte nie je dostupné v tomto TEST prostredí."});
+ const cfg=config(event);if(cfg.error)return json(503,{error:cfg.error});
  let body;try{if((event.body||"").length>45000)throw Error();body=JSON.parse(event.body||"{}")}catch{return json(400,{error:"Neplatné údaje"})}
  if(body.action==="request"){
   const email=validEmail(body.email);if(!email)return json(400,{error:"Zadajte platnú e-mailovú adresu"});
