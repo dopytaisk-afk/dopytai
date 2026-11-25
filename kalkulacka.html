@@ -141,6 +141,8 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 #step2 tbody td:nth-child(5):before{content:"Cena za 1 jednotku (€)"}#step2 tbody td:nth-child(6):before{content:"Spolu";display:block;text-align:right}
 #step2 tbody td:before{display:block;margin-bottom:5px;font-size:12px;font-weight:700;color:#60748b}
 }
+[data-pro-only][hidden],[data-free-only][hidden]{display:none!important}
+.pro-locked{border:1px solid #d5e3f5;border-radius:12px;padding:15px;margin:12px 0;background:#f5f9fd;color:#173b61}.pro-locked strong{display:block;margin-bottom:6px}.pro-locked p{margin:6px 0 12px}
 </style></head><body>
 <header><a class="brand" href="/" aria-label="DopytAI – úvod"><span class="mark" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span></span><span>Dopyt<span class="ai">AI</span></span></a><div class="muted">Kalkulačka cenových ponúk</div></header>
 <dialog class="offer-dialog" id="offerConfirmDialog" aria-labelledby="offerDialogTitle" aria-describedby="offerDialogText"><h2 id="offerDialogTitle">Uložiť cenovú ponuku?</h2><p id="offerDialogText">Ponuka sa uloží do vášho firemného účtu.</p><div class="actions"><button id="offerDialogCancel" type="button">Zrušiť</button><button id="offerDialogAccept" class="primary" type="button">Uložiť ponuku</button></div></dialog>
@@ -155,10 +157,10 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 </dialog>
 <main><h1>Kalkulačka cenových ponúk</h1>
 <p>Vytvorte profesionálnu cenovú ponuku s vlastným logom za pár minút. Jednoducho, rýchlo a bez Excelu.</p>
-<p class="note"><strong>Prvé 3 cenové ponuky zadarmo. Bez registrácie.</strong></p>
+<p class="note" data-free-only><strong>Prvé 3 cenové ponuky zadarmo. Bez registrácie.</strong></p>
 <details class="card" id="proPanel"><summary style="cursor:pointer;font-weight:800">DopytAI PRO – neobmedzené cenové ponuky</summary>
 <p id="proStatus" role="status" aria-live="polite">Overte svoj účet alebo si vyberte predplatné.</p>
-<div class="grid" style="margin:12px 0">
+<div class="grid" style="margin:12px 0" data-free-only>
 <div class="note"><strong>7,99 € / mesiac</strong><p>Neobmedzené PDF a firemné funkcie.</p><button type="button" id="proMonthly" class="primary">Mesačné predplatné</button></div>
 <div class="note"><strong>79 € / rok</strong><p>Neobmedzené PDF a firemné funkcie.</p><button type="button" id="proYearly" class="primary">Ročné predplatné</button></div>
 </div><div class="actions"><a href="/">Prihlásenie / registrácia firmy</a><button type="button" id="proRefresh">Overiť predplatné</button><button type="button" id="proPortal">Spravovať predplatné</button></div>
@@ -189,10 +191,11 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 </section>
 
 <section class="card" id="step2" data-wizard-panel="2" hidden><h2 class="step-heading"><span class="step-number">2</span> Práca, materiál a doprava</h2><p class="muted">Vyberte uloženú položku alebo vytvorte novú. Množstvo a cenu môžete vždy upraviť. Napríklad pri m² zadáte cenu za 1 m², pri ks cenu za 1 kus.</p>
-<details class="card" id="pricelistSection"><summary style="cursor:pointer;font-size:18px;font-weight:800">Vlastný firemný cenník – voliteľné nastavenie</summary>
+<div class="pro-locked" data-free-only><strong>🔒 Vlastný firemný cenník · PRO</strong><p>Uložte si často používané práce a materiály a pridávajte ich jedným kliknutím.</p><button type="button" data-upgrade>Odomknúť DopytAI PRO</button></div>
+<details class="card" id="pricelistSection" data-pro-only hidden><summary style="cursor:pointer;font-size:18px;font-weight:800">Vlastný firemný cenník – voliteľné nastavenie</summary>
 
 <p>Uložte si často používané práce a materiály. Potom ich jedným kliknutím pridáte do cenovej ponuky.</p>
-<p class="note">Po prihlásení sa položky automaticky načítajú z vášho firemného cenníka. Bez prihlásenia zostávajú v tomto prehliadači.</p>
+<p class="note">S aktívnym PRO sa položky automaticky načítajú z vášho firemného cenníka.</p>
 <form id="priceForm" class="pricelist-grid">
 <label>Typ<select id="priceType"><option>Práca</option><option>Materiál</option><option>Doprava</option></select></label>
 <label>Názov položky<input id="priceName" maxlength="160" placeholder="Napr. Montáž SDK podhľadu" required></label>
@@ -203,7 +206,7 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <div class="pricelist-items" id="priceItems" aria-live="polite"></div>
 <div id="testCloudPanel" class="note" style="margin-top:18px;border:1px solid #b8d8f4"><strong>Firemný cenník</strong><p id="testCloudStatus" aria-live="polite">Overujem účet…</p><div class="actions"><button id="testCloudConnect" type="button">Overiť prihlásenie</button><button id="testCloudLoad" type="button" disabled>Obnoviť cenník</button></div><p class="muted">Miestne položky sa neimportujú automaticky, aby nevznikli duplicity.</p></div>
 </details>
-<div class="quick-pick"><label for="quickPricePick">Rýchlo pridať z môjho cenníka</label><div class="quick-pick-row"><select id="quickPricePick" aria-label="Vybrať položku z firemného cenníka"><option value="">Vyberte uloženú položku…</option></select><button type="button" id="quickPriceAdd">+ Pridať do ponuky</button></div><p class="muted" id="quickPriceHint">Načítavam firemný cenník…</p></div>
+<div class="quick-pick" data-pro-only hidden><label for="quickPricePick">Rýchlo pridať z môjho cenníka</label><div class="quick-pick-row"><select id="quickPricePick" aria-label="Vybrať položku z firemného cenníka"><option value="">Vyberte uloženú položku…</option></select><button type="button" id="quickPriceAdd">+ Pridať do ponuky</button></div><p class="muted" id="quickPriceHint">Načítavam firemný cenník…</p></div>
 <p class="muted" id="emptyLineHint">Rozpočet je prázdny. Začnite výberom z cenníka alebo kliknite na „+ Pridať prácu“.</p><div class="scroller"><table><thead><tr><th>Typ</th><th>Položka</th><th>Množstvo</th><th>Jednotka</th><th>Cena za 1 jednotku (€)</th><th>Spolu</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
 <div class="actions"><button id="addWork" type="button">+ Pridať prácu</button><button id="addMat" type="button">+ Pridať materiál</button><button id="addTransport" type="button">+ Pridať dopravu</button></div>
 <details class="optional"><summary>DPH a zľava (voliteľné)</summary><div class="grid" style="margin-top:10px"><label>DPH<select id="vat"><option value="0">Bez DPH</option><option value="23">23 %</option><option value="19">19 %</option><option value="5">5 %</option></select></label><label>Zľava (%)<input id="discount" type="number" min="0" max="100" step=".1" value="0"></label></div>
@@ -212,11 +215,12 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 </section>
 <section class="card" id="step3" data-wizard-panel="3" hidden><h2 class="step-heading"><span class="step-number">3</span> Hotová cenová ponuka</h2><p class="muted">Skontrolujte údaje. Čokoľvek môžete jednoducho opraviť.</p><div class="review-card">
 <div class="review-row"><span>Zákazník</span><strong id="reviewCustomer">—</strong></div><div class="review-row"><span>Miesto realizácie</span><strong id="reviewPlace">—</strong></div><div class="review-row"><span>Položiek</span><strong id="reviewCount">0</strong></div><div class="review-row review-total"><span>Celkom</span><strong id="reviewTotal">0 €</strong></div><div class="review-actions"><button type="button" id="reviewEditCustomer">Upraviť zákazníka</button><button type="button" id="reviewEditItems">Upraviť položky</button></div></div><details class="optional"><summary>Podmienky a poznámky (voliteľné)</summary><label>Podmienky ponuky<textarea id="terms">Cena sa vzťahuje na uvedený rozsah. Zmeny prác budú odsúhlasené so zákazníkom.</textarea></label></details>
-<div class="grid" style="margin-top:18px"><label>Stav cenovej ponuky<select id="offerState"><option value="rozpracovana">Rozpracovaná</option><option value="dokoncena">Dokončená</option></select></label><div><strong id="editingOfferInfo">Nová ponuka – ešte neuložená</strong></div></div>
-<div class="actions"><button class="primary" id="saveOffer" type="button">Uložiť ponuku</button><button id="print" type="button">Tlačiť / uložiť ako PDF</button><button id="clear" type="button">Nová ponuka</button></div>
-<p id="offerSaveMessage" class="note" role="status">Ukladanie ponúk je dostupné po prihlásení do firemného účtu.</p>
-<details class="optional" id="savedOffersSection"><summary>Moje uložené cenové ponuky</summary><button id="reloadOffers" type="button">Obnoviť zoznam ponúk</button><div class="pricelist-items" id="offerList"></div></details>
-<p class="muted">Bez registrácie si môžete stiahnuť 3 cenové ponuky PDF po overení e-mailu.</p></section><div class="wizard-footer"><button id="wizardBack" type="button" hidden>← Späť</button><span class="wizard-spacer"></span><button id="wizardNext" type="button" class="primary">Pokračovať →</button></div><p id="wizardError" class="wizard-error" role="alert" hidden></p></main>
+<div class="grid" style="margin-top:18px" data-pro-only hidden><label>Stav cenovej ponuky<select id="offerState"><option value="rozpracovana">Rozpracovaná</option><option value="dokoncena">Dokončená</option></select></label><div><strong id="editingOfferInfo">Nová ponuka – ešte neuložená</strong></div></div>
+<div class="actions"><button class="primary" id="saveOffer" type="button" data-pro-only hidden>Uložiť ponuku</button><button id="print" type="button" class="primary">Stiahnuť PDF zadarmo</button><button id="clear" type="button">Nová ponuka</button></div>
+<div class="pro-locked" data-free-only><strong>🔒 Ukladanie cenových ponúk · PRO</strong><p>Ukladajte, otvárajte a upravujte ponuky. Získajte aj vlastný firemný cenník a neobmedzené PDF.</p><button type="button" data-upgrade>Odomknúť DopytAI PRO</button><p class="muted">7,99 € mesačne alebo 79 € ročne.</p></div>
+<p id="offerSaveMessage" class="note" role="status" data-pro-only hidden>Ukladanie ponúk je dostupné po prihlásení do firemného účtu.</p>
+<details class="optional" id="savedOffersSection" data-pro-only hidden><summary>Moje uložené cenové ponuky</summary><button id="reloadOffers" type="button">Obnoviť zoznam ponúk</button><div class="pricelist-items" id="offerList"></div></details>
+<p class="muted" data-free-only>Bez registrácie si môžete stiahnuť 3 cenové ponuky PDF po overení e-mailu.</p></section><div class="wizard-footer"><button id="wizardBack" type="button" hidden>← Späť</button><span class="wizard-spacer"></span><button id="wizardNext" type="button" class="primary">Pokračovať →</button></div><p id="wizardError" class="wizard-error" role="alert" hidden></p></main>
 <div id="printed"></div>
 <script>
 (function(){
@@ -233,7 +237,9 @@ const TEST_HOST='deploy-preview-11--sparkly-choux-e2b050.netlify.app';
 const TEST_REST='https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1';
 const TEST_AUTH='https://pwtvquyefpucjufvwnxp.supabase.co/auth/v1';
 const TEST_KEY='sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-';
-let testFirmId=null,testToken=null,priceBook=[],editingPriceId=null,priceBusy=false,priceMode='loading';
+let testFirmId=null,testToken=null,priceBook=[],editingPriceId=null,priceBusy=false,priceMode='loading',proActive=false;
+function applyPro(active){proActive=active===true;document.querySelectorAll('[data-pro-only]').forEach(x=>{x.hidden=!proActive;if(!proActive&&x.tagName==='DETAILS')x.open=false});document.querySelectorAll('[data-free-only]').forEach(x=>x.hidden=proActive);el('print').textContent=proActive?'Stiahnuť PDF':'Stiahnuť PDF zadarmo';if(!proActive){priceBook=[];el('offerList').replaceChildren();setPriceMode('error');renderPrices()}offerAvailability()}
+function showPro(){el('proPanel').open=true;el('proPanel').scrollIntoView({behavior:'smooth'})}
 const testAllowed=()=>location.hostname===TEST_HOST;
 function testStatus(message){el('testCloudStatus').textContent=message}
 function setPriceMode(mode){priceMode=mode;const disabled=priceBusy||mode==='loading'||mode==='error';el('savePrice').disabled=disabled;el('testCloudLoad').disabled=priceBusy||mode!=='cloud';}
@@ -272,7 +278,7 @@ async function connectTest(){
  if(priceBusy)return;
  testFirmId=null;testToken=null;setPriceMode('loading');
  const token=testAllowed()?localStorage.getItem('dopytai_company_token'):null;
- if(!token){priceBook=readLocal();setPriceMode('local');renderPrices();testStatus('Nie ste prihlásený – používate cenník uložený v tomto prehliadači.');return}
+ if(!token){applyPro(false);el('proStatus').textContent='Prihláste sa alebo si vyberte predplatné.';return}
  try{
   const res=await fetch(TEST_AUTH+'/user',{headers:{apikey:TEST_KEY,Authorization:'Bearer '+token}});
   if(!res.ok)throw Error('TEST prihlásenie vypršalo; prihláste sa znova.');
@@ -281,11 +287,10 @@ async function connectTest(){
   if(!firmRes.ok)throw Error('Firma sa nepodarila overiť (HTTP '+firmRes.status+').');
   const firms=await firmRes.json();if(!Array.isArray(firms)||firms.length!==1)throw Error('Nenájdená presne jedna TEST firma.');
   testFirmId=firms[0].id;testToken=token;
-  await loadTestPrices();
   await fillCompanyFromTest();
-  await verifyOfferSchema();
-  offerAvailability();await listSavedOffers();
- }catch(err){testFirmId=null;testToken=null;setPriceMode('error');priceBook=[];renderPrices();testStatus('Chyba TEST spojenia: '+err.message+' Zápis dočasne zablokovaný.')}
+  const status=await proCall('status');applyPro(status.active);el('proStatus').textContent=proActive?'Predplatné PRO je aktívne.':'Nemáte aktívne predplatné PRO.';
+  if(proActive){await loadTestPrices();await verifyOfferSchema();offerAvailability();await listSavedOffers();}
+ }catch(err){testFirmId=null;testToken=null;applyPro(false);el('proStatus').textContent='Predplatné sa nepodarilo overiť.';testStatus('Chyba TEST spojenia: '+err.message+' Zápis dočasne zablokovaný.')}
 }
 function resetPriceEditor(){
  editingPriceId=null;el('priceForm').reset();el('priceUnit').value='m²';
@@ -381,7 +386,6 @@ el('priceForm').addEventListener('submit',async event=>{
 el('cancelPriceEdit').onclick=resetPriceEditor;
 el('testCloudConnect').onclick=connectTest;
 el('testCloudLoad').onclick=async()=>{if(priceMode==='cloud'){try{await loadTestPrices()}catch(err){testStatus('Načítanie zlyhalo: '+err.message)}}};
-connectTest();
 const date=new Date();el('date').value=[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
 function add(type,name='',qty=1,unit='m²',price=0){
 const row=document.createElement('tr');
@@ -423,7 +427,7 @@ function print(){
 let currentOfferId=null,offerBusy=false,offerSchemaReady=false;
 function offerStatus(message){el('offerSaveMessage').textContent=message}
 function offerAvailability(){
- const enabled=testAllowed()&&priceMode==='cloud'&&!!testToken&&!!testFirmId;
+ const enabled=proActive&&testAllowed()&&priceMode==='cloud'&&!!testToken&&!!testFirmId;
  const canSave=enabled&&offerSchemaReady;
  el('saveOffer').disabled=!canSave||offerBusy;
  el('reloadOffers').disabled=!enabled||offerBusy;
@@ -697,17 +701,18 @@ async function proAction(action,plan){
 }
 el('proMonthly').onclick=()=>proAction('checkout','monthly');
 el('proYearly').onclick=()=>proAction('checkout','yearly');
-el('proRefresh').onclick=()=>proAction('status');
+el('proRefresh').onclick=connectTest;
 el('proPortal').onclick=()=>proAction('portal');
 el('anonPro').onclick=()=>{el('anonFreeDialog').close();el('proPanel').open=true;el('proPanel').scrollIntoView({behavior:'smooth'});};
-if(new URLSearchParams(location.search).has('pro')){el('proPanel').open=true;proAction('status')}
+if(new URLSearchParams(location.search).has('pro'))el('proPanel').open=true;
+document.querySelectorAll('[data-upgrade]').forEach(b=>b.onclick=showPro);
 el('print').onclick=async()=>{
  const token=testAllowed()?localStorage.getItem('dopytai_company_token'):null;
  if(!token){openAnonymousPdfDialog();return}
  const button=el('print');button.disabled=true;
  try{
   const status=await proCall('status');
-  if(!status.active){openAnonymousPdfDialog();return}
+  if(!status.active){applyPro(false);openAnonymousPdfDialog();return}
   const r=await fetch('/.netlify/functions/kalkulacka-free',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action:'pro_pdf',quote:{...anonQuote(),logo:await compactQuoteLogo()}})});
   const d=await r.json();if(!r.ok||!d.ok)throw Error(d.error||'PDF sa nepodarilo vytvoriť.');
   const blob=new Blob([Uint8Array.from(atob(d.pdf),c=>c.charCodeAt(0))],{type:'application/pdf'});
@@ -720,5 +725,6 @@ render();
 renderQuickPrices();
 offerAvailability();
 gotoWizard(1,{validate:false});
+applyPro(false);connectTest();
 })();
 </script></body></html>
