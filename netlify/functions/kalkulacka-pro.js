@@ -8,8 +8,12 @@ const json=(statusCode,data)=>({statusCode,headers:{"Content-Type":"application/
 function config(){
  const key=process.env.SUPABASE_SERVICE_ROLE_KEY,stripe=process.env.STRIPE_SECRET_KEY;
  const checks={
-  CONTEXT:process.env.CONTEXT==="deploy-preview",
-  REVIEW_ID:String(process.env.REVIEW_ID)==="11",
+  // Build metadata may be absent at runtime. Reject explicit mismatches;
+  // the test payment environment, exact test DB and test Stripe key remain mandatory.
+  CONTEXT:!process.env.CONTEXT||process.env.CONTEXT==="deploy-preview",
+  REVIEW_ID:!process.env.REVIEW_ID||String(process.env.REVIEW_ID)==="11",
+  BRANCH:!process.env.BRANCH||process.env.BRANCH==="feature/kalkulacka-ponuk",
+  DEPLOY_PRIME_URL:!process.env.DEPLOY_PRIME_URL||process.env.DEPLOY_PRIME_URL.replace(/\/$/,"")===HOST,
   DOPYTAI_PAYMENT_ENV:process.env.DOPYTAI_PAYMENT_ENV==="test",
   SUPABASE_URL:String(process.env.SUPABASE_URL||"").replace(/\/$/,"")===DB,
   SUPABASE_SERVICE_ROLE_KEY:!!key,
