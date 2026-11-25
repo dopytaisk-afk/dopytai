@@ -124,7 +124,7 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 @media(max-width:700px){
 .steps{gap:5px}.steps button{min-height:65px;flex-direction:column;font-size:12px;padding:8px 3px;gap:4px}
 .steps .step-number{width:22px;height:22px;font-size:12px}
-.wizard-footer{position:sticky;bottom:0;z-index:3;padding:12px 0;background:#f4f9fe;border-top:1px solid #dce8f5}
+.wizard-footer{padding:4px 0;background:transparent}
 .wizard-footer button{flex:1}
 #step2 .scroller{overflow:visible}#step2 table{min-width:0;display:block}#step2 thead{display:none}#step2 tbody{display:grid;gap:12px}
 #step2 tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:15px;border:1px solid #dce8f5;border-radius:12px}
@@ -231,6 +231,7 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <div class="summary"><div><span>Práca</span><strong id="workSum">0 €</strong></div><div><span>Materiál</span><strong id="matSum">0 €</strong></div><div><span>Doprava</span><strong id="transportSum">0 €</strong></div><div><span>Zľava</span><strong id="discountSum">0 €</strong></div><div><span>DPH</span><strong id="vatSum">0 €</strong></div><div class="total"><span>Celkom</span><strong id="grandSum">0 €</strong></div></div>
 
 </section>
+<div id="wizardNavSlot2"></div>
 <aside class="pro-locked" data-free-only><div class="pro-card-heading"><h2>Dopyt<span>AI</span> PRO</h2><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3zM19 3v4M17 5h4"/></svg></div><p class="pro-card-subtitle">Viac možností. Menej administratívy.</p><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Neobmedzené cenové ponuky PDF</span><span class="pro-tag">PRO</span></div><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Ukladanie cenových ponúk</span><span class="pro-tag">PRO</span></div><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Vlastný firemný cenník</span><span class="pro-tag">PRO</span></div><button class="pro-upgrade" type="button" data-upgrade>Odomknúť DopytAI PRO</button><p class="pro-card-price">7,99 € mesačne alebo 79 € ročne</p></aside>
 </div>
 <div id="step3" data-wizard-panel="3" hidden><section class="card"><h2 class="step-heading"><span class="step-number">3</span> Hotová cenová ponuka</h2><p class="muted">Skontrolujte údaje. Čokoľvek môžete jednoducho opraviť.</p><div class="review-card">
@@ -241,8 +242,9 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <p id="offerSaveMessage" class="note" role="status" data-pro-only hidden>Ukladanie ponúk je dostupné po prihlásení do firemného účtu.</p>
 <details class="optional" id="savedOffersSection" data-pro-only hidden><summary>Moje uložené cenové ponuky</summary><button id="reloadOffers" type="button">Obnoviť zoznam ponúk</button><div class="pricelist-items" id="offerList"></div></details>
 </section>
+<div id="wizardNavSlot3"></div>
 <aside class="pro-locked" data-free-only><div class="pro-card-heading"><h2>Dopyt<span>AI</span> PRO</h2><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3zM19 3v4M17 5h4"/></svg></div><p class="pro-card-subtitle">Viac možností. Menej administratívy.</p><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Neobmedzené cenové ponuky PDF</span><span class="pro-tag">PRO</span></div><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Ukladanie cenových ponúk</span><span class="pro-tag">PRO</span></div><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Vlastný firemný cenník</span><span class="pro-tag">PRO</span></div><button class="pro-upgrade" type="button" data-upgrade>Odomknúť DopytAI PRO</button><p class="pro-card-price">7,99 € mesačne alebo 79 € ročne</p></aside>
-</div><div class="wizard-footer"><button id="wizardBack" type="button" hidden>← Späť</button><span class="wizard-spacer"></span><button id="wizardNext" type="button" class="primary">Pokračovať →</button></div><p id="wizardError" class="wizard-error" role="alert" hidden></p></main>
+</div><div id="wizardNavigation"><div class="wizard-footer"><button id="wizardBack" type="button" hidden>← Späť</button><span class="wizard-spacer"></span><button id="wizardNext" type="button" class="primary">Pokračovať →</button></div><p id="wizardError" class="wizard-error" role="alert" hidden></p></div></main>
 <div id="printed"></div>
 <script>
 (function(){
@@ -652,6 +654,8 @@ function gotoWizard(step,{validate=true}={}){
   btn.classList.toggle('done',n<step);
   if(n===step)btn.setAttribute('aria-current','step');else btn.removeAttribute('aria-current');
  });
+ const nav=el('wizardNavigation');
+ if(step===1){el('step3').after(nav)}else{el('wizardNavSlot'+step).appendChild(nav)}
  el('wizardBack').hidden=step===1;el('wizardNext').hidden=step===3;
  if(step===3)wizardReview();
  try{history.replaceState(null,'','#step'+step)}catch(_){}
