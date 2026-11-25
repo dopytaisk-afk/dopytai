@@ -269,6 +269,12 @@ function testStatus(message){el('testCloudStatus').textContent=message}
 function setPriceMode(mode){priceMode=mode;const disabled=priceBusy||mode==='loading'||mode==='error';el('savePrice').disabled=disabled;el('testCloudLoad').disabled=priceBusy||mode!=='cloud';}
 function readLocal(){try{const a=JSON.parse(localStorage.getItem(PRICE_KEY)||'[]');return Array.isArray(a)?a.filter(p=>p&&typeof p.id==='string'&&typeof p.name==='string'&&typeof p.unit==='string'&&['Práca','Materiál','Doprava'].includes(p.type)&&Number.isFinite(p.price)).slice(0,300):[]}catch(e){return []}}
 function storeLocal(){try{localStorage.setItem(PRICE_KEY,JSON.stringify(priceBook));return true}catch(e){alert('Lokálny cenník sa nepodarilo uložiť.');return false}}
+async function protectedData(operation,extra={}){
+ const res=await fetch('/.netlify/functions/kalkulacka-pro',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+testToken},body:JSON.stringify({action:'data',operation,...extra})});
+ const result=await res.json();
+ if(!res.ok){if(res.status===403){applyPro(false);el('proStatus').textContent='Nemáte aktívne predplatné PRO.'}throw Error(result.error||'Požiadavka zlyhala.')}
+ return result.data;
+}
 async function testRequest(path,options={}){
  if(!testAllowed()||!testFirmId||!testToken)throw Error('Neoverené TEST spojenie');
  const headers={apikey:TEST_KEY,Authorization:'Bearer '+testToken,...(options.body?{'Content-Type':'application/json'}:{})};
@@ -278,7 +284,7 @@ async function testRequest(path,options={}){
 }
 async function loadTestPrices(){
  if(!testFirmId||!testToken)return;
- const rows=await testRequest('/kalkulacka_cennik?select=id,typ,nazov,jednotka,cena&firma_id=eq.'+encodeURIComponent(testFirmId)+'&order=id.asc&limit=301');
+ const rows=await protectedData('prices');
  if(!Array.isArray(rows)||rows.length>300)throw Error('Cenník má neplatný počet položiek');
  priceBook=rows.map(p=>({id:'db_'+p.id,dbId:p.id,type:p.typ,name:p.nazov,unit:p.jednotka,price:Number(p.cena)}));
  setPriceMode('cloud');renderPrices();
@@ -371,7 +377,7 @@ function renderPrices(){
    if(priceMode==='cloud'){
     priceBusy=true;setPriceMode('cloud');
     try{
-     await testRequest('/kalkulacka_cennik?id=eq.'+encodeURIComponent(item.dbId)+'&firma_id=eq.'+encodeURIComponent(testFirmId),{method:'DELETE'});
+     await protectedData('priceDelete',{id:item.dbId});
      if(editingPriceId===item.id)resetPriceEditor();await loadTestPrices();
     }catch(err){testStatus('Mazanie zlyhalo: '+err.message)}
     finally{priceBusy=false;setPriceMode(priceMode)}
@@ -395,8 +401,8 @@ el('priceForm').addEventListener('submit',async event=>{
    const existing=priceBook.find(x=>x.id===editingPriceId);
    if(!existing&&priceBook.length>=300)throw Error('Limit 300 položiek');
    const data={typ:p.type,nazov:p.name,jednotka:p.unit,cena:p.price};
-   if(existing)await testRequest('/kalkulacka_cennik?id=eq.'+encodeURIComponent(existing.dbId)+'&firma_id=eq.'+encodeURIComponent(testFirmId),{method:'PATCH',body:JSON.stringify(data)});
-   else await testRequest('/kalkulacka_cennik',{method:'POST',body:JSON.stringify({...data,firma_id:testFirmId})});
+   if(existing)await protectedData('priceUpdate',{id:existing.dbId,data});
+   else await protectedData('priceCreate',{data});
    resetPriceEditor();await loadTestPrices();
   }catch(err){testStatus('Ukladanie zlyhalo: '+err.message)}
   finally{priceBusy=false;setPriceMode(priceMode)}
@@ -463,7 +469,7 @@ async function verifyOfferSchema(){
  offerSchemaReady=false;
  if(!testFirmId||!testToken)return;
  try{
-  await testRequest('/kalkulacka_ponuky?select=dodavatel_nazov,dodavatel_ico,dodavatel_kontakt&firma_id=eq.'+encodeURIComponent(testFirmId)+'&limit=0');
+  await protectedData('schema');
   offerSchemaReady=true;
  }catch(err){offerStatus('TEST databáza potrebuje pripravené SQL rozšírenie: '+err.message)}
 }
@@ -486,7 +492,7 @@ function linesForDb(){
 async function listSavedOffers(){
  if(!offerAvailability())return;
  try{
-  const rows=await testRequest('/kalkulacka_ponuky?select=id,cislo_ponuky,zakaznik,stav,datum_vystavenia&firma_id=eq.'+encodeURIComponent(testFirmId)+'&order=id.desc&limit=100');
+  const rows=await protectedData('offers');
   if(!Array.isArray(rows))throw Error('Neplatný zoznam ponúk');
   const area=el('offerList');area.replaceChildren();
   if(!rows.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='Zatiaľ nemáte uložené ponuky.';area.append(empty)}
@@ -512,9 +518,9 @@ async function openSavedOffer(id){
  if(!offerAvailability())return;
  if(!await confirmOfferAction('Otvoriť cenovú ponuku?','Aktuálne neuložené údaje vo formulári sa nahradia údajmi z vybranej ponuky.','Otvoriť ponuku'))return;
  try{
-  const rows=await testRequest('/kalkulacka_ponuky?select=*&id=eq.'+encodeURIComponent(id)+'&firma_id=eq.'+encodeURIComponent(testFirmId)+'&limit=1');
+  const rows=await protectedData('offer',{id});
   if(!Array.isArray(rows)||rows.length!==1)throw Error('Ponuka nie je dostupná.');
-  const items=await testRequest('/kalkulacka_polozky?select=typ,nazov,mnozstvo,jednotka,jednotkova_cena&ponuka_id=eq.'+encodeURIComponent(id)+'&order=poradie.asc');
+  const items=await protectedData('lines',{id});
   if(!Array.isArray(items))throw Error('Nemožno načítať položky');
   const q=rows[0];
   writeOfferFields(q);
@@ -570,19 +576,16 @@ async function saveOfferToTest(){
    // Nasleduje rovnaký INSERT ako pri novej ponuke; pôvodná ponuka zostáva uložená.
   }
   {
-   const created=await testRequest('/kalkulacka_ponuky?select=id,cislo_ponuky',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({firma_id:testFirmId,...details})});
+   const created=await protectedData('offerSave',{data:details,lines:rows});
    if(!Array.isArray(created)||created.length!==1)throw Error('Nepodarilo sa získať ID novej ponuky.');
    newOfferId=created[0].id;
-   await testRequest('/kalkulacka_polozky',{method:'POST',body:JSON.stringify(rows.map(p=>({ponuka_id:newOfferId,...p})))});
    currentOfferId=newOfferId;
    el('offerNo').value=created[0].cislo_ponuky||'';
   }
   el('editingOfferInfo').textContent='Uložená verzia '+(el('offerNo').value||('ID '+currentOfferId));
   offerStatus('Ponuka ID '+currentOfferId+' bola uložená do TEST Supabase. Predchádzajúce verzie zostávajú zachované.');
  }catch(err){
-  if(newOfferId){
-   try{await testRequest('/kalkulacka_ponuky?id=eq.'+encodeURIComponent(newOfferId)+'&firma_id=eq.'+encodeURIComponent(testFirmId),{method:'DELETE'})}catch(_){}
-  }
+
   offerStatus('Ukladanie zlyhalo: '+err.message+'. Pôvodná verzia ponuky zostala zachovaná.');
  }finally{offerBusy=false;offerAvailability()}
  if(currentOfferId)await listSavedOffers();
