@@ -73,12 +73,37 @@ function active(subs){
  return subs.some(s=>s.status==="active"&&!s.pause_collection&&s.items.data.some(i=>Object.values(PLANS).some(p=>p.id===i.price?.id)&&Number(i.current_period_end||s.current_period_end)>now));
 }
 async function hasPro(event){const c=config();const u=await identity(c,event);return u&&active(await subscriptions(c,await mapping(c,u)))?u:null;}
+
+async function calculatorData(c,u,b){
+ const firm=encodeURIComponent(String(u.firm));
+ const id=v=>{if(!/^[1-9][0-9]{0,18}$/.test(String(v)))throw Error("Invalid record ID");return String(v)};
+ const clean=(v,keys)=>{if(!v||typeof v!=="object"||Array.isArray(v)||Object.keys(v).some(k=>!keys.includes(k)))throw Error("Invalid fields");return Object.fromEntries(keys.filter(k=>Object.hasOwn(v,k)).map(k=>[k,v[k]]))};
+ const priceKeys=["typ","nazov","jednotka","cena"],offerKeys=["cislo_ponuky","dodavatel_nazov","dodavatel_ico","dodavatel_kontakt","zakaznik","miesto_realizacie","predmet","poznamky","datum_vystavenia","platnost_do","stav","sadzba_dph","zlava_percent"],lineKeys=["typ","nazov","mnozstvo","jednotka","jednotkova_cena","poradie"];
+ const owned=async v=>{const q=await db(c,"kalkulacka_ponuky?select=id&id=eq."+id(v)+"&firma_id=eq."+firm+"&limit=1");if(q.length!==1)throw Error("Offer unavailable");return id(v)};
+ switch(b.operation){
+ case "prices":return db(c,"kalkulacka_cennik?select=id,typ,nazov,jednotka,cena&firma_id=eq."+firm+"&order=id.asc&limit=301");
+ case "priceCreate":return db(c,"kalkulacka_cennik","POST",{...clean(b.data,priceKeys),firma_id:u.firm});
+ case "priceUpdate":return db(c,"kalkulacka_cennik?id=eq."+id(b.id)+"&firma_id=eq."+firm,"PATCH",clean(b.data,priceKeys));
+ case "priceDelete":return db(c,"kalkulacka_cennik?id=eq."+id(b.id)+"&firma_id=eq."+firm,"DELETE");
+ case "schema":return db(c,"kalkulacka_ponuky?select=dodavatel_nazov,dodavatel_ico,dodavatel_kontakt&firma_id=eq."+firm+"&limit=0");
+ case "offers":return db(c,"kalkulacka_ponuky?select=id,cislo_ponuky,zakaznik,stav,datum_vystavenia&firma_id=eq."+firm+"&order=id.desc&limit=100");
+ case "offer":return db(c,"kalkulacka_ponuky?select=*&id=eq."+id(b.id)+"&firma_id=eq."+firm+"&limit=1");
+ case "lines":return db(c,"kalkulacka_polozky?select=typ,nazov,mnozstvo,jednotka,jednotkova_cena&ponuka_id=eq."+await owned(b.id)+"&order=poradie.asc");
+ case "offerSave":{
+ if(!Array.isArray(b.lines)||!b.lines.length||b.lines.length>500)throw Error("Invalid lines");
+ return db(c,"rpc/kalkulacka_pro_save_offer","POST",{p_firma:u.firm,p_offer:{...clean(b.data,offerKeys),cislo_ponuky:null},p_lines:b.lines.map(v=>clean(v,lineKeys))});
+ }
+ default:throw Error("Invalid calculator operation");
+ }
+}
+
 exports.hasPro=hasPro;
 exports.handler=async event=>{
  if(event.httpMethod!=="POST")return json(405,{error:"Method not allowed"});
  try{
-  const c=config();let b;try{if((event.body||"").length>4000)throw Error();b=JSON.parse(event.body||"{}")}catch{return json(400,{error:"Neplatná požiadavka"})}
+  const c=config();let b;try{if((event.body||"").length>500000)throw Error();b=JSON.parse(event.body||"{}")}catch{return json(400,{error:"Neplatná požiadavka"})}
   const u=await identity(c,event);if(!u)return json(401,{error:"Prihláste sa do aktívneho firemného účtu."});
+  if(b.action==="data"){if(!active(await subscriptions(c,await mapping(c,u))))return json(403,{error:"Táto funkcia vyžaduje aktívne PRO."});return json(200,{data:await calculatorData(c,u,b)})}
   if(b.action==="status"){const m=await mapping(c,u);return json(200,{active:active(await subscriptions(c,m))})}
   if(b.action==="portal"){const m=await mapping(c,u);if(!m)return json(404,{error:"Predplatné ešte nemáte."});const portal=await stripe(c,"billing_portal/sessions",{customer:m.stripe_customer_id,return_url:HOST+"/kalkulacka.html"});return json(200,{url:portal.url})}
   if(b.action!=="checkout"||!Object.prototype.hasOwnProperty.call(PLANS,b.plan))return json(400,{error:"Neplatný plán."});
