@@ -7,7 +7,16 @@ const PLANS={monthly:{id:"price_1Ufj87KFSmmgtcDgO5480WMu",amount:799,interval:"m
 const json=(statusCode,data)=>({statusCode,headers:{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"},body:JSON.stringify(data)});
 function config(){
  const key=process.env.SUPABASE_SERVICE_ROLE_KEY,stripe=process.env.STRIPE_SECRET_KEY;
- if(process.env.CONTEXT!=="deploy-preview"||String(process.env.REVIEW_ID)!=="11"||process.env.DOPYTAI_PAYMENT_ENV!=="test"||String(process.env.SUPABASE_URL||"").replace(/\/$/,"")!==DB||!key||!stripe?.startsWith("sk_test_"))throw Error("PRO sandbox configuration");
+ const checks={
+  CONTEXT:process.env.CONTEXT==="deploy-preview",
+  REVIEW_ID:String(process.env.REVIEW_ID)==="11",
+  DOPYTAI_PAYMENT_ENV:process.env.DOPYTAI_PAYMENT_ENV==="test",
+  SUPABASE_URL:String(process.env.SUPABASE_URL||"").replace(/\/$/,"")===DB,
+  SUPABASE_SERVICE_ROLE_KEY:!!key,
+  STRIPE_SECRET_KEY:!!stripe?.startsWith("sk_test_")
+ };
+ const failed=Object.keys(checks).filter(k=>!checks[k]);
+ if(failed.length)throw Error("PRO sandbox configuration: "+failed.map(k=>k+(!process.env[k]?" (missing)":" (mismatch)")).join(", "));
  return {key,stripe};
 }
 async function db(c,path,method="GET",body,prefer){
