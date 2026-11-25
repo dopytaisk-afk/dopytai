@@ -151,9 +151,16 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <label>E-mail na overenie<input id="anonFreeEmail" type="email" autocomplete="email" required maxlength="254" placeholder="vas@email.sk"></label>
 <p class="muted">Po treťom PDF sa pre ďalšie ponuky zaregistrujete a vyberiete predplatné.</p>
 <div class="actions"><button id="anonFreeCancel" type="button">Zrušiť</button><button class="primary" id="anonFreeSend" type="submit">Poslať overovací odkaz</button></div>
-</form><p id="anonFreeMessage" role="status" class="muted"></p>
+</form><p id="anonFreeMessage" role="status" class="muted"></p><button type="button" id="anonPro">Zobraziť predplatné PRO</button>
 </dialog>
-<main><h1>Cenová ponuka za pár krokov</h1><p>Vyplňte zákazníka, pridajte práce a materiál, potom ponuku uložte alebo vytlačte.</p>
+<main><h1>Cenová ponuka za pár krokov</h1>
+<details class="card" id="proPanel"><summary style="cursor:pointer;font-weight:800">DopytAI PRO – neobmedzené cenové ponuky</summary>
+<p id="proStatus" role="status" aria-live="polite">Overte svoj účet alebo si vyberte predplatné.</p>
+<div class="grid" style="margin:12px 0">
+<div class="note"><strong>7,99 € / mesiac</strong><p>Neobmedzené PDF a firemné funkcie.</p><button type="button" id="proMonthly" class="primary">Mesačné predplatné</button></div>
+<div class="note"><strong>79 € / rok</strong><p>Neobmedzené PDF a firemné funkcie.</p><button type="button" id="proYearly" class="primary">Ročné predplatné</button></div>
+</div><div class="actions"><a href="/">Prihlásenie / registrácia firmy</a><button type="button" id="proRefresh">Overiť predplatné</button><button type="button" id="proPortal">Spravovať predplatné</button></div>
+<p class="muted">Predplatné sa automaticky obnovuje. Zrušiť ho môžete v zákazníckom portáli. Toto je testovacie prostredie, bez skutočných platieb.</p></details><p>Vyplňte zákazníka, pridajte práce a materiál, potom ponuku uložte alebo vytlačte.</p>
 <div class="wizard-head"><p class="muted" id="wizardCounter">Krok 1 z 3</p><nav class="steps" aria-label="Kroky kalkulačky"><button type="button" data-go-step="1"><span class="step-number">1</span> Zákazník</button><button type="button" data-go-step="2"><span class="step-number">2</span> Práce a ceny</button><button type="button" data-go-step="3"><span class="step-number">3</span> Hotová ponuka</button></nav><div class="wizard-progress"><span id="wizardProgress"></span></div></div>
 <p class="note" id="wizardNote" role="status">Vyplňte zákazníka, potom kliknite na Pokračovať.</p>
 <section class="card" id="step1" data-wizard-panel="1"><h2 class="step-heading"><span class="step-number">1</span> Zákazník a zákazka</h2>
@@ -670,9 +677,41 @@ el('anonFreeForm').addEventListener('submit',async e=>{
  finally{send.disabled=false}
 });
 el('vat').onchange=render;el('discount').oninput=render;
-el('print').onclick=()=>{
- if(testFirmId&&testToken){print();return}
- openAnonymousPdfDialog();
+async function proCall(action,plan){
+ const token=testAllowed()?localStorage.getItem('dopytai_company_token'):null;
+ if(!token)throw Error('Najprv sa prihláste do aktívneho firemného účtu.');
+ const r=await fetch('/.netlify/functions/kalkulacka-pro',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action,plan})});
+ const data=await r.json();if(!r.ok)throw Error(data.error||'Predplatné sa nepodarilo overiť.');return data;
+}
+async function proAction(action,plan){
+ const ids=['proMonthly','proYearly','proRefresh','proPortal'];ids.forEach(id=>el(id).disabled=true);
+ try{
+  el('proStatus').textContent='Overujem predplatné…';
+  const d=await proCall(action,plan);
+  if(d.url){const u=new URL(d.url);if(u.protocol!=='https:'||!['checkout.stripe.com','billing.stripe.com'].includes(u.hostname))throw Error('Neplatný odkaz na Stripe.');location.assign(u.href);return}
+  el('proStatus').textContent=d.active?'Predplatné PRO je aktívne.':'Nemáte aktívne predplatné PRO.';
+ }catch(e){el('proStatus').textContent=e.message}
+ finally{ids.forEach(id=>el(id).disabled=false)}
+}
+el('proMonthly').onclick=()=>proAction('checkout','monthly');
+el('proYearly').onclick=()=>proAction('checkout','yearly');
+el('proRefresh').onclick=()=>proAction('status');
+el('proPortal').onclick=()=>proAction('portal');
+el('anonPro').onclick=()=>{el('anonFreeDialog').close();el('proPanel').open=true;el('proPanel').scrollIntoView({behavior:'smooth'});};
+if(new URLSearchParams(location.search).has('pro')){el('proPanel').open=true;proAction('status')}
+el('print').onclick=async()=>{
+ const token=testAllowed()?localStorage.getItem('dopytai_company_token'):null;
+ if(!token){openAnonymousPdfDialog();return}
+ const button=el('print');button.disabled=true;
+ try{
+  const status=await proCall('status');
+  if(!status.active){openAnonymousPdfDialog();return}
+  const r=await fetch('/.netlify/functions/kalkulacka-free',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action:'pro_pdf',quote:{...anonQuote(),logo:await compactQuoteLogo()}})});
+  const d=await r.json();if(!r.ok||!d.ok)throw Error(d.error||'PDF sa nepodarilo vytvoriť.');
+  const blob=new Blob([Uint8Array.from(atob(d.pdf),c=>c.charCodeAt(0))],{type:'application/pdf'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='DopytAI-cenova-ponuka.pdf';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+ }catch(e){alert(e.message)}
+ finally{button.disabled=false}
 };
 el('clear').onclick=()=>{if(confirm('Naozaj začať novú ponuku?')){location.reload()}};
 render();

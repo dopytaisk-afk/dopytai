@@ -152,6 +152,15 @@ exports.handler=async event=>{
  if(event.httpMethod!=="POST")return json(405,{error:"Method not allowed"});
  const cfg=config(event);if(cfg.error)return json(503,{error:cfg.error});
  let body;try{if((event.body||"").length>125000)throw Error();body=JSON.parse(event.body||"{}")}catch{return json(400,{error:"Neplatné údaje"})}
+ if(body.action==="pro_pdf"){
+  try{
+   const u=await require("./kalkulacka-pro").hasPro(event);
+   if(!u)return json(403,{error:"Na neobmedzené PDF potrebujete aktívne predplatné PRO."});
+   const q=parseQuote(body.quote);
+   if(!q.offerNo)q.offerNo="PDF-"+(q.date||new Date().toISOString().slice(0,10)).replace(/-/g,"")+"-"+crypto.randomUUID().replace(/-/g,"").slice(0,16).toUpperCase();
+   return json(200,{ok:true,pdf:await makePdf(q),filename:"DopytAI-cenova-ponuka.pdf"});
+  }catch(e){console.error("PRO PDF failed",e.message);return json(502,{error:"PDF alebo predplatné sa nepodarilo overiť."})}
+ }
  if(body.action==="request"){
   const email=validEmail(body.email);if(!email)return json(400,{error:"Zadajte platnú e-mailovú adresu"});
   let quote;try{quote=parseQuote(body.quote)}catch(e){return json(400,{error:e.message})}

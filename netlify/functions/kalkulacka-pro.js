@@ -59,6 +59,8 @@ function active(subs){
  const now=Math.floor(Date.now()/1000);
  return subs.some(s=>s.status==="active"&&!s.pause_collection&&s.items.data.some(i=>Object.values(PLANS).some(p=>p.id===i.price?.id)&&Number(i.current_period_end||s.current_period_end)>now));
 }
+async function hasPro(event){const c=config();const u=await identity(c,event);return u&&active(await subscriptions(c,await mapping(c,u)))?u:null;}
+exports.hasPro=hasPro;
 exports.handler=async event=>{
  if(event.httpMethod!=="POST")return json(405,{error:"Method not allowed"});
  try{
