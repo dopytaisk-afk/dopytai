@@ -142,7 +142,24 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 #step2 tbody td:before{display:block;margin-bottom:5px;font-size:12px;font-weight:700;color:#60748b}
 }
 [data-pro-only][hidden],[data-free-only][hidden]{display:none!important}
-.pro-locked{border:1px solid #d5e3f5;border-radius:12px;padding:15px;margin:12px 0;background:#f5f9fd;color:#173b61}.pro-locked strong{display:block;margin-bottom:6px}.pro-locked p{margin:6px 0 12px}
+.pro-locked{border:0;border-top:1px solid #dce6ef;border-radius:0;padding:12px 0 0;margin:16px 0 4px;background:transparent;color:#173b61}
+.pro-feature{display:flex;align-items:center;gap:10px;padding:10px 0;color:#64748b;font-size:15px}
+.pro-lock-icon{flex:none;color:#64748b}
+.pro-tag{margin-left:auto;font-size:12px;font-weight:700;color:#334d6b;background:#edf3f9;border-radius:5px;padding:3px 8px}
+.pro-upgrade{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;margin-top:10px;padding:12px;border:1px solid #087ced;border-radius:9px;background:#fff;color:#087ced;font-weight:700}
+.pro-upgrade small{font-size:12px;font-weight:400;color:#64748b}
+.pro-free-download{display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px}
+.pro-free-download #print{width:100%;min-height:48px}
+.pro-free-download #clear{justify-self:start}
+.pro-free-download.pro-enabled{display:flex;flex-wrap:wrap;align-items:center}
+.pro-free-download.pro-enabled #print{width:auto;min-height:0}
+.pro-free-download.pro-enabled #saveOffer,.pro-free-download.pro-enabled #print{flex:1 1 160px}
+.pro-free-download.pro-enabled #print{background:white;color:#087ced;border:1px solid #b8d6ff}
+.pro-download-note{margin:0;color:#64748b;font-size:13px;text-align:center}
+.pro-inline{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 0 14px;padding:8px 12px;background:#f7fafd;border:1px solid #dce6ef;border-radius:10px}
+.pro-inline .pro-feature{flex:1;min-width:210px}
+.pro-inline button{font-size:13px;padding:8px 12px;min-height:36px}
+@media(max-width:600px){.pro-inline{gap:4px}.pro-inline .pro-feature{min-width:0;flex-basis:100%}.pro-inline button{width:100%}.pro-free-download.pro-enabled #saveOffer,.pro-free-download.pro-enabled #print{flex-basis:100%}}
 </style></head><body>
 <header><a class="brand" href="/" aria-label="DopytAI – úvod"><span class="mark" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span></span><span>Dopyt<span class="ai">AI</span></span></a><div class="muted">Kalkulačka cenových ponúk</div></header>
 <dialog class="offer-dialog" id="offerConfirmDialog" aria-labelledby="offerDialogTitle" aria-describedby="offerDialogText"><h2 id="offerDialogTitle">Uložiť cenovú ponuku?</h2><p id="offerDialogText">Ponuka sa uloží do vášho firemného účtu.</p><div class="actions"><button id="offerDialogCancel" type="button">Zrušiť</button><button id="offerDialogAccept" class="primary" type="button">Uložiť ponuku</button></div></dialog>
@@ -191,7 +208,7 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 </section>
 
 <section class="card" id="step2" data-wizard-panel="2" hidden><h2 class="step-heading"><span class="step-number">2</span> Práca, materiál a doprava</h2><p class="muted">Vyberte uloženú položku alebo vytvorte novú. Množstvo a cenu môžete vždy upraviť. Napríklad pri m² zadáte cenu za 1 m², pri ks cenu za 1 kus.</p>
-<div class="pro-locked" data-free-only><strong>🔒 Vlastný firemný cenník · PRO</strong><p>Uložte si často používané práce a materiály a pridávajte ich jedným kliknutím.</p><button type="button" data-upgrade>Odomknúť DopytAI PRO</button></div>
+<div class="pro-inline" data-free-only><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Vlastný firemný cenník</span><span class="pro-tag">PRO</span></div><button type="button" data-upgrade>Odomknúť PRO</button></div>
 <details class="card" id="pricelistSection" data-pro-only hidden><summary style="cursor:pointer;font-size:18px;font-weight:800">Vlastný firemný cenník – voliteľné nastavenie</summary>
 
 <p>Uložte si často používané práce a materiály. Potom ich jedným kliknutím pridáte do cenovej ponuky.</p>
@@ -216,11 +233,11 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <section class="card" id="step3" data-wizard-panel="3" hidden><h2 class="step-heading"><span class="step-number">3</span> Hotová cenová ponuka</h2><p class="muted">Skontrolujte údaje. Čokoľvek môžete jednoducho opraviť.</p><div class="review-card">
 <div class="review-row"><span>Zákazník</span><strong id="reviewCustomer">—</strong></div><div class="review-row"><span>Miesto realizácie</span><strong id="reviewPlace">—</strong></div><div class="review-row"><span>Položiek</span><strong id="reviewCount">0</strong></div><div class="review-row review-total"><span>Celkom</span><strong id="reviewTotal">0 €</strong></div><div class="review-actions"><button type="button" id="reviewEditCustomer">Upraviť zákazníka</button><button type="button" id="reviewEditItems">Upraviť položky</button></div></div><details class="optional"><summary>Podmienky a poznámky (voliteľné)</summary><label>Podmienky ponuky<textarea id="terms">Cena sa vzťahuje na uvedený rozsah. Zmeny prác budú odsúhlasené so zákazníkom.</textarea></label></details>
 <div class="grid" style="margin-top:18px" data-pro-only hidden><label>Stav cenovej ponuky<select id="offerState"><option value="rozpracovana">Rozpracovaná</option><option value="dokoncena">Dokončená</option></select></label><div><strong id="editingOfferInfo">Nová ponuka – ešte neuložená</strong></div></div>
-<div class="actions"><button class="primary" id="saveOffer" type="button" data-pro-only hidden>Uložiť ponuku</button><button id="print" type="button" class="primary">Stiahnuť PDF zadarmo</button><button id="clear" type="button">Nová ponuka</button></div>
-<div class="pro-locked" data-free-only><strong>🔒 Ukladanie cenových ponúk · PRO</strong><p>Ukladajte, otvárajte a upravujte ponuky. Získajte aj vlastný firemný cenník a neobmedzené PDF.</p><button type="button" data-upgrade>Odomknúť DopytAI PRO</button><p class="muted">7,99 € mesačne alebo 79 € ročne.</p></div>
+<div class="pro-free-download" id="offerActions"><button class="primary" id="saveOffer" type="button" data-pro-only hidden>Uložiť ponuku</button><button id="print" type="button" class="primary">Stiahnuť PDF zadarmo</button><p class="pro-download-note" data-free-only>Prvé 3 PDF zadarmo po overení e-mailu.</p><button id="clear" type="button">Nová ponuka</button></div>
+<div class="pro-locked" data-free-only><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Ukladanie cenových ponúk</span><span class="pro-tag">PRO</span></div><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Vlastný firemný cenník</span><span class="pro-tag">PRO</span></div><button class="pro-upgrade" type="button" data-upgrade>Odomknúť DopytAI PRO<small>7,99 € mesačne alebo 79 € ročne</small></button></div>
 <p id="offerSaveMessage" class="note" role="status" data-pro-only hidden>Ukladanie ponúk je dostupné po prihlásení do firemného účtu.</p>
 <details class="optional" id="savedOffersSection" data-pro-only hidden><summary>Moje uložené cenové ponuky</summary><button id="reloadOffers" type="button">Obnoviť zoznam ponúk</button><div class="pricelist-items" id="offerList"></div></details>
-<p class="muted" data-free-only>Bez registrácie si môžete stiahnuť 3 cenové ponuky PDF po overení e-mailu.</p></section><div class="wizard-footer"><button id="wizardBack" type="button" hidden>← Späť</button><span class="wizard-spacer"></span><button id="wizardNext" type="button" class="primary">Pokračovať →</button></div><p id="wizardError" class="wizard-error" role="alert" hidden></p></main>
+</section><div class="wizard-footer"><button id="wizardBack" type="button" hidden>← Späť</button><span class="wizard-spacer"></span><button id="wizardNext" type="button" class="primary">Pokračovať →</button></div><p id="wizardError" class="wizard-error" role="alert" hidden></p></main>
 <div id="printed"></div>
 <script>
 (function(){
@@ -238,7 +255,7 @@ const TEST_REST='https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1';
 const TEST_AUTH='https://pwtvquyefpucjufvwnxp.supabase.co/auth/v1';
 const TEST_KEY='sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-';
 let testFirmId=null,testToken=null,priceBook=[],editingPriceId=null,priceBusy=false,priceMode='loading',proActive=false;
-function applyPro(active){proActive=active===true;document.querySelectorAll('[data-pro-only]').forEach(x=>{x.hidden=!proActive;if(!proActive&&x.tagName==='DETAILS')x.open=false});document.querySelectorAll('[data-free-only]').forEach(x=>x.hidden=proActive);el('print').textContent=proActive?'Stiahnuť PDF':'Stiahnuť PDF zadarmo';if(!proActive){priceBook=[];el('offerList').replaceChildren();setPriceMode('error');renderPrices()}offerAvailability()}
+function applyPro(active){proActive=active===true;el('offerActions').classList.toggle('pro-enabled',proActive);document.querySelectorAll('[data-pro-only]').forEach(x=>{x.hidden=!proActive;if(!proActive&&x.tagName==='DETAILS')x.open=false});document.querySelectorAll('[data-free-only]').forEach(x=>x.hidden=proActive);el('print').textContent=proActive?'Stiahnuť PDF':'Stiahnuť PDF zadarmo';if(!proActive){priceBook=[];el('offerList').replaceChildren();setPriceMode('error');renderPrices()}offerAvailability()}
 function showPro(){el('proPanel').open=true;el('proPanel').scrollIntoView({behavior:'smooth'})}
 const testAllowed=()=>location.hostname===TEST_HOST;
 function testStatus(message){el('testCloudStatus').textContent=message}
