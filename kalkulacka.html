@@ -125,7 +125,10 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 .steps{gap:5px}.steps button{min-height:65px;flex-direction:column;font-size:12px;padding:8px 3px;gap:4px}
 .steps .step-number{width:22px;height:22px;font-size:12px}
 .wizard-footer{padding:4px 0;background:transparent}
-.wizard-footer button{flex:1}
+.wizard-footer{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:12px}
+.wizard-footer .wizard-spacer{display:none}
+.wizard-footer button{width:100%;min-width:0;min-height:50px;padding:12px 8px;font-size:14px;white-space:nowrap}
+#wizardBack{grid-column:1;grid-row:1}#wizardNext{grid-column:2;grid-row:1}
 #step2 .scroller{overflow:visible}#step2 table{min-width:0;display:block}#step2 thead{display:none}#step2 tbody{display:grid;gap:12px}
 #step2 tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:15px;border:1px solid #dce8f5;border-radius:12px}
 #step2 tbody td{display:block;min-width:0;padding:0;border:0}
@@ -190,7 +193,7 @@ button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;bord
 <label>Miesto realizácie<input id="place" placeholder="Obec / adresa"></label>
 <label class="wide">Predmet ponuky<textarea id="subject" placeholder="Napr. montáž sadrokartónového podhľadu"></textarea></label>
 </div>
-<details class="optional" id="companyDetails"><summary>Údaje mojej firmy a logo (načítajú sa automaticky)</summary>
+<details class="optional" id="companyDetails"><summary id="companyDetailsTitle">Údaje mojej firmy a logo</summary>
 <p class="muted" id="companyFillStatus">Firemné údaje sa načítajú po prihlásení do firemného účtu. Pri ponuke ich možno ručne upraviť.</p>
 <div class="logo-picker" style="margin-bottom:14px"><label>Logo firmy (PNG, JPG, WebP – max. 2 MB)<input id="logo" type="file" accept="image/png,image/jpeg,image/webp"></label><img id="logoPreview" class="logo-preview" alt="Náhľad loga" hidden></div>
 <p class="muted" id="logoStatus">Logo sa použije iba v tejto ponuke. Pri overení e-mailu sa dočasne uloží spolu s ponukou.</p>
@@ -301,12 +304,14 @@ async function fillCompanyFromTest(){
   if(!el('company').value.trim())el('company').value=name;
   if(!el('ico').value.trim())el('ico').value=firm.ico||'';
   if(!el('contact').value.trim())el('contact').value=contact;
+  el('companyDetailsTitle').textContent='Údaje mojej firmy a logo (údaje sa načítajú automaticky)';
   el('companyFillStatus').textContent='Údaje firmy boli doplnené z vášho účtu. Pri uložení sa zachovajú ako historická súčasť ponuky.';
  }catch(err){el('companyFillStatus').textContent='Načítanie firemných údajov zlyhalo: '+err.message+'. Môžete ich vyplniť ručne.'}
 }
 async function connectTest(){
  if(priceBusy)return;
  testFirmId=null;testToken=null;setPriceMode('loading');
+ el('companyDetailsTitle').textContent='Údaje mojej firmy a logo';
  const token=testAllowed()?localStorage.getItem('dopytai_company_token'):null;
  if(!token){applyPro(false);el('proStatus').textContent='Prihláste sa alebo si vyberte predplatné.';return}
  try{
@@ -320,7 +325,7 @@ async function connectTest(){
   await fillCompanyFromTest();
   const status=await proCall('status');applyPro(status.active);el('proStatus').textContent=proActive?'Predplatné PRO je aktívne.':'Nemáte aktívne predplatné PRO.';
   if(proActive){await loadTestPrices();await verifyOfferSchema();offerAvailability();await listSavedOffers();}
- }catch(err){testFirmId=null;testToken=null;applyPro(false);el('proStatus').textContent='Predplatné sa nepodarilo overiť.';testStatus('Chyba TEST spojenia: '+err.message+' Zápis dočasne zablokovaný.')}
+ }catch(err){testFirmId=null;testToken=null;el('companyDetailsTitle').textContent='Údaje mojej firmy a logo';applyPro(false);el('proStatus').textContent='Predplatné sa nepodarilo overiť.';testStatus('Chyba TEST spojenia: '+err.message+' Zápis dočasne zablokovaný.')}
 }
 function resetPriceEditor(){
  editingPriceId=null;el('priceForm').reset();el('priceUnit').value='m²';
