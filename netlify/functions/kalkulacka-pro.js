@@ -103,6 +103,24 @@ exports.handler=async event=>{
  try{
   const c=config();let b;try{if((event.body||"").length>500000)throw Error();b=JSON.parse(event.body||"{}")}catch{return json(400,{error:"Neplatná požiadavka"})}
   const u=await identity(c,event);if(!u)return json(401,{error:"Prihláste sa do aktívneho firemného účtu."});
+  if(b.action==="logo"){
+   const firm=encodeURIComponent(String(u.firm)),path="kalkulacka_firemne_logo";
+   if(b.operation==="get"){
+    const rows=await db(c,path+"?select=logo_data&firma_id=eq."+firm+"&limit=1");
+    return json(200,{logo:rows[0]?.logo_data||""});
+   }
+   if(b.operation==="save"){
+    const logo=b.logo;
+    if(typeof logo!=="string"||logo.length>80000||!/^data:image\/jpeg;base64,\/9j\/[A-Za-z0-9+/]+={0,2}$/.test(logo))return json(400,{error:"Neplatné logo."});
+    await db(c,path+"?on_conflict=firma_id","POST",{firma_id:u.firm,logo_data:logo,updated_at:new Date().toISOString()},"resolution=merge-duplicates,return=minimal");
+    return json(200,{ok:true});
+   }
+   if(b.operation==="delete"){
+    await db(c,path+"?firma_id=eq."+firm,"DELETE");
+    return json(200,{ok:true});
+   }
+   return json(400,{error:"Neplatná operácia."});
+  }
   if(b.action==="data"){if(!active(await subscriptions(c,await mapping(c,u))))return json(403,{error:"Táto funkcia vyžaduje aktívne PRO."});return json(200,{data:await calculatorData(c,u,b)})}
   if(b.action==="companyLogo"){
    const path="kalkulacka_firemne_logo?firma_id=eq."+encodeURIComponent(String(u.firm));
