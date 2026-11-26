@@ -104,6 +104,20 @@ exports.handler=async event=>{
   const c=config();let b;try{if((event.body||"").length>500000)throw Error();b=JSON.parse(event.body||"{}")}catch{return json(400,{error:"Neplatná požiadavka"})}
   const u=await identity(c,event);if(!u)return json(401,{error:"Prihláste sa do aktívneho firemného účtu."});
   if(b.action==="data"){if(!active(await subscriptions(c,await mapping(c,u))))return json(403,{error:"Táto funkcia vyžaduje aktívne PRO."});return json(200,{data:await calculatorData(c,u,b)})}
+  if(b.action==="companyLogo"){
+   const path="kalkulacka_firemne_logo?firma_id=eq."+encodeURIComponent(String(u.firm));
+   if(b.operation==="get"){const rows=await db(c,path+"&select=logo_data&limit=1");return json(200,{logo:rows[0]?.logo_data||""})}
+   if(b.operation==="remove"){await db(c,path,"DELETE");return json(200,{ok:true})}
+   if(b.operation==="save"){
+    const value=b.logo;
+    if(typeof value!=="string"||value.length>80000||!/^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(value))return json(400,{error:"Neplatné logo."});
+    const bytes=Buffer.from(value.split(",")[1],"base64");
+    if(bytes.length<4||bytes[0]!==255||bytes[1]!==216||bytes[bytes.length-2]!==255||bytes[bytes.length-1]!==217)return json(400,{error:"Neplatný JPEG."});
+    await db(c,"kalkulacka_firemne_logo?on_conflict=firma_id","POST",{firma_id:u.firm,logo_data:value,updated_at:new Date().toISOString()},"resolution=merge-duplicates,return=minimal");
+    return json(200,{ok:true});
+   }
+   return json(400,{error:"Neplatná operácia."});
+  }
   if(b.action==="status"){const m=await mapping(c,u);return json(200,{active:active(await subscriptions(c,m))})}
   if(b.action==="portal"){const m=await mapping(c,u);if(!m)return json(404,{error:"Predplatné ešte nemáte."});const portal=await stripe(c,"billing_portal/sessions",{customer:m.stripe_customer_id,return_url:HOST+"/kalkulacka.html"});return json(200,{url:portal.url})}
   if(b.action!=="checkout"||!Object.prototype.hasOwnProperty.call(PLANS,b.plan))return json(400,{error:"Neplatný plán."});
