@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="sk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DopytAI – Cenové ponuky</title>
+<style>
+:root{font-family:Arial,sans-serif;color:#10294b;background:#f4f9fe}*{box-sizing:border-box}
+body{margin:0}header{background:#fff;border-bottom:1px solid #dce8f5;padding:18px max(18px,calc((100% - 1050px)/2));display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:11px;color:#092448;text-decoration:none;font-size:25px;font-weight:950;letter-spacing:-1px}.brand .ai{color:#087cf0}.mark{width:38px;height:34px;position:relative;border:4px solid #087cf0;border-top:0;border-radius:3px 3px 7px 7px;flex:none}.mark:before{content:"";position:absolute;width:23px;height:23px;border-left:4px solid #087cf0;border-top:4px solid #087cf0;transform:rotate(45deg);top:-11px;left:3px;border-radius:3px}.dots{position:absolute;left:6px;bottom:8px;display:flex;gap:3px}.dots i{width:4px;height:4px;border-radius:50%;background:#087cf0;display:block}
+main{max-width:1050px;margin:32px auto;padding:0 18px 40px}h1{font-size:32px;margin:0 0 8px}h2{font-size:20px;margin-top:0}
+.card{background:#fff;border:1px solid #dce8f5;border-radius:18px;padding:24px;margin:20px 0;box-shadow:0 4px 18px #10294b0a}
+.note{background:#eaf4ff;border-radius:9px;padding:14px;color:#315f8f}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+label{display:flex;flex-direction:column;gap:7px;font-weight:700;font-size:14px}
+input,textarea,select{font:inherit;padding:11px;border:1px solid #bfd3e9;border-radius:9px;width:100%;color:#10294b;background:#fff}
+textarea{min-height:80px;resize:vertical}.wide{grid-column:1/-1}
+button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b6d7ff;border-radius:9px;background:#fff;color:#087cf0;padding:11px 16px}
+.primary{background:#087cf0;color:#fff}.danger{color:#a22}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}
+.scroller{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:740px}th,td{padding:8px 5px;border-bottom:1px solid #e6edf5;text-align:left}th{font-size:13px;color:#5c7893}td input,td select{padding:9px 6px;font-size:14px}
+.money{text-align:right;white-space:nowrap}.summary{max-width:380px;margin:20px 0 0 auto}.summary div{display:flex;justify-content:space-between;gap:20px;padding:9px 0}.summary .total{font-size:22px;font-weight:800;border-top:2px solid #dae6f2}
+.muted{color:#60748b;font-size:13px}#printed{display:none}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.card{padding:16px}h1{font-size:26px}}
+@media print{@page{size:A4;margin:16mm}body{background:#fff;color:#111}header,main{display:none!important}#printed{display:block!important;padding:0;font-size:11pt}#printed h1{font-size:24pt}#printed table{min-width:0;font-size:9pt}#printed th,#printed td{border-bottom:1px solid #ddd}#printed .end{text-align:right;font-size:16pt;font-weight:bold;margin-top:22px}#printed .details{white-space:pre-wrap}}
+
+/* Profesionálna A4 ponuka (len výstup pre tlač) */
+.logo-picker{display:flex;align-items:center;gap:16px;flex-wrap:wrap}.logo-picker input{max-width:360px}
+.logo-preview{width:110px;height:72px;object-fit:contain;background:#fff;border:1px dashed #afc9e4;border-radius:10px;padding:5px}
+#logoPreview[hidden]{display:none}
+@media print{
+  @page{size:A4;margin:15mm}
+  #printed{font-family:Arial,sans-serif;color:#122b4c;font-size:10pt;line-height:1.45}
+  #printed .offer-heading{display:flex;justify-content:space-between;gap:20px;padding-bottom:17px;border-bottom:3px solid #087cf0;align-items:flex-start;break-inside:avoid}
+  #printed .offer-logo{max-width:150px;max-height:77px;object-fit:contain;display:block;margin-bottom:10px}
+  #printed .offer-name{font-size:17pt;font-weight:800;overflow-wrap:anywhere}
+  #printed .offer-label{font-size:8pt;letter-spacing:1px;text-transform:uppercase;color:#59728d;margin-bottom:6px}
+  #printed .offer-title{text-align:right}
+  #printed .offer-title h1{font-size:23pt;line-height:1.1;color:#087cf0;margin:0 0 12px}
+  #printed .offer-title p{margin:4px 0}
+  #printed .offer-columns{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:22px 0}
+  #printed .offer-panel{background:#f1f7fe;padding:14px 16px;border-radius:8px;overflow-wrap:anywhere;min-height:88px}
+  #printed .offer-panel .details{margin:5px 0 0}
+  #printed .offer-section{margin:23px 0 10px;font-size:12pt}
+  #printed .offer-description{white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 18px}
+  #printed table{border-collapse:collapse;font-size:9pt;table-layout:fixed;width:100%}
+  #printed thead{display:table-header-group}#printed tr{break-inside:avoid}
+  #printed th{color:#fff;background:#087cf0;font-size:8.5pt}
+  #printed th,#printed td{padding:9px 7px;overflow-wrap:anywhere}
+  #printed tbody tr:nth-child(even){background:#f0f6fd}
+  #printed .money{text-align:right}
+  #printed .offer-totals{width:54%;margin:20px 0 0 auto;break-inside:avoid}
+  #printed .offer-totals .offer-totals-row{display:flex;justify-content:space-between;gap:12px;padding:6px 0}
+  #printed .offer-totals .offer-grand{display:flex;justify-content:space-between;gap:12px;margin-top:7px;padding:14px 12px;background:#087cf0;color:#fff;font-weight:800;font-size:14pt;border-radius:7px}
+  #printed .offer-footer{border-top:1px solid #c8d8ea;margin-top:35px;padding-top:12px;color:#5e7792;font-size:8pt}
+  #printed .offer-details{white-space:pre-wrap;overflow-wrap:anywhere}
+}
+
+@media print{
+#printed,#printed *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+#printed{color:#102e52;font-family:Arial,sans-serif;font-size:9.5pt}
+#printed .offer-heading{border-bottom:4px solid #b5df23;margin-bottom:16px;padding-bottom:17px}
+#printed .offer-name{color:#102e52;font-size:19pt;font-weight:900}
+#printed .offer-title h1{color:#102e52;font-size:23pt;font-weight:900}
+#printed .offer-title p{background:#f2f6fa;border-bottom:1px solid #dce4ed;margin:0;padding:7px 9px;text-align:left;font-size:9pt}
+#printed .offer-title p:first-of-type{border-radius:8px 8px 0 0}
+#printed .offer-title p:last-of-type{border-radius:0 0 8px 8px;border-bottom:0}
+#printed .offer-panel{background:#f2f6fa!important;border-left:5px solid #b5df23;padding:13px}
+#printed .offer-section{font-weight:800;color:#102e52}
+#printed thead th{background:#102e52!important;color:white!important}
+#printed tbody tr:nth-child(even){background:#f2f6fa!important}
+#printed th,#printed td{padding:8px 6px}
+#printed .offer-totals{background:#f2f6fa;padding:9px;border-radius:8px}
+#printed .offer-totals .offer-grand{background:#102e52!important;color:#fff!important;border-left:8px solid #b5df23;font-size:15pt}
+#printed .offer-footer{color:#5a728a}
+}
+
+.pricelist-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.pricelist-grid{display:grid;grid-template-columns:1fr 2fr 1fr 1fr;gap:12px;align-items:end}
+.pricelist-items{display:grid;gap:8px;margin-top:16px}
+.pricelist-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #dce8f5;border-radius:10px;padding:11px;background:#f9fcff}
+.pricelist-entry .entry-actions{display:flex;gap:6px;flex-shrink:0}
+.pricelist-entry strong{display:block;overflow-wrap:anywhere}.pricelist-entry small{color:#5c7893}
+.pricelist-entry button{padding:8px 11px}
+@media(max-width:720px){.pricelist-grid{grid-template-columns:1fr 1fr}.pricelist-grid label:nth-child(2){grid-column:1/-1;grid-row:1}.pricelist-entry{align-items:flex-start;flex-direction:column}.pricelist-entry .entry-actions{align-self:flex-end}}
+
+/* Potvrdzovacie okno v dizajne DopytAI */
+.offer-dialog{width:min(440px,calc(100% - 32px));max-width:440px;border:1px solid #c8dff5;border-radius:16px;padding:24px;background:#fff;color:#10294b;box-shadow:0 18px 65px #0924483d}
+.offer-dialog::backdrop{background:rgba(9,36,72,.52)}
+.offer-dialog h2{font-size:21px;margin:0 0 10px;color:#092448}
+.offer-dialog p{line-height:1.5;margin:0;color:#45627d}
+.offer-dialog .actions{justify-content:flex-end;margin-top:24px}
+.offer-dialog button{min-width:105px}
+.quick-pick{padding:15px;border-radius:12px;background:#eaf4ff;margin:12px 0 16px}
+.quick-pick>label{margin-bottom:7px;font-weight:800}
+.quick-pick-row{display:flex;gap:8px;align-items:stretch}
+.quick-pick-row select{flex:1;min-width:0}
+.quick-pick-row button{flex-shrink:0}
+.quick-pick .muted{margin:7px 0 0}
+@media(max-width:650px){.quick-pick-row{flex-direction:column}.quick-pick-row button{width:100%}}
+
+
+/* Jednoduchy sprievodca tvorbou ponuky */
+.steps{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 10px}
+.steps a{flex:1;min-width:140px;background:#fff;border:1px solid #cbdff5;border-radius:12px;padding:12px;color:#092448;text-decoration:none;font-weight:800;text-align:center}
+.steps a:hover{border-color:#087cf0;color:#087cf0}
+.step-number{display:inline-flex;align-items:center;justify-content:center;background:#087cf0;color:#fff;border-radius:50%;width:24px;height:24px;margin-right:6px;font-size:13px}
+.optional{border:1px solid #dbe8f5;border-radius:12px;padding:12px;margin:15px 0;background:#f9fcff}
+.optional summary{font-weight:750;cursor:pointer;color:#0b4584}
+.optional[open] summary{margin-bottom:15px}
+.step-heading{display:flex;align-items:center;gap:8px}
+@media(max-width:650px){.steps a{min-width:100%;text-align:left}}
+
+[data-wizard-panel][hidden],.wizard-footer [hidden],#wizardError[hidden]{display:none!important}
+.wizard-head{margin:18px 0}.wizard-head .muted{text-align:right;margin:0 0 8px;font-weight:800}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0 0 10px}
+.steps button{min-width:0;min-height:55px;display:flex;justify-content:center;align-items:center;gap:8px;color:#10294b}
+.steps button[aria-current="step"]{background:#eaf4ff;border-color:#087cf0;color:#075bb4}
+.steps button.done{border-color:#a6dbbe}.steps .step-number{flex-shrink:0;margin:0}
+.wizard-progress{height:6px;border-radius:12px;background:#e2edf8;overflow:hidden}
+.wizard-progress span{display:block;background:#087cf0;width:33.333%;height:100%;transition:width .16s}
+.wizard-footer{display:flex;align-items:center;gap:12px;margin:20px 0 10px}
+.wizard-spacer{flex:1}.wizard-footer button{min-height:50px;padding:12px 27px;font-size:16px}
+.wizard-error{padding:14px;border:1px solid #f0c7c7;background:#fff2f2;color:#a22;border-radius:10px}
+.review-card{border:1px solid #dce8f5;border-radius:13px;background:#f5faff;padding:17px;margin:18px 0}
+.review-row{display:flex;justify-content:space-between;gap:15px;padding:10px 0;border-bottom:1px solid #dce8f5}
+.review-row strong{overflow-wrap:anywhere;text-align:right}
+.review-total{border:0;font-weight:800;font-size:21px}.review-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+@media(max-width:700px){
+.steps{gap:5px}.steps button{min-height:65px;flex-direction:column;font-size:12px;padding:8px 3px;gap:4px}
+.steps .step-number{width:22px;height:22px;font-size:12px}
+.wizard-footer{padding:4px 0;background:transparent}
+.wizard-footer{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:12px}
+.wizard-footer .wizard-spacer{display:none}
+.wizard-footer button{width:100%;min-width:0;min-height:50px;padding:12px 8px;font-size:14px;white-space:nowrap}
+#wizardBack{grid-column:1;grid-row:1}#wizardNext{grid-column:2;grid-row:1}
+#step2 .scroller{overflow:visible}#step2 table{min-width:0;display:block}#step2 thead{display:none}#step2 tbody{display:grid;gap:12px}
+#step2 tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:15px;border:1px solid #dce8f5;border-radius:12px}
+#step2 tbody td{display:block;min-width:0;padding:0;border:0}
+#step2 tbody td:nth-child(2){grid-column:1/-1;grid-row:1}
+#step2 tbody td:nth-child(1){grid-column:1/-1;grid-row:2}
+#step2 tbody td:nth-child(3){grid-column:1;grid-row:3}
+#step2 tbody td:nth-child(4){grid-column:2;grid-row:3}
+#step2 tbody td:nth-child(5){grid-column:1;grid-row:4}
+#step2 tbody td:nth-child(6){grid-column:2;grid-row:4;align-self:end;text-align:right}
+#step2 tbody td:nth-child(7){grid-column:1/-1;grid-row:5;text-align:right}
+#step2 tbody td:nth-child(2):before{content:"Položka"}#step2 tbody td:nth-child(1):before{content:"Typ"}
+#step2 tbody td:nth-child(3):before{content:"Množstvo"}#step2 tbody td:nth-child(4):before{content:"Jednotka"}
+#step2 tbody td:nth-child(5):before{content:"Cena za 1 jednotku (€)"}#step2 tbody td:nth-child(6):before{content:"Spolu";display:block;text-align:right}
+#step2 tbody td:before{display:block;margin-bottom:5px;font-size:12px;font-weight:700;color:#60748b}
+}
+[data-pro-only][hidden],[data-free-only][hidden]{display:none!important}
+.pro-locked{border:1px solid #c9dff8;border-radius:18px;padding:24px;margin:20px 0;background:#e7f1fd;color:#173b61;box-shadow:0 4px 18px #10294b0a}.pro-card-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#087ced}.pro-card-heading h2{margin:0;color:#102e52;font-size:22px}.pro-card-heading h2 span{color:#087ced}.pro-card-subtitle{color:#526d8a;font-size:14px;margin:8px 0 12px}.pro-card-price{text-align:center;color:#526d8a;font-size:13px;margin:10px 0 0}@media(max-width:650px){.pro-locked{padding:16px}}
+.pro-feature{display:flex;align-items:center;gap:10px;padding:10px 0;color:#334d6b;font-size:15px}
+.pro-lock-icon{flex:none;color:#64748b}
+.pro-tag{margin-left:auto;font-size:12px;font-weight:700;color:#334d6b;background:#d7e6f7;border-radius:5px;padding:3px 8px}
+.pro-upgrade{width:100%;display:flex;align-items:center;justify-content:center;margin-top:12px;padding:13px;border:1px solid #087ced;border-radius:9px;background:#087ced;color:#fff;font-weight:700;min-height:46px}.pro-upgrade:hover{background:#066bd0;color:#fff}
+.pro-upgrade small{font-size:12px;font-weight:400;color:#64748b}
+.pro-free-download{display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px}
+.pro-free-download #print{width:100%;min-height:48px}
+.pro-free-download #clear{justify-self:start}
+.pro-free-download.pro-enabled{display:flex;flex-wrap:wrap;align-items:center}
+.pro-free-download.pro-enabled #print{width:auto;min-height:0}
+.pro-free-download.pro-enabled #saveOffer,.pro-free-download.pro-enabled #print{flex:1 1 160px}
+.pro-free-download.pro-enabled #print{background:white;color:#087ced;border:1px solid #b8d6ff}
+.pro-download-note{margin:0;color:#64748b;font-size:13px;text-align:center}
+.pro-inline{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 0 14px;padding:8px 12px;background:#f7fafd;border:1px solid #dce6ef;border-radius:10px}
+.pro-inline .pro-feature{flex:1;min-width:210px}
+.pro-inline button{font-size:13px;padding:8px 12px;min-height:36px}
+@media(max-width:600px){.pro-inline{gap:4px}.pro-inline .pro-feature{min-width:0;flex-basis:100%}.pro-inline button{width:100%}.pro-free-download.pro-enabled #saveOffer,.pro-free-download.pro-enabled #print{flex-basis:100%}}
+</style></head><body>
+<header><a class="brand" href="/" aria-label="DopytAI – úvod"><span class="mark" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span></span><span>Dopyt<span class="ai">AI</span></span></a><div class="muted">Kalkulačka cenových ponúk</div></header>
+<dialog class="offer-dialog" id="offerConfirmDialog" aria-labelledby="offerDialogTitle" aria-describedby="offerDialogText"><h2 id="offerDialogTitle">Uložiť cenovú ponuku?</h2><p id="offerDialogText">Ponuka sa uloží do vášho firemného účtu.</p><div class="actions"><button id="offerDialogCancel" type="button">Zrušiť</button><button id="offerDialogAccept" class="primary" type="button">Uložiť ponuku</button></div></dialog>
+<dialog class="offer-dialog" id="anonFreeDialog" aria-labelledby="anonFreeTitle" aria-describedby="anonFreeNote">
+<h2 id="anonFreeTitle">3 cenové ponuky zadarmo</h2>
+<p id="anonFreeNote">Bez registrácie získate až 3 cenové ponuky PDF na jeden overený e-mail. Pred každým stiahnutím vám pošleme overovací odkaz.</p>
+<form id="anonFreeForm" style="margin-top:16px">
+<label>E-mail na overenie<input id="anonFreeEmail" type="email" autocomplete="email" required maxlength="254" placeholder="vas@email.sk"></label>
+<p class="muted">Po treťom PDF sa pre ďalšie ponuky zaregistrujete a vyberiete predplatné.</p>
+<div class="actions"><button id="anonFreeCancel" type="button">Zrušiť</button><button class="primary" id="anonFreeSend" type="submit">Poslať overovací odkaz</button></div>
+</form><p id="anonFreeMessage" role="status" class="muted"></p><button type="button" id="anonPro">Zobraziť predplatné PRO</button>
+</dialog>
+<main><h1>Kalkulačka cenových ponúk</h1>
+<p>Vytvorte profesionálnu cenovú ponuku s vlastným logom za pár minút. Jednoducho, rýchlo a bez Excelu.</p>
+<p class="note" data-free-only><strong>Prvé 3 cenové ponuky zadarmo. Bez registrácie.</strong></p>
+<details class="card" id="proPanel"><summary style="cursor:pointer;font-weight:800">DopytAI PRO – neobmedzené cenové ponuky</summary>
+<p id="proStatus" role="status" aria-live="polite">Overte svoj účet alebo si vyberte predplatné.</p>
+<div class="grid" style="margin:12px 0" data-free-only>
+<div class="note"><strong>7,99 € / mesiac</strong><p>Neobmedzené PDF a firemné funkcie.</p><button type="button" id="proMonthly" class="primary">Mesačné predplatné</button></div>
+<div class="note"><strong>79 € / rok</strong><p>Neobmedzené PDF a firemné funkcie.</p><button type="button" id="proYearly" class="primary">Ročné predplatné</button></div>
+</div><div class="actions"><a href="/">Prihlásenie / registrácia firmy</a><button type="button" id="proRefresh">Overiť predplatné</button><button type="button" id="proPortal">Spravovať predplatné</button></div>
+<p class="muted">Predplatné sa automaticky obnovuje. Zrušiť ho môžete v zákazníckom portáli. Toto je testovacie prostredie, bez skutočných platieb.</p></details><p>Vyplňte zákazníka, pridajte práce a materiál, potom ponuku uložte alebo vytlačte.</p>
+<div class="wizard-head"><p class="muted" id="wizardCounter">Krok 1 z 3</p><nav class="steps" aria-label="Kroky kalkulačky"><button type="button" data-go-step="1"><span class="step-number">1</span> Zákazník</button><button type="button" data-go-step="2"><span class="step-number">2</span> Práce a ceny</button><button type="button" data-go-step="3"><span class="step-number">3</span> Hotová ponuka</button></nav><div class="wizard-progress"><span id="wizardProgress"></span></div></div>
+<p class="note" id="wizardNote" role="status">Vyplňte zákazníka, potom kliknite na Pokračovať.</p>
+<section class="card" id="step1" data-wizard-panel="1"><h2 class="step-heading"><span class="step-number">1</span> Zákazník a zákazka</h2>
+<div class="grid">
+<label>Zákazník<input id="customer" placeholder="Meno alebo názov zákazníka"></label>
+<label>Miesto realizácie<input id="place" placeholder="Obec / adresa"></label>
+<label class="wide">Predmet ponuky<textarea id="subject" placeholder="Napr. montáž sadrokartónového podhľadu"></textarea></label>
+</div>
+<details class="optional" id="companyDetails"><summary id="companyDetailsTitle">Údaje mojej firmy a logo</summary>
+<p class="muted" id="companyFillStatus">Firemné údaje sa načítajú po prihlásení do firemného účtu. Pri ponuke ich možno ručne upraviť.</p>
+<div class="logo-picker" style="margin-bottom:14px"><label>Logo firmy (PNG, JPG, WebP – max. 2 MB)<input id="logo" type="file" accept="image/png,image/jpeg,image/webp"></label><img id="logoPreview" class="logo-preview" alt="Náhľad loga" hidden></div>
+<p class="muted" id="logoStatus">Logo sa použije iba v tejto ponuke. Pri overení e-mailu sa dočasne uloží spolu s ponukou.</p><div class="review-actions"><button type="button" id="removeCompanyLogo" hidden>Odstrániť logo</button></div>
+<div class="grid">
+<label>Firma<input id="company" placeholder="Názov vašej firmy"></label>
+<label>IČO<input id="ico" placeholder="12345678"></label>
+<label class="wide">Kontakt firmy<input id="contact" placeholder="Adresa, telefón, e-mail"></label>
+</div>
+</details>
+<details class="optional"><summary>Číslo a dátumy ponuky</summary><div class="grid">
+<label>Číslo ponuky<input id="offerNo" placeholder="Automaticky po uložení" readonly></label>
+<label>Dátum<input id="date" type="date"></label>
+<label>Platnosť do<input id="until" type="date"></label>
+</div></details>
+</section>
+
+<div id="step2" data-wizard-panel="2" hidden><section class="card"><h2 class="step-heading"><span class="step-number">2</span> Práca, materiál a doprava</h2><p class="muted">Vyberte uloženú položku alebo vytvorte novú. Množstvo a cenu môžete vždy upraviť. Napríklad pri m² zadáte cenu za 1 m², pri ks cenu za 1 kus.</p>
+
+<details class="card" id="pricelistSection" data-pro-only hidden><summary style="cursor:pointer;font-size:18px;font-weight:800">Vlastný firemný cenník – voliteľné nastavenie</summary>
+
+<p>Uložte si často používané práce a materiály. Potom ich jedným kliknutím pridáte do cenovej ponuky.</p>
+<p class="note">S aktívnym PRO sa položky automaticky načítajú z vášho firemného cenníka.</p>
+<form id="priceForm" class="pricelist-grid">
+<label>Typ<select id="priceType"><option>Práca</option><option>Materiál</option><option>Doprava</option></select></label>
+<label>Názov položky<input id="priceName" maxlength="160" placeholder="Napr. Montáž SDK podhľadu" required></label>
+<label>Jednotka<input id="priceUnit" maxlength="12" value="m²" required></label>
+<label>Cena za 1 jednotku (€)<input id="priceValue" type="number" min="0" max="100000000" step=".01" required placeholder="18"></label>
+<div class="actions wide"><button class="primary" id="savePrice" type="submit">+ Uložiť do cenníka</button><button id="cancelPriceEdit" type="button" hidden>Zrušiť úpravu</button></div>
+</form>
+<div class="pricelist-items" id="priceItems" aria-live="polite"></div>
+<div id="testCloudPanel" class="note" style="margin-top:18px;border:1px solid #b8d8f4"><strong>Firemný cenník</strong><p id="testCloudStatus" aria-live="polite">Overujem účet…</p><div class="actions"><button id="testCloudConnect" type="button">Overiť prihlásenie</button><button id="testCloudLoad" type="button" disabled>Obnoviť cenník</button></div><p class="muted">Miestne položky sa neimportujú automaticky, aby nevznikli duplicity.</p></div>
+</details>
+<div class="quick-pick" data-pro-only hidden><label for="quickPricePick">Rýchlo pridať z môjho cenníka</label><div class="quick-pick-row"><select id="quickPricePick" aria-label="Vybrať položku z firemného cenníka"><option value="">Vyberte uloženú položku…</option></select><button type="button" id="quickPriceAdd">+ Pridať do ponuky</button></div><p class="muted" id="quickPriceHint">Načítavam firemný cenník…</p></div>
+<p class="muted" id="emptyLineHint">Rozpočet je prázdny. Začnite výberom z cenníka alebo kliknite na „+ Pridať prácu“.</p><div class="scroller"><table><thead><tr><th>Typ</th><th>Položka</th><th>Množstvo</th><th>Jednotka</th><th>Cena za 1 jednotku (€)</th><th>Spolu</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
+<div class="actions"><button id="addWork" type="button">+ Pridať prácu</button><button id="addMat" type="button">+ Pridať materiál</button><button id="addTransport" type="button">+ Pridať dopravu</button></div>
+<details class="optional"><summary>DPH a zľava (voliteľné)</summary><div class="grid" style="margin-top:10px"><label>DPH<select id="vat"><option value="0">Bez DPH</option><option value="23">23 %</option><option value="19">19 %</option><option value="5">5 %</option></select></label><label>Zľava (%)<input id="discount" type="number" min="0" max="100" step=".1" value="0"></label></div>
+<p class="muted">Sadzba DPH je voliteľná. Vyberte ju podľa svojho daňového režimu a konkrétnej práce.</p></details>
+<div class="summary"><div><span>Práca</span><strong id="workSum">0 €</strong></div><div><span>Materiál</span><strong id="matSum">0 €</strong></div><div><span>Doprava</span><strong id="transportSum">0 €</strong></div><div><span>Zľava</span><strong id="discountSum">0 €</strong></div><div><span>DPH</span><strong id="vatSum">0 €</strong></div><div class="total"><span>Celkom</span><strong id="grandSum">0 €</strong></div></div>
+
+</section>
+<div id="wizardNavSlot2"></div>
+<aside class="pro-locked" data-free-only><div class="pro-card-heading"><h2>Dopyt<span>AI</span> PRO</h2><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3zM19 3v4M17 5h4"/></svg></div><p class="pro-card-subtitle">Viac možností. Menej administratívy.</p><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Neobmedzené cenové ponuky PDF</span><span class="pro-tag">PRO</span></div><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Ukladanie cenových ponúk</span><span class="pro-tag">PRO</span></div><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Vlastný firemný cenník</span><span class="pro-tag">PRO</span></div><button class="pro-upgrade" type="button" data-upgrade>Odomknúť DopytAI PRO</button><p class="pro-card-price">7,99 € mesačne alebo 79 € ročne</p></aside>
+</div>
+<div id="step3" data-wizard-panel="3" hidden><section class="card"><h2 class="step-heading"><span class="step-number">3</span> Hotová cenová ponuka</h2><p class="muted">Skontrolujte údaje. Čokoľvek môžete jednoducho opraviť.</p><div class="review-card">
+<div class="review-row"><span>Zákazník</span><strong id="reviewCustomer">—</strong></div><div class="review-row"><span>Miesto realizácie</span><strong id="reviewPlace">—</strong></div><div class="review-row"><span>Položiek</span><strong id="reviewCount">0</strong></div><div class="review-row review-total"><span>Celkom</span><strong id="reviewTotal">0 €</strong></div><div class="review-actions"><button type="button" id="reviewEditCustomer">Upraviť zákazníka</button><button type="button" id="reviewEditItems">Upraviť položky</button></div></div><details class="optional"><summary>Podmienky a poznámky (voliteľné)</summary><label>Podmienky ponuky<textarea id="terms">Cena sa vzťahuje na uvedený rozsah. Zmeny prác budú odsúhlasené so zákazníkom.</textarea></label></details>
+<div class="grid" style="margin-top:18px" data-pro-only hidden><label>Stav cenovej ponuky<select id="offerState"><option value="rozpracovana">Rozpracovaná</option><option value="dokoncena">Dokončená</option></select></label><div><strong id="editingOfferInfo">Nová ponuka – ešte neuložená</strong></div></div>
+<div class="pro-free-download" id="offerActions"><button class="primary" id="saveOffer" type="button" data-pro-only hidden>Uložiť ponuku</button><button id="print" type="button" class="primary">Stiahnuť PDF zadarmo</button><p class="pro-download-note" data-free-only>Prvé 3 PDF zadarmo po overení e-mailu.</p><button id="clear" type="button">Nová ponuka</button></div>
+
+<p id="offerSaveMessage" class="note" role="status" data-pro-only hidden>Ukladanie ponúk je dostupné po prihlásení do firemného účtu.</p>
+<details class="optional" id="savedOffersSection" data-pro-only hidden><summary>Moje uložené cenové ponuky</summary><button id="reloadOffers" type="button">Obnoviť zoznam ponúk</button><div class="pricelist-items" id="offerList"></div></details>
+</section>
+<div id="wizardNavSlot3"></div>
+<aside class="pro-locked" data-free-only><div class="pro-card-heading"><h2>Dopyt<span>AI</span> PRO</h2><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3zM19 3v4M17 5h4"/></svg></div><p class="pro-card-subtitle">Viac možností. Menej administratívy.</p><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Neobmedzené cenové ponuky PDF</span><span class="pro-tag">PRO</span></div><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Ukladanie cenových ponúk</span><span class="pro-tag">PRO</span></div><div class="pro-feature"><svg class="pro-lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Vlastný firemný cenník</span><span class="pro-tag">PRO</span></div><button class="pro-upgrade" type="button" data-upgrade>Odomknúť DopytAI PRO</button><p class="pro-card-price">7,99 € mesačne alebo 79 € ročne</p></aside>
+</div><div id="wizardNavigation"><div class="wizard-footer"><button id="wizardBack" type="button" hidden>← Späť</button><span class="wizard-spacer"></span><button id="wizardNext" type="button" class="primary">Pokračovať →</button></div><p id="wizardError" class="wizard-error" role="alert" hidden></p></div></main>
+<div id="printed"></div>
+<script>
+(function(){
+'use strict';
+const el=id=>document.getElementById(id);
+const euro=n=>new Intl.NumberFormat('sk-SK',{style:'currency',currency:'EUR'}).format(n);
+const n=v=>{const x=Number(String(v).replace(',','.'));return Number.isFinite(x)&&x>=0?x:0};
+const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let logoData="",logoRevision=0,logoBusy=false,logoOwner=null;
+
+
+const PRICE_KEY='dopytai_ponuky_cennik_v1';
+const TEST_HOST='deploy-preview-11--sparkly-choux-e2b050.netlify.app';
+const TEST_REST='https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1';
+const TEST_AUTH='https://pwtvquyefpucjufvwnxp.supabase.co/auth/v1';
+const TEST_KEY='sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-';
+let testFirmId=null,testToken=null,priceBook=[],editingPriceId=null,priceBusy=false,priceMode='loading',proActive=false;
+function applyPro(active){proActive=active===true;el('offerActions').classList.toggle('pro-enabled',proActive);document.querySelectorAll('[data-pro-only]').forEach(x=>{x.hidden=!proActive;if(!proActive&&x.tagName==='DETAILS')x.open=false});document.querySelectorAll('[data-free-only]').forEach(x=>x.hidden=proActive);el('print').textContent=proActive?'Stiahnuť PDF':'Stiahnuť PDF zadarmo';if(!proActive){priceBook=[];el('offerList').replaceChildren();setPriceMode('error');renderPrices()}offerAvailability()}
+function showPro(){el('proPanel').open=true;el('proPanel').scrollIntoView({behavior:'smooth'})}
+const testAllowed=()=>location.hostname===TEST_HOST;
+function testStatus(message){el('testCloudStatus').textContent=message}
+function setPriceMode(mode){priceMode=mode;const disabled=priceBusy||mode==='loading'||mode==='error';el('savePrice').disabled=disabled;el('testCloudLoad').disabled=priceBusy||mode!=='cloud';}
+function readLocal(){try{const a=JSON.parse(localStorage.getItem(PRICE_KEY)||'[]');return Array.isArray(a)?a.filter(p=>p&&typeof p.id==='string'&&typeof p.name==='string'&&typeof p.unit==='string'&&['Práca','Materiál','Doprava'].includes(p.type)&&Number.isFinite(p.price)).slice(0,300):[]}catch(e){return []}}
+function storeLocal(){try{localStorage.setItem(PRICE_KEY,JSON.stringify(priceBook));return true}catch(e){alert('Lokálny cenník sa nepodarilo uložiť.');return false}}
+async function protectedData(operation,extra={}){
+ const res=await fetch('/.netlify/functions/kalkulacka-pro',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+testToken},body:JSON.stringify({action:'data',operation,...extra})});
+ const result=await res.json();
+ if(!res.ok){if(res.status===403){applyPro(false);el('proStatus').textContent='Nemáte aktívne predplatné PRO.'}throw Error(result.error||'Požiadavka zlyhala.')}
+ return result.data;
+}
+async function testRequest(path,options={}){
+ if(!testAllowed()||!testFirmId||!testToken)throw Error('Neoverené TEST spojenie');
+ const headers={apikey:TEST_KEY,Authorization:'Bearer '+testToken,...(options.body?{'Content-Type':'application/json'}:{})};
+ const res=await fetch(TEST_REST+path,{...options,headers:{...headers,...(options.headers||{})}});
+ if(!res.ok){const body=await res.text();throw Error('HTTP '+res.status+': '+body.slice(0,160))}
+ if(res.status===204)return null;const body=await res.text();return body?JSON.parse(body):null;
+}
+async function loadTestPrices(){
+ if(!testFirmId||!testToken)return;
+ const rows=await protectedData('prices');
+ if(!Array.isArray(rows)||rows.length>300)throw Error('Cenník má neplatný počet položiek');
+ priceBook=rows.map(p=>({id:'db_'+p.id,dbId:p.id,type:p.typ,name:p.nazov,unit:p.jednotka,price:Number(p.cena)}));
+ setPriceMode('cloud');renderPrices();
+ testStatus('TEST firma ID '+testFirmId+' – načítaných '+priceBook.length+' položiek. Cenník sa automaticky ukladá do Supabase.');
+}
+async function fillCompanyFromTest(){
+ if(!testFirmId||!testToken)return;
+ try{
+  const rows=await testRequest('/firmy?select=n%C3%A1zov,ico,telefon,email,fakturacna_ulica,fakturacne_psc,fakturacne_mesto&id=eq.'+encodeURIComponent(testFirmId)+'&limit=1');
+  if(!Array.isArray(rows)||rows.length!==1)throw Error('Firemné údaje nie sú dostupné');
+  const firm=rows[0];
+  const name=firm['názov']||'',address=[firm.fakturacna_ulica,[firm.fakturacne_psc,firm.fakturacne_mesto].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+  const contact=[address,firm.telefon,firm.email].filter(Boolean).join(' | ');
+  if(!el('company').value.trim())el('company').value=name;
+  if(!el('ico').value.trim())el('ico').value=firm.ico||'';
+  if(!el('contact').value.trim())el('contact').value=contact;
+  el('companyDetailsTitle').textContent='Údaje mojej firmy a logo (načítajú sa automaticky)';
+  el('companyFillStatus').textContent='Údaje firmy boli doplnené z vášho účtu. Pri uložení sa zachovajú ako historická súčasť ponuky.';
+ }catch(err){el('companyFillStatus').textContent='Načítanie firemných údajov zlyhalo: '+err.message+'. Môžete ich vyplniť ručne.'}
+}
+async function connectTest(){
+ if(priceBusy||logoBusy)return;
+ testFirmId=null;testToken=null;setPriceMode('loading');
+ el('companyDetailsTitle').textContent='Údaje mojej firmy a logo';
+ if(logoOwner!==null){showQuoteLogo('');logoOwner=null;}el('removeCompanyLogo').hidden=!logoData;
+ const token=testAllowed()?localStorage.getItem('dopytai_company_token'):null;
+ if(!token){applyPro(false);el('proStatus').textContent='Prihláste sa alebo si vyberte predplatné.';return}
+ try{
+  const res=await fetch(TEST_AUTH+'/user',{headers:{apikey:TEST_KEY,Authorization:'Bearer '+token}});
+  if(!res.ok)throw Error('TEST prihlásenie vypršalo; prihláste sa znova.');
+  const user=await res.json();if(!user.id)throw Error('TEST používateľ sa nepodaril overiť.');
+  const firmRes=await fetch(TEST_REST+'/firmy?select=id&auth_user_id=eq.'+encodeURIComponent(user.id)+'&limit=2',{headers:{apikey:TEST_KEY,Authorization:'Bearer '+token}});
+  if(!firmRes.ok)throw Error('Firma sa nepodarila overiť (HTTP '+firmRes.status+').');
+  const firms=await firmRes.json();if(!Array.isArray(firms)||firms.length!==1)throw Error('Nenájdená presne jedna TEST firma.');
+  testFirmId=firms[0].id;testToken=token;
+  await fillCompanyFromTest();
+  await loadCompanyLogo();
+  const status=await proCall('status');applyPro(status.active);el('proStatus').textContent=proActive?'Predplatné PRO je aktívne.':'Nemáte aktívne predplatné PRO.';
+  if(proActive){await loadTestPrices();await verifyOfferSchema();offerAvailability();await listSavedOffers();}
+ }catch(err){testFirmId=null;testToken=null;el('companyDetailsTitle').textContent='Údaje mojej firmy a logo';applyPro(false);el('proStatus').textContent='Predplatné sa nepodarilo overiť.';testStatus('Chyba TEST spojenia: '+err.message+' Zápis dočasne zablokovaný.')}
+}
+function resetPriceEditor(){
+ editingPriceId=null;el('priceForm').reset();el('priceUnit').value='m²';
+ el('savePrice').textContent='+ Uložiť do cenníka';el('cancelPriceEdit').hidden=true;
+}
+function editPrice(item){
+ editingPriceId=item.id;
+ el('priceType').value=item.type;el('priceName').value=item.name;el('priceUnit').value=item.unit;el('priceValue').value=item.price;
+ el('savePrice').textContent='Uložiť zmeny';el('cancelPriceEdit').hidden=false;el('priceName').focus();
+}
+function renderQuickPrices(){
+ const select=el('quickPricePick'),previous=select.value;
+ select.replaceChildren();
+ const placeholder=document.createElement('option');
+ placeholder.value='';placeholder.textContent='Vyberte uloženú položku…';select.append(placeholder);
+ for(const item of priceBook){
+  const option=document.createElement('option');
+  option.value=item.id;
+  option.textContent=item.name+' · '+item.type+' · '+euro(item.price)+' / '+item.unit;
+  select.append(option);
+ }
+ if(priceBook.some(p=>p.id===previous))select.value=previous;
+ const available=['cloud','local'].includes(priceMode)&&priceBook.length>0;
+ select.disabled=!available;el('quickPriceAdd').disabled=!available;
+ el('quickPriceHint').textContent=priceMode==='loading'?'Overujem firemný cenník…'
+  :priceMode==='error'?'Cenník sa nepodarilo načítať. Skúste znovu overiť prihlásenie.'
+  :available?'Jedným kliknutím pridáte položku do rozpočtu. Množstvo sa nastaví na 1.'
+  :'Cenník je zatiaľ prázdny. Použite tlačidlá Pridať prácu/materiál/dopravu alebo si otvorte voliteľný firemný cenník.';
+}
+el('quickPriceAdd').addEventListener('click',()=>{
+ const id=el('quickPricePick').value;
+ const selected=priceBook.find(p=>p.id===id);
+ if(!selected){el('quickPricePick').focus();return}
+ add(selected.type,selected.name,1,selected.unit,selected.price);
+ el('quickPricePick').value='';
+ const last=el('lines').lastElementChild;
+ if(last)last.querySelector('.qty').focus();
+});
+function renderPrices(){
+ const area=el('priceItems');area.replaceChildren();renderQuickPrices();
+ if(priceMode==='loading'||priceMode==='error')return;
+ if(!priceBook.length){const p=document.createElement('p');p.className='muted';p.textContent='Zatiaľ nemáte položky v cenníku.';area.append(p);return}
+ for(const item of priceBook){
+  const box=document.createElement('div');box.className='pricelist-entry';
+  const desc=document.createElement('div'),title=document.createElement('strong'),sub=document.createElement('small');
+  title.textContent=item.name;sub.textContent=item.type+' · '+euro(item.price)+' / '+item.unit;desc.append(title,sub);
+  const actions=document.createElement('div');actions.className='entry-actions';
+  const addBtn=document.createElement('button');addBtn.type='button';addBtn.textContent='Do ponuky';
+  addBtn.onclick=()=>{add(item.type,item.name,1,item.unit,item.price);el('lines').lastElementChild.querySelector('.qty').focus()};
+  const editBtn=document.createElement('button');editBtn.type='button';editBtn.textContent='Upraviť';editBtn.onclick=()=>editPrice(item);
+  const delBtn=document.createElement('button');delBtn.type='button';delBtn.className='danger';delBtn.textContent='Zmazať';
+  delBtn.onclick=async()=>{
+   if(priceBusy||!confirm('Zmazať z cenníka: '+item.name+'?'))return;
+   if(priceMode==='cloud'){
+    priceBusy=true;setPriceMode('cloud');
+    try{
+     await protectedData('priceDelete',{id:item.dbId});
+     if(editingPriceId===item.id)resetPriceEditor();await loadTestPrices();
+    }catch(err){testStatus('Mazanie zlyhalo: '+err.message)}
+    finally{priceBusy=false;setPriceMode(priceMode)}
+   }else if(priceMode==='local'){
+    const prev=priceBook;priceBook=priceBook.filter(p=>p.id!==item.id);
+    if(!storeLocal())priceBook=prev;
+    if(editingPriceId===item.id)resetPriceEditor();renderPrices();
+   }
+  };
+  actions.append(addBtn,editBtn,delBtn);box.append(desc,actions);area.append(box);
+ }
+}
+el('priceForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(priceBusy||!['cloud','local'].includes(priceMode))return;
+ const type=el('priceType').value,name=el('priceName').value.trim(),unit=el('priceUnit').value.trim(),price=Number(el('priceValue').value);
+ if(!name||!unit||!['Práca','Materiál','Doprava'].includes(type)||!Number.isFinite(price)||price<0||price>100000000){alert('Skontrolujte názov, typ, jednotku a cenu.');return}
+ const p={type,name,unit,price:Math.round(price*100)/100};
+ if(priceMode==='cloud'){
+  priceBusy=true;setPriceMode('cloud');
+  try{
+   const existing=priceBook.find(x=>x.id===editingPriceId);
+   if(!existing&&priceBook.length>=300)throw Error('Limit 300 položiek');
+   const data={typ:p.type,nazov:p.name,jednotka:p.unit,cena:p.price};
+   if(existing)await protectedData('priceUpdate',{id:existing.dbId,data});
+   else await protectedData('priceCreate',{data});
+   resetPriceEditor();await loadTestPrices();
+  }catch(err){testStatus('Ukladanie zlyhalo: '+err.message)}
+  finally{priceBusy=false;setPriceMode(priceMode)}
+ }else{
+  const prev=priceBook.slice();
+  if(editingPriceId)priceBook=priceBook.map(x=>x.id===editingPriceId?{...p,id:x.id}:x);
+  else{if(priceBook.length>=300){alert('Limit 300 položiek');return}priceBook.push({...p,id:'p'+Date.now()+'_'+Math.random().toString(36).slice(2,8)})}
+  if(!storeLocal())priceBook=prev;else resetPriceEditor();renderPrices();
+ }
+});
+el('cancelPriceEdit').onclick=resetPriceEditor;
+el('testCloudConnect').onclick=connectTest;
+el('testCloudLoad').onclick=async()=>{if(priceMode==='cloud'){try{await loadTestPrices()}catch(err){testStatus('Načítanie zlyhalo: '+err.message)}}};
+const date=new Date();el('date').value=[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
+function add(type,name='',qty=1,unit='m²',price=0){
+const row=document.createElement('tr');
+row.innerHTML='<td><select class="type"><option>Práca</option><option>Materiál</option><option>Doprava</option></select></td><td><input class="name" aria-label="Položka"></td><td><input class="qty" type="number" min="0" step="any" aria-label="Množstvo"></td><td><input class="unit" aria-label="Jednotka"></td><td><input class="price" type="number" min="0" step=".01" aria-label="Cena"></td><td class="money amount"></td><td><button class="danger remove" type="button" aria-label="Odstrániť položku">×</button></td>';
+row.querySelector('.type').value=type;row.querySelector('.name').value=name;row.querySelector('.qty').value=qty;row.querySelector('.unit').value=unit;row.querySelector('.price').value=price;
+row.addEventListener('input',render);row.addEventListener('change',render);row.querySelector('.remove').onclick=()=>{row.remove();render()};
+el('lines').appendChild(row);render();
+}
+function calc(){
+let work=0,mat=0,transport=0;
+const rows=[...el('lines').querySelectorAll('tr')].map(tr=>{const type=tr.querySelector('.type').value,name=tr.querySelector('.name').value,qty=n(tr.querySelector('.qty').value),unit=tr.querySelector('.unit').value,price=n(tr.querySelector('.price').value),sum=Math.round(qty*price*100)/100;tr.querySelector('.amount').textContent=euro(sum);if(type==='Práca')work+=sum;else if(type==='Materiál')mat+=sum;else transport+=sum;return{type,name,qty,unit,price,sum}});
+const discount=(work+mat+transport)*Math.min(100,n(el('discount').value))/100,base=work+mat+transport-discount,vat=base*n(el('vat').value)/100;
+return{rows,work,mat,transport,discount,vat,total:base+vat};
+}
+function render(){el('emptyLineHint').hidden=el('lines').children.length>0;const v=calc();[['workSum',v.work],['matSum',v.mat],['transportSum',v.transport],['discountSum',v.discount],['vatSum',v.vat],['grandSum',v.total]].forEach(([id,val])=>el(id).textContent=euro(val))}
+function dateSK(iso){if(!iso)return '—';const parts=iso.split('-');return parts.length===3?parts[2]+'. '+parts[1]+'. '+parts[0]:safe(iso)}
+function print(){
+ const v=calc();
+ if(!v.rows.some(r=>r.name.trim())){alert('Zadajte aspoň jednu položku.');return}
+ const f=id=>safe(el(id).value);
+ const show=id=>f(id)||'—';
+ const row=(label,value)=>'<div class="offer-totals-row"><span>'+label+'</span><strong>'+value+'</strong></div>';
+ const logo=logoData?'<img class="offer-logo" src="'+logoData+'" alt="Logo firmy">':'';
+ el('printed').innerHTML=
+ '<div class="offer-heading"><div>'+logo+'<div class="offer-label">Dodávateľ</div><div class="offer-name">'+show('company')+'</div><div class="offer-details">'+(f('ico')?'IČO: '+f('ico')+'\n':'')+f('contact')+'</div></div>'
+ +'<div class="offer-title"><h1>Cenová ponuka</h1><p><strong>Číslo:</strong> '+show('offerNo')+'</p><p><strong>Dátum:</strong> '+dateSK(el('date').value)+'</p><p><strong>Platnosť do:</strong> '+dateSK(el('until').value)+'</p></div></div>'
+ +'<div class="offer-columns"><div class="offer-panel"><div class="offer-label">Odberateľ</div><strong>'+show('customer')+'</strong></div><div class="offer-panel"><div class="offer-label">Miesto realizácie</div><strong>'+show('place')+'</strong></div></div>'
+ +'<h2 class="offer-section">Predmet ponuky</h2><p class="offer-description">'+show('subject')+'</p>'
+ +'<h2 class="offer-section">Položkový rozpočet</h2><table><thead><tr><th style="width:5%">Č.</th><th style="width:12%">Typ</th><th style="width:27%">Položka</th><th style="width:12%">Množstvo</th><th style="width:10%">MJ</th><th class="money" style="width:17%">Jedn. cena</th><th class="money" style="width:17%">Spolu</th></tr></thead><tbody>'
+ +v.rows.map((r,i)=>'<tr><td>'+(i+1)+'.</td><td>'+safe(r.type)+'</td><td>'+safe(r.name)+'</td><td>'+r.qty+'</td><td>'+safe(r.unit)+'</td><td class="money">'+euro(r.price)+'</td><td class="money">'+euro(r.sum)+'</td></tr>').join('')
+ +'</tbody></table>'
+ +'<div class="offer-totals">'+row('Práca',euro(v.work))+row('Materiál',euro(v.mat))+row('Doprava',euro(v.transport))+row('Zľava',euro(v.discount))+row('DPH ('+safe(el('vat').value)+' %)',euro(v.vat))+'<div class="offer-grand"><span>Celkom</span><span>'+euro(v.total)+'</span></div></div>'
+ +'<h2 class="offer-section">Poznámky a podmienky</h2><p class="offer-description">'+show('terms')+'</p><div class="offer-footer">Cenová ponuka bola vytvorená pomocou DopytAI.</div>';
+ // Počkáme na vložené logo pred vyvolaním tlače
+ const image=el('printed').querySelector('img');
+ if(image&&!image.complete){image.onload=()=>window.print();image.onerror=()=>window.print()}else window.print();
+}
+
+let currentOfferId=null,offerBusy=false,offerSchemaReady=false;
+function offerStatus(message){el('offerSaveMessage').textContent=message}
+function offerAvailability(){
+ const enabled=proActive&&testAllowed()&&priceMode==='cloud'&&!!testToken&&!!testFirmId;
+ const canSave=enabled&&offerSchemaReady;
+ el('saveOffer').disabled=!canSave||offerBusy;
+ el('reloadOffers').disabled=!enabled||offerBusy;
+ if(!enabled)offerStatus('Na ukladanie ponúk sa prihláste do firemného účtu.');
+ else if(!offerSchemaReady)offerStatus('Ukladanie čaká na rozšírenie TEST databázy. Ostatné funkcie kalkulačky zostávajú dostupné.');
+ return enabled;
+}
+async function verifyOfferSchema(){
+ offerSchemaReady=false;
+ if(!testFirmId||!testToken)return;
+ try{
+  await protectedData('schema');
+  offerSchemaReady=true;
+ }catch(err){offerStatus('TEST databáza potrebuje pripravené SQL rozšírenie: '+err.message)}
+}
+function offerDetails(){
+ return {
+  cislo_ponuky:null, // server pridelí jednoznačné číslo pri vložení
+  dodavatel_nazov:el('company').value.trim(),dodavatel_ico:el('ico').value.trim(),dodavatel_kontakt:el('contact').value.trim(),
+  zakaznik:el('customer').value.trim(),miesto_realizacie:el('place').value.trim(),
+  predmet:el('subject').value.trim(),poznamky:el('terms').value,
+  datum_vystavenia:el('date').value,platnost_do:el('until').value||null,
+  stav:el('offerState').value,sadzba_dph:Number(el('vat').value),
+  zlava_percent:Math.min(100,n(el('discount').value))
+ };
+}
+function linesForDb(){
+ const rows=calc().rows;
+ if(!rows.length||rows.some(p=>!p.name.trim()||!p.unit.trim()||!Number.isFinite(p.qty)||!Number.isFinite(p.price)||p.qty>999999999||p.price>9999999999))throw Error('Skontrolujte názvy, jednotky a ceny všetkých položiek.');
+ return rows.map((p,i)=>({typ:p.type,nazov:p.name.trim(),mnozstvo:p.qty,jednotka:p.unit.trim(),jednotkova_cena:p.price,poradie:i+1}));
+}
+async function listSavedOffers(){
+ if(!offerAvailability())return;
+ try{
+  const rows=await protectedData('offers');
+  if(!Array.isArray(rows))throw Error('Neplatný zoznam ponúk');
+  const area=el('offerList');area.replaceChildren();
+  if(!rows.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='Zatiaľ nemáte uložené ponuky.';area.append(empty)}
+  for(const r of rows){
+   const card=document.createElement('div');card.className='pricelist-entry';
+   const desc=document.createElement('div');const title=document.createElement('strong');title.textContent=r.cislo_ponuky||('Ponuka '+r.id);
+   const sub=document.createElement('small');sub.textContent=(r.zakaznik||'Bez zákazníka')+' · '+(r.stav==='dokoncena'?'Dokončená':'Rozpracovaná')+' · '+r.datum_vystavenia;
+   desc.append(title,sub);
+   const open=document.createElement('button');open.type='button';open.textContent='Otvoriť';open.onclick=()=>openSavedOffer(r.id);
+   card.append(desc,open);area.append(card);
+  }
+  offerStatus('Načítaných '+rows.length+' uložených ponúk z TEST.');
+ }catch(err){offerStatus('Načítanie ponúk zlyhalo: '+err.message)}
+}
+function writeOfferFields(q){
+ const mapping={offerNo:'cislo_ponuky',company:'dodavatel_nazov',ico:'dodavatel_ico',contact:'dodavatel_kontakt',customer:'zakaznik',place:'miesto_realizacie',subject:'predmet',terms:'poznamky',date:'datum_vystavenia',until:'platnost_do',discount:'zlava_percent',vat:'sadzba_dph',offerState:'stav'};
+ for(const [id,col] of Object.entries(mapping)){
+  if(['company','ico','contact'].includes(id)&&q[col]==null)continue; // staršie ponuky nemajú snímku
+  el(id).value=q[col]===null?'':String(q[col]??'');
+ }
+}
+async function openSavedOffer(id){
+ if(!offerAvailability())return;
+ if(!await confirmOfferAction('Otvoriť cenovú ponuku?','Aktuálne neuložené údaje vo formulári sa nahradia údajmi z vybranej ponuky.','Otvoriť ponuku'))return;
+ try{
+  const rows=await protectedData('offer',{id});
+  if(!Array.isArray(rows)||rows.length!==1)throw Error('Ponuka nie je dostupná.');
+  const items=await protectedData('lines',{id});
+  if(!Array.isArray(items))throw Error('Nemožno načítať položky');
+  const q=rows[0];
+  writeOfferFields(q);
+  el('lines').replaceChildren();
+  for(const p of items)add(p.typ,p.nazov,Number(p.mnozstvo),p.jednotka,Number(p.jednotkova_cena));
+  render();
+  currentOfferId=id;
+  el('editingOfferInfo').textContent='Otvorená ponuka ID '+id+' (uloženie vytvorí novú verziu)';
+  offerStatus('Ponuka ID '+id+' bola otvorená zo Supabase. Pre potvrdenie zmien kliknite na Uložiť.');
+  gotoWizard(3,{validate:false});
+ }catch(err){offerStatus('Otvorenie ponuky zlyhalo: '+err.message)}
+}
+function confirmOfferAction(title,message,actionLabel){
+ return new Promise(resolve=>{
+  const d=el('offerConfirmDialog');
+  if(d.open){resolve(false);return}
+  el('offerDialogTitle').textContent=title;
+  el('offerDialogText').textContent=message;
+  el('offerDialogAccept').textContent=actionLabel;
+  let completed=false;
+  const cleanup=()=>{
+   el('offerDialogAccept').removeEventListener('click',accept);
+   el('offerDialogCancel').removeEventListener('click',cancel);
+   d.removeEventListener('cancel',onCancel);
+   d.removeEventListener('close',onClose);
+  };
+  const finish=answer=>{if(completed)return;completed=true;cleanup();d.close();resolve(answer)};
+  const accept=()=>finish(true),cancel=()=>finish(false),onCancel=e=>{e.preventDefault();finish(false)};
+  const onClose=()=>{if(!completed){completed=true;cleanup();resolve(false)}};
+  el('offerDialogAccept').addEventListener('click',accept);
+  el('offerDialogCancel').addEventListener('click',cancel);
+  d.addEventListener('cancel',onCancel);d.addEventListener('close',onClose);
+  try{d.showModal()}catch(e){completed=true;cleanup();resolve(false)}
+ });
+}
+function confirmOfferSave(isVersion){
+ return confirmOfferAction(
+  isVersion?'Uložiť novú verziu ponuky?':'Uložiť cenovú ponuku?',
+  isVersion?'Vytvorí sa nová verzia v TEST Supabase. Pôvodná ponuka zostane zachovaná.':'Cenová ponuka sa uloží do TEST Supabase pod prihlásenú firmu.',
+  'Uložiť ponuku'
+ );
+}
+async function saveOfferToTest(){
+ if(!offerAvailability()||!offerSchemaReady)return;
+ let rows,details;
+ try{rows=linesForDb();details=offerDetails();if(!details.datum_vystavenia)throw Error('Vyplňte dátum ponuky.');if(!details.dodavatel_nazov)throw Error('Doplňte názov dodávateľa v Údajoch mojej firmy.');}catch(err){offerStatus(err.message);return}
+ if(!await confirmOfferSave(Boolean(currentOfferId)))return;
+ offerBusy=true;offerAvailability();
+ let newOfferId=null;
+ try{
+  if(currentOfferId){
+   // Bezpečné verzovanie: nikdy neprepisovať pôvodnú ponuku bez serverovej transakcie.
+   // Nasleduje rovnaký INSERT ako pri novej ponuke; pôvodná ponuka zostáva uložená.
+  }
+  {
+   const created=await protectedData('offerSave',{data:details,lines:rows});
+   if(!Array.isArray(created)||created.length!==1)throw Error('Nepodarilo sa získať ID novej ponuky.');
+   newOfferId=created[0].id;
+   currentOfferId=newOfferId;
+   el('offerNo').value=created[0].cislo_ponuky||'';
+  }
+  el('editingOfferInfo').textContent='Uložená verzia '+(el('offerNo').value||('ID '+currentOfferId));
+  offerStatus('Ponuka ID '+currentOfferId+' bola uložená do TEST Supabase. Predchádzajúce verzie zostávajú zachované.');
+ }catch(err){
+
+  offerStatus('Ukladanie zlyhalo: '+err.message+'. Pôvodná verzia ponuky zostala zachovaná.');
+ }finally{offerBusy=false;offerAvailability()}
+ if(currentOfferId)await listSavedOffers();
+}
+el('saveOffer').onclick=saveOfferToTest;
+el('reloadOffers').onclick=listSavedOffers;
+function resetOfferEditor(){
+ currentOfferId=null;el('offerNo').value='';el('editingOfferInfo').textContent='Nová ponuka – číslo vznikne pri uložení';
+}
+function showQuoteLogo(data){
+ logoData=data||'';const preview=el('logoPreview');
+ if(logoData){preview.src=logoData;preview.hidden=false}else{preview.removeAttribute('src');preview.hidden=true}
+ el('removeCompanyLogo').hidden=!logoData;
+}
+async function companyLogoCall(operation,logo,token=testToken){
+ if(!token||!testAllowed())throw Error('Firemný účet nie je overený.');
+ const r=await fetch('/.netlify/functions/kalkulacka-pro',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action:'companyLogo',operation,logo})});
+ const d=await r.json();if(!r.ok)throw Error(d.error||'Logo sa nepodarilo spracovať.');return d;
+}
+async function loadCompanyLogo(){
+ const token=testToken,firm=testFirmId,rev=logoRevision;
+ if(!token||!firm)return;
+ try{
+  const d=await companyLogoCall('get',undefined,token);
+  if(token!==testToken||firm!==testFirmId||rev!==logoRevision||logoBusy)return;
+  logoOwner=firm;showQuoteLogo(d.logo||'');
+  el('logoStatus').textContent=logoData?'Logo bolo automaticky načítané z firemného účtu.':'Nahrajte logo raz. Pri ďalších ponukách sa načíta automaticky.';
+ }catch(e){el('logoStatus').textContent='Uložené logo sa nepodarilo načítať. Logo môžete pridať ručne.'}
+}
+el('logo').addEventListener('change',async event=>{
+ const file=event.target.files?.[0];if(!file||logoBusy)return;
+ if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>2*1024*1024){alert('Použite obrázok PNG, JPG alebo WebP do 2 MB.');event.target.value='';return}
+ const token=testToken,firm=testFirmId;logoRevision++;logoBusy=true;el('logo').disabled=true;el('removeCompanyLogo').disabled=true;
+ const previous=logoData;
+ try{
+  const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(Error('Logo sa nepodarilo načítať.'));reader.readAsDataURL(file)});
+  showQuoteLogo(data);
+  const compact=await compactQuoteLogo();
+  if(token&&firm){
+   if(token!==testToken||firm!==testFirmId)throw Error('Firemný účet sa zmenil.');
+   await companyLogoCall('save',compact,token);
+   if(token!==testToken||firm!==testFirmId)return;
+   logoOwner=firm;showQuoteLogo(compact);el('logoStatus').textContent='Logo je uložené vo firemnom účte a načíta sa pri ďalšej ponuke.';
+  }else{logoOwner=null;el('logoStatus').textContent='Logo je pripravené pre túto ponuku.'}
+ }catch(e){if(token===testToken&&firm===testFirmId){showQuoteLogo(previous);el('logoStatus').textContent='Logo sa nepodarilo uložiť: '+e.message}}
+ finally{logoBusy=false;el('logo').disabled=false;el('removeCompanyLogo').disabled=false;event.target.value=''}
+});
+el('removeCompanyLogo').onclick=async()=>{
+ if(logoBusy||!confirm('Odstrániť logo?'))return;
+ const token=testToken,firm=testFirmId;logoRevision++;logoBusy=true;el('logo').disabled=true;el('removeCompanyLogo').disabled=true;
+ try{
+  if(token&&firm)await companyLogoCall('remove',undefined,token);
+  if(token!==testToken||firm!==testFirmId)return;
+  showQuoteLogo('');el('logo').value='';el('logoStatus').textContent='Logo bolo odstránené.';
+ }catch(e){el('logoStatus').textContent='Logo sa nepodarilo odstrániť: '+e.message}
+ finally{logoBusy=false;el('logo').disabled=false;el('removeCompanyLogo').disabled=false}
+};
+
+
+
+let currentWizardStep=1;
+const wizardHints=[
+ 'Vyplňte meno zákazníka. Ostatné údaje môžete doplniť podľa potreby.',
+ 'Pridajte položky a zadajte množstvá. Cena sa prepočíta automaticky.',
+ 'Skontrolujte údaje a vyberte uloženie alebo PDF.'
+];
+function validateWizardStep(step){
+ if(step===1&&!el('customer').value.trim()){
+  el('customer').focus();return 'Prosím, vyplňte meno alebo názov zákazníka.';
+ }
+ if(step===2){
+  const rows=calc().rows;
+  if(!rows.length)return 'Pridajte aspoň jednu položku do cenovej ponuky.';
+  if(rows.some(r=>!r.name.trim()||!r.unit.trim()||r.qty<=0||!Number.isFinite(r.qty)||!Number.isFinite(r.price)))
+   return 'Skontrolujte názvy, množstvá, jednotky a ceny položiek.';
+ }
+ return '';
+}
+function wizardReview(){
+ el('reviewCustomer').textContent=el('customer').value.trim()||'—';
+ el('reviewPlace').textContent=el('place').value.trim()||'—';
+ const calcResult=calc();
+ el('reviewCount').textContent=String(calcResult.rows.length);
+ el('reviewTotal').textContent=euro(calcResult.total);
+}
+function gotoWizard(step,{validate=true}={}){
+ if(!Number.isInteger(step)||step<1||step>3)return;
+ if(validate&&step>currentWizardStep){
+  for(let i=currentWizardStep;i<step;i++){
+   const err=validateWizardStep(i);
+   if(err){
+    if(i!==currentWizardStep)gotoWizard(i,{validate:false});
+    el('wizardError').hidden=false;el('wizardError').textContent=err;
+    el('wizardError').scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
+   }
+  }
+ }
+ currentWizardStep=step;
+ el('wizardError').textContent='';el('wizardError').hidden=true;
+ for(let n=1;n<=3;n++)el('step'+n).hidden=n!==step;
+ el('wizardCounter').textContent='Krok '+step+' z 3';
+ el('wizardNote').textContent=wizardHints[step-1];
+ el('wizardProgress').style.width=(step/3*100)+'%';
+ document.querySelectorAll('[data-go-step]').forEach(btn=>{
+  const n=Number(btn.dataset.goStep);
+  btn.classList.toggle('done',n<step);
+  if(n===step)btn.setAttribute('aria-current','step');else btn.removeAttribute('aria-current');
+ });
+ const nav=el('wizardNavigation');
+ if(step===1){el('step3').after(nav)}else{el('wizardNavSlot'+step).appendChild(nav)}
+ el('wizardBack').hidden=step===1;el('wizardNext').hidden=step===3;
+ if(step===3)wizardReview();
+ try{history.replaceState(null,'','#step'+step)}catch(_){}
+ window.scrollTo({top:0,behavior:'instant'});
+}
+document.querySelectorAll('[data-go-step]').forEach(btn=>btn.addEventListener('click',()=>gotoWizard(Number(btn.dataset.goStep))));
+el('wizardBack').onclick=()=>gotoWizard(currentWizardStep-1,{validate:false});
+el('wizardNext').onclick=()=>gotoWizard(currentWizardStep+1);
+el('reviewEditCustomer').onclick=()=>gotoWizard(1,{validate:false});
+el('reviewEditItems').onclick=()=>gotoWizard(2,{validate:false});
+
+el('addWork').onclick=()=>add('Práca');el('addMat').onclick=()=>add('Materiál','','1','ks');el('addTransport').onclick=()=>add('Doprava','Doprava na stavbu',1,'km',0);
+const ANON_FREE_GATE_TEST=true;
+async function compactQuoteLogo(){
+ if(!logoData)return "";
+ const img=new Image();img.src=logoData;await img.decode();
+ const scale=Math.min(1,420/img.width,220/img.height);
+ const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
+ const ctx=canvas.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);
+ const data=canvas.toDataURL("image/jpeg",0.8);
+ if(data.length>80000)throw Error("Logo je príliš zložité. Použite menší obrázok.");
+ return data;
+}
+function anonQuote(){
+ const rows=calc().rows;
+ if(rows.length<1||rows.some(r=>!r.name.trim()||!r.unit.trim()||r.qty<=0||r.price<0))throw Error('Pridajte platné položky do ponuky.');
+ const get=id=>el(id).value.trim();
+ if(!get('customer'))throw Error('Vyplňte meno zákazníka.');
+ if(!get('company')){el('companyDetails').open=true;gotoWizard(1,{validate:false});el('company').focus();throw Error('Doplňte názov vašej firmy v prvom kroku.')}
+ return {company:get('company'),ico:get('ico'),contact:get('contact'),customer:get('customer'),
+ place:get('place'),subject:get('subject'),terms:get('terms'),date:get('date'),until:get('until'),offerNo:get('offerNo'),
+ vat:Number(get('vat')),discount:Number(get('discount')),rows:rows.map(({type,name,qty,unit,price})=>({type,name,qty,unit,price}))};
+}
+function openAnonymousPdfDialog(){
+ if(!ANON_FREE_GATE_TEST){print();return}
+ try{anonQuote()}catch(e){alert(e.message);return}
+ const d=el('anonFreeDialog');el('anonFreeMessage').textContent='';if(!d.open)d.showModal();
+}
+el('anonFreeCancel').onclick=()=>el('anonFreeDialog').close();
+el('anonFreeForm').addEventListener('submit',async e=>{
+ e.preventDefault();const send=el('anonFreeSend'),message=el('anonFreeMessage');send.disabled=true;
+ message.textContent='Odosielam overovací e-mail…';
+ try{
+  const r=await fetch('/.netlify/functions/kalkulacka-free',{
+   method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({action:'request',email:el('anonFreeEmail').value.trim(),quote:{...anonQuote(),logo:await compactQuoteLogo()}})
+  });
+  const data=await r.json();if(!r.ok||!data.ok)throw Error(data.error||'Nepodarilo sa odoslať e-mail.');
+  message.textContent=data.message||'Overovací odkaz bol odoslaný. Otvorte e-mail a stiahnite si PDF.';
+ }catch(err){message.textContent=err.message}
+ finally{send.disabled=false}
+});
+el('vat').onchange=render;el('discount').oninput=render;
+async function proCall(action,plan){
+ const token=testAllowed()?localStorage.getItem('dopytai_company_token'):null;
+ if(!token)throw Error('Najprv sa prihláste do aktívneho firemného účtu.');
+ const r=await fetch('/.netlify/functions/kalkulacka-pro',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action,plan})});
+ const data=await r.json();if(!r.ok)throw Error(data.error||'Predplatné sa nepodarilo overiť.');return data;
+}
+async function proAction(action,plan){
+ const ids=['proMonthly','proYearly','proRefresh','proPortal'];ids.forEach(id=>el(id).disabled=true);
+ try{
+  el('proStatus').textContent='Overujem predplatné…';
+  const d=await proCall(action,plan);
+  if(d.url){const u=new URL(d.url);if(u.protocol!=='https:'||!['checkout.stripe.com','billing.stripe.com'].includes(u.hostname))throw Error('Neplatný odkaz na Stripe.');location.assign(u.href);return}
+  el('proStatus').textContent=d.active?'Predplatné PRO je aktívne.':'Nemáte aktívne predplatné PRO.';
+ }catch(e){el('proStatus').textContent=e.message}
+ finally{ids.forEach(id=>el(id).disabled=false)}
+}
+el('proMonthly').onclick=()=>proAction('checkout','monthly');
+el('proYearly').onclick=()=>proAction('checkout','yearly');
+el('proRefresh').onclick=connectTest;
+el('proPortal').onclick=()=>proAction('portal');
+el('anonPro').onclick=()=>{el('anonFreeDialog').close();el('proPanel').open=true;el('proPanel').scrollIntoView({behavior:'smooth'});};
+if(new URLSearchParams(location.search).has('pro'))el('proPanel').open=true;
+document.querySelectorAll('[data-upgrade]').forEach(b=>b.onclick=showPro);
+el('print').onclick=async()=>{
+ const token=testAllowed()?localStorage.getItem('dopytai_company_token'):null;
+ if(!token){openAnonymousPdfDialog();return}
+ const button=el('print');button.disabled=true;
+ try{
+  const status=await proCall('status');
+  if(!status.active){applyPro(false);openAnonymousPdfDialog();return}
+  const r=await fetch('/.netlify/functions/kalkulacka-free',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action:'pro_pdf',quote:{...anonQuote(),logo:await compactQuoteLogo()}})});
+  const d=await r.json();if(!r.ok||!d.ok)throw Error(d.error||'PDF sa nepodarilo vytvoriť.');
+  const blob=new Blob([Uint8Array.from(atob(d.pdf),c=>c.charCodeAt(0))],{type:'application/pdf'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='DopytAI-cenova-ponuka.pdf';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+ }catch(e){alert(e.message)}
+ finally{button.disabled=false}
+};
+el('clear').onclick=()=>{if(confirm('Naozaj začať novú ponuku?')){location.reload()}};
+render();
+renderQuickPrices();
+offerAvailability();
+gotoWizard(1,{validate:false});
+applyPro(false);connectTest();
+})();
+</script></body></html>

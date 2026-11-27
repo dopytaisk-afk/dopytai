@@ -918,6 +918,7 @@
   }
 }
 
+/* Testovacia kalkulacka v hornej navigacii */
 </style><link rel="stylesheet" href="/elektro-style.css"></head><body>
 
 <!-- HORNE MENU DOPYTAI -->
@@ -964,6 +965,8 @@
                 .scrollIntoView({behavior:'smooth'})">
         Pre firmy
       </button>
+
+      <a class="test-calculator-link" id="navCalculatorTestLink" href="/kalkulacka.html" style="display:none">Kalkulačka</a>
 
       <a href="mailto:info@dopytai24.sk">Kontakt</a>
     </nav>
@@ -1571,15 +1574,25 @@ const API_KEY = ['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.ho
   : 'sb_publishable_VjYLV1q-j056cinrBqIIhQ_R3mLWEQ-';
 
 // Povolit nove remesla iba na overenej ostrej domene s produkcnym Supabase
-// alebo na izolovanom testovacom nahľade PR #9 s TEST Supabase.
+// alebo na povolenych izolovanych testovacich nahladoch PR #9 a PR #11 s TEST Supabase.
 const REMESLA_POVOLENE = (
   (['dopytai24.sk', 'www.dopytai24.sk'].includes(window.location.hostname) &&
    API_URL === 'https://unwoolvttaljwbkgwmuy.supabase.co/rest/v1') ||
-  (window.location.hostname === 'deploy-preview-9--sparkly-choux-e2b050.netlify.app' &&
+  (['deploy-preview-9--sparkly-choux-e2b050.netlify.app',
+    'deploy-preview-11--sparkly-choux-e2b050.netlify.app'].includes(window.location.hostname) &&
    API_URL === 'https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1')
 );
 
 const $=id=>document.getElementById(id);
+
+// Kalkulacka je dostupna iba na izolovanom TEST Preview #11 s TEST databazou.
+if (window.location.hostname === 'deploy-preview-11--sparkly-choux-e2b050.netlify.app'
+    && API_URL === 'https://pwtvquyefpucjufvwnxp.supabase.co/rest/v1') {
+  document.querySelectorAll('.test-calculator-link').forEach(link => {
+    link.style.display = link.id === 'navCalculatorTestLink' ? 'inline-flex' : 'flex';
+  });
+}
+
   
 const okresyPodlaKraja = {
   'Bratislavský kraj': [
